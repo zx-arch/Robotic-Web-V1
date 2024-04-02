@@ -125,7 +125,7 @@ class DashboardController extends Controller
 
                 }
 
-                return redirect()->back()->with('success_submit_chat', 'Chat berhasil terkirim!');
+                return redirect()->back()->with('success_submit_chat', 'Chat berhasil terkirim, kami akan membalas ke email yang tertera!');
 
             }
 

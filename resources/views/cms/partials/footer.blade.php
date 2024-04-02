@@ -50,7 +50,7 @@
 
     <div class="container footer-bottom clearfix">
         <div class="copyright">
-            &copy; Copyright <strong><span>Intan Pariwara</span></strong>. All Rights Reserved
+            &copy; Copyright <strong><span>Artech Indonesia</span></strong>. All Rights Reserved
         </div>
         <div class="credits">
             Template by <a href="https://bootstrapmade.com/">BootstrapMade</a>

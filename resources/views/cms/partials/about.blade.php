@@ -20,9 +20,8 @@
             </div>
             <div class="col-lg-6 pt-4 pt-lg-0">
                 <p>
-                    Bekerja sama dengan Artec Co., Ltd. didirikan di Jepang pada tahun 1960 sebagai 
-                    produsen seni dan kerajinan pendidikan dan sekarang, 
-                    lebih dari 50 tahun kemudian, berdiri sebagai pemimpin di bidang pendidikan. 
+                    Bekerja sama dengan Artec Co., Ltd. yang didirikan di Jepang pada tahun 1960 sebagai 
+                    produsen seni dan kerajinan pendidikan, pada 50 tahun kemudian berdiri sebagai pemimpin di bidang pendidikan. 
                     Memiliki produk berjumlah lebih dari 10.000 produk yang dijual melalui 
                     3.000 distributor di seluruh Jepang.
                 </p>
