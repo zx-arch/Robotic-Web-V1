@@ -7,11 +7,9 @@
             <div class="col-lg-3 col-md-6 footer-contact">
                 <h3>Intan Pariwara</h3>
                 <p>
-                Jl. Ki Hajar Dewantara, Morangan<br>
-                Karanganom, Klaten 57137<br>
-                Jawa Tengah, Indonesia <br><br>
+                Jalan Ki Hajar Dewantoro, Morangan, <br> Karanganom, Klaten, <br> Jawa Tengah, 57438 <br><br>
                 <strong>Phone:</strong> (0272) 322441<br>
-                <strong>Email:</strong> <a href="mailto:admin@intanpariwara.com"></a>admin@intanpariwara.com<br>
+                <strong>Email:</strong> <a href="mailto:artec@intanpariwara.com"></a>artec@intanpariwara.com<br>
                 </p>
             </div>
 

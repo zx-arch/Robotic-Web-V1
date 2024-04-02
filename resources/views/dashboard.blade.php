@@ -26,7 +26,7 @@
                     <h2>Menjelajahi dunia Robot dan Teknologi AI serta menerapkannya pada tantangan dunia nyata</h2>
                     <div class="d-flex justify-content-center justify-content-lg-start">
                         <a href="#about" class="btn-get-started scrollto">Get Started</a>
-                        <a href="https://youtu.be/R6sLqTSXKZc" class="glightbox btn-watch-video"><i class="bi bi-play-circle"></i><span>Watch Video</span></a>
+                        <a href="https://youtu.be/aKfDJ4reSsc" class="glightbox btn-watch-video"><i class="bi bi-play-circle"></i><span>Watch Video</span></a>
                     </div>
                 </div>
 
