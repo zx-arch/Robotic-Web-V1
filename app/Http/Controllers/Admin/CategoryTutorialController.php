@@ -127,10 +127,10 @@ class CategoryTutorialController extends Controller
                         'delete_html_code' => '<a class="btn btn-danger btn-sm btn-delete" href="' . route("category_tutorial.delete", ["id_cat" => encrypt($catTutorial->id)]) . '"><i class="fa-fw fas fa-trash" aria-hidden></i></a>',
                     ]);
 
-                    Activity::create(array_merge(session('myActivity'), [
-                        'user_id' => Auth::user()->id,
-                        'action' => Auth::user()->username . ' Add Categories ' . $request->category_name,
-                    ]));
+                    // Activity::create(array_merge(session('myActivity'), [
+                    //     'user_id' => Auth::user()->id,
+                    //     'action' => Auth::user()->username . ' Add Categories ' . $request->category_name,
+                    // ]));
                 });
 
                 return redirect()->route('category_tutorial.index')->with('success_submit_save', 'Category berhasil ditambah!');
@@ -220,10 +220,10 @@ class CategoryTutorialController extends Controller
 
                 CategoryTutorial::where('id', $id_cat)->update($arryUpdate);
 
-                Activity::create(array_merge(session('myActivity'), [
-                    'user_id' => Auth::user()->id,
-                    'action' => Auth::user()->username . ' Update Categories ' . $findCat->category,
-                ]));
+                // Activity::create(array_merge(session('myActivity'), [
+                //     'user_id' => Auth::user()->id,
+                //     'action' => Auth::user()->username . ' Update Categories ' . $findCat->category,
+                // ]));
 
                 return redirect()->route('category_tutorial.index')->with('success_submit_save', 'Category berhasil diupdate!');
 

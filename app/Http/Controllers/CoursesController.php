@@ -48,8 +48,9 @@ class CoursesController extends Controller
             session(['getLevels' => $getLevels, 'getLanguages' => $getLanguages]);
             return redirect()->back()->with('valid_book', true);
 
-        } elseif ($jenis_materi == 'ai_programming') {
-
+        }
+        if ($jenis_materi == 'ai_programming') {
+            //dd('OK');
             $getLanguages = HierarchyCategoryBook::select('hierarchy_category_book.language_id', DB::raw('MAX(translations.language_name) as language_name'))
                 ->leftJoin('translations', 'translations.id', '=', 'hierarchy_category_book.language_id')
                 ->whereIn('hierarchy_category_book.id', $subCatMateri)

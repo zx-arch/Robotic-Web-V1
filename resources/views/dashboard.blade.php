@@ -22,9 +22,9 @@
         <div class="container">
             <div class="row">
                 <div class="col-lg-6 d-flex flex-column justify-content-center pt-4 pt-lg-0 order-2 order-lg-1" style="min-height: 170px;" data-aos="fade-up" data-aos-delay="200">
-                    <h1>Robot Coding and AI Programming School</h1>
+                    <h1 style="font-size: 40px;">Robot Coding and AI Programming School</h1>
                     <h2>Menjelajahi dunia Robot dan Teknologi AI serta menerapkannya pada tantangan dunia nyata</h2>
-                    <div class="d-flex justify-content-center justify-content-lg-start">
+                    <div class="d-flex justify-content-center justify-content-lg-start mt-2">
                         <a href="#about" class="btn-get-started scrollto">Get Started</a>
                         <a href="https://youtu.be/aKfDJ4reSsc" class="glightbox btn-watch-video"><i class="bi bi-play-circle"></i><span>Watch Video</span></a>
                     </div>

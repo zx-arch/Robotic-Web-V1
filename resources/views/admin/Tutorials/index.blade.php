@@ -16,7 +16,7 @@
                 <div class="card card-default">
 
                     <div class="card-header">
-                        <a href="{{route('tutorials.add')}}" class="btn btn-success"><i class="fa fa-plus mr-1" aria-hidden="true"></i> Add</a>
+                        <a href="{{{route('tutorials.add')}}}" class="btn btn-success"><i class="fa fa-plus mr-1" aria-hidden="true"></i> Add</a>
                         
                         @if (session()->has('success_deleted'))
                             <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-75" role="alert">

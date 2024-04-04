@@ -1,13 +1,14 @@
 <header id="header" class="fixed-top ">
     <div class="container d-flex align-items-center">
 
-        <h1 class="me-auto" style="color: white;"><a href="{{route('home_dashboard')}}">ArtechIndonesia</a></h1>
+        <h1 class="logo me-auto" style="color: white;"><a href="{{route('home_dashboard')}}">Artec Coding Indonesia</a></h1>
 
         <nav id="navbar" class="navbar">
             <ul>
                 <li><a class="nav-link scrollto {{isset($currentActive) && $currentActive == 'dashboard' ? 'active' : ''}}" href="{{isset($currentActive) && $currentActive == 'dashboard' ? '#hero' :  route('home_dashboard')}}">Home</a></li>
                 <li><a class="nav-link scrollto" href="#about">About</a></li>
                 <li><a class="nav-link scrollto {{isset($currentActive) && $currentActive == 'courses_detail_id' ? 'active' : ''}}" href="#courses">Courses</a></li>
+                <li><a class="nav-link scrollto" href="#tutorial">Tutorial</a></li>
                 <li><a class="nav-link scrollto" href="#contact">Contact</a></li>
 
                 @if (Auth::check())

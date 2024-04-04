@@ -3,7 +3,7 @@
 
         <div class="section-title">
             <h2>Contact</h2>
-            <p>Pertanyaan mengenai Artech, penyelenggaraan event dari Intan Pariwara, atau informasi login dsb yang berkaitan dengan robotika, dapat menghubungi kontak di bawah ini atau dapat mengisi formulir yang tertera.</p>
+            <p>Pertanyaan mengenai penyelenggaraan acara, informasi login maupun pertanyaan yang berkaitan dengan Artec dan robotika, dapat menghubungi kontak di bawah ini atau dapat mengisi formulir yang tertera.</p>
         </div>
 
         <div class="row">
@@ -14,7 +14,7 @@
                     <div class="address" onclick="window.location.href=`https://maps.app.goo.gl/mixXKjqBWJdjmdBk7`">
                         <i class="bi bi-geo-alt"></i>
                         <h4>Location:</h4>
-                        <p><a href="https://maps.app.goo.gl/mixXKjqBWJdjmdBk7">PT Intan Pariwara</a></p>
+                        <p><a href="https://maps.app.goo.gl/mixXKjqBWJdjmdBk7" target="_blank" rel="noopener">PT Intan Pariwara</a></p>
                     </div>
 
                     <div class="email">
@@ -26,14 +26,14 @@
                         <i class="bi bi-telephone-fill"></i>
                         <h4>Phone Number:</h4>
                         <p>
-                            <a href="https://web.whatsapp.com/send/?phone=628112893695&text&type=phone_number&app_absent=0">+ 62 811-2893-695</a>
+                            <a href="https://web.whatsapp.com/send/?phone=628112893695&text&type=phone_number&app_absent=0" target="_blank" rel="noopener">+ 62 811-2893-695</a>
                         </p>
                     </div>
                     <div class="phone">
                         <i class="bi bi-phone"></i>
                         <h4>Whatsapp:</h4>
                         <p>
-                            <a href="https://web.whatsapp.com/send/?phone=62857253203117&text&type=phone_number&app_absent=0">+ 62 857-2532-0311</a>
+                            <a href="https://web.whatsapp.com/send/?phone=62857253203117&text&type=phone_number&app_absent=0" target="_blank" rel="noopener">+ 62 857-2532-0311</a>
                         </p>
                     </div>
 

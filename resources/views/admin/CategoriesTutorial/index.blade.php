@@ -24,7 +24,6 @@
                                 <div class="col-md-4">
                                     <input type="text" name="category_name" id="category_name" class="form-control" placeholder="Input Category ..">
                                 </div>
-
                                 <div class="col-md-4">
                                     <select name="status" required class="form-control" id="status">
                                         <option value="" disabled selected>Select Status ..</option>

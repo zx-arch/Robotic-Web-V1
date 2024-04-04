@@ -195,7 +195,6 @@ class DaftarPengguna extends Controller
                 ],
                 'status' => 'required|string',
                 'role' => 'required|string',
-                'password' => ['required', 'string', 'min:8', 'regex:/^(?=.*[a-zA-Z])(?=.*\d).{8,}$/'],
             ]);
 
             $existingUser = User::where('email', $request->email)->orWhere('username', $request->username)->first();

@@ -11,7 +11,7 @@ class DashboardPengurus extends Controller
     private $data;
     public function __construct()
     {
-        $this->data['currentAdminMenu'] = 'dashboard';
+        $this->data['currentPengurusMenu'] = 'dashboard';
         $this->data['currentTitle'] = 'Dashboard';
     }
 

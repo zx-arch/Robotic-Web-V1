@@ -1,5 +1,6 @@
 <?php
 
+use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\CategoryTutorialController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
@@ -42,12 +43,12 @@ Route::post('/login', [LoginController::class, 'login'])->name('submit_form.logi
 Route::middleware(['auth.login', 'admin.auth'])->group(function () {
 
     Route::get('/admin', [DashboardAdmin::class, 'index'])->name('admin.dashboard');
-    Route::get('/admin/tutorials', [TutorialsAdminController::class, 'index'])->name('tutorials.index');
+    Route::get('/admin/tutorial', [TutorialsAdminController::class, 'index'])->name('tutorial.index');
 
-    Route::prefix('/admin/tutorials')->group(function () {
+    Route::prefix('/admin/tutorial')->group(function () {
         Route::get('/add', [TutorialsAdminController::class, 'add'])->name('tutorials.add');
         Route::get('/search', [TutorialsAdminController::class, 'search'])->name('tutorials.search');
-        Route::post('/save-add-tutorial', [TutorialsAdminController::class, 'saveTutorial'])->name('tutorials.saveTutorial');
+        Route::post('/save-add-tutorial', [TutorialsAdminController::class, 'saveTutorial'])->name('tutorials.save_tutorial');
         Route::get('/delete/{video_id}', [TutorialsAdminController::class, 'delete'])->name('tutorials.delete');
         Route::get('/restore/{video_id}', [TutorialsAdminController::class, 'restore'])->name('tutorials.restore');
         Route::get('/update/{video_id}', [TutorialsAdminController::class, 'update'])->name('tutorials.update');
@@ -81,7 +82,18 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
     });
 
     Route::get('/admin/language_translate', [LanguageController::class, 'index'])->name('language.index');
+    Route::view('/admin/view', 'admin.view');
+    Route::post('/admin/view', function (Request $request) {
+        // Proses data yang diterima dari form
+        $data = $request->input('data');
 
+        // Simpan data ke dalam database atau lakukan tindakan lainnya
+        // Misalnya:
+        // YourModel::create(['field' => $data]);
+
+        // Berikan pesan sukses ke view
+        return view('admin.view')->with('message', 'Data berhasil disimpan');
+    })->name('self.post');
     Route::prefix('/admin/language_translate')->group(function () {
         Route::get('/add', [LanguageController::class, 'add'])->name('language.add');
         Route::get('/search', [LanguageController::class, 'search'])->name('language.search');
@@ -101,6 +113,9 @@ Route::middleware(['auth.login', 'pengurus.auth'])->group(function () {
     Route::get('/search', [TutorialsPengurusController::class, 'search'])->name('pengurus.tutorials.search');
     Route::get('/update/{video_id}', [TutorialsPengurusController::class, 'update'])->name('pengurus.tutorials.update');
     Route::put('/save-update-tutorial/video_id/{video_id}', [TutorialsPengurusController::class, 'saveUpdate'])->name('pengurus.tutorials.save_update');
+    Route::post('/pengurus/save-tutorial', [TutorialsPengurusController::class, 'saveTutorial'])->name('pengurus.saveTutorial');
+    Route::post('/pengurus/tutorials', [TutorialsPengurusController::class, 'index']);
+
 });
 
 

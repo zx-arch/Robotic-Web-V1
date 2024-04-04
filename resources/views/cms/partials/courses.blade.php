@@ -3,6 +3,7 @@
 
         <div class="section-title">
             <h2>Courses</h2>
+
                     {{-- @if (session()->has('valid_book'))
                         <img src="{{asset('assets/content_pembelajaran/struktur_pengajaran.png')}}" class="img-fluid mb-4" style="width: 400px;" alt="">
                         <p>
@@ -41,42 +42,43 @@
             <div class="row content">
 
                 <div class="card mt-3">
-                    <form id="courseForm" action="{{ route('courses.submit') }}" method="post">
-                        @csrf
+                    
                         <div class="card-header">
+                            <form id="courseForm" action="{{ route('courses.submit') }}" method="post">
+                                @csrf
 
-                            @if (!session()->has('getChapter'))
-                                <div class="row w-75">
-                                    <div class="col-md-4 mb-2">
-                                        <select id="translationSelect" name="terjemahan" class="form-control" required>
-                                            <option value="" disabled selected>Select Version ..</option>
-                                            @foreach (session('getLanguages') as $language)
-                                                <option value="{{$language->language_id}}">{{$language->language_name}}</option>
-                                            @endforeach
-                                        </select>
+                                    @if (!session()->has('getChapter'))
+                                        <div class="row w-75">
+                                            <div class="col-md-4 mb-2">
+                                                <select id="translationSelected" onchange="this.form.submit()" name="terjemahan" class="form-control" required>
+                                                    <option value="" disabled selected>Select Version ..</option>
+                                                    @foreach (session('getLanguages') as $language)
+                                                        <option value="{{$language->language_id}}">{{$language->language_name}}</option>
+                                                    @endforeach
+                                                </select>
+                                                <input type="hidden" name="jenis_materi" value="{{session('jenis_materi')}}">
 
-                                    </div>
-                                </div>
-                            
-                            @else
-                                {{-- @php
-                                    var_dump(session('getChapter'));
-                                @endphp --}}
-                                <div class="row w-75">
-                                    <div class="col-md-4 mb-2">
-                                        <select id="translationSelect" name="terjemahan" class="form-control" required>
-                                            <option value="" disabled selected>Select Version ..</option>
-                                            @foreach (session('getLanguages') as $language)
-                                                <option value="{{$language->language_id}}">{{$language->language_name}}</option>
-                                            @endforeach
-                                        </select>
+                                            </div>
+                                        </div>
+                                    @else
+                                        {{-- @php
+                                            var_dump(session('getChapter'));
+                                        @endphp --}}
+                                        <div class="row w-75">
+                                            <div class="col-md-4 mb-2">
+                                                <select id="translationSelect" name="terjemahan" class="form-control" required>
+                                                    <option value="" disabled selected>Select Version ..</option>
+                                                    @foreach (session('getLanguages') as $language)
+                                                        <option value="{{$language->language_id}}">{{$language->language_name}}</option>
+                                                    @endforeach
+                                                </select>
+                                            </div>
+                                        </div>
                                         <input type="hidden" name="jenis_materi" value="{{session('jenis_materi')}}">
-                                    </div>
-                                </div>
+                                    @endif
 
-                            @endif
+                            </form>
                         </div>
-                    </form>
 
                     <div id="w0" class="gridview table-responsive" style="overflow-x: auto;">
 
@@ -118,9 +120,13 @@
                                         <td>{{$book->pages}}</td>
                                         <td><a href="{{ asset('book/'.\App\Models\Translations::where('id',$book->language_id)->first()->language_name.'/'.$book->file) }}" download>{{$book->file}}</a></td>
                                         <td>
-                                            @if ($loop->index < count($randomVideos))
-                                                <img src="{{$randomVideos[$loop->index]->thumbnail}}" width="65" height="45" class="img-icon" alt="">
-                                                <span><a href="{{$randomVideos[$loop->index]->url ?? $randomVideos[$loop->index]->path_video }}" class="glightbox ms-2">{{$randomVideos[$loop->index]->video_name}}</a></span>
+                                            @if ($loop->index < $randomVideos->count())
+                                                @if (isset($randomVideos[$loop->index]->thumbnail))
+                                                    <img src="{{$randomVideos[$loop->index]->thumbnail}}" width="65" height="45" class="img-icon" alt="">
+                                                    <span><a href="{{$randomVideos[$loop->index]->url ?? $randomVideos[$loop->index]->path_video }}" class="glightbox ms-2">{{$randomVideos[$loop->index]->video_name}}</a></span>
+                                                @else
+                                                    -
+                                                @endif
                                             @else
                                             <span style="text-align: center;">-</span>
                                                 <!-- Handle the case where the number of videos is less than the number of books -->
@@ -178,4 +184,37 @@
     </div>
 </section>
 
+<script>
+    document.addEventListener("DOMContentLoaded", function() {
 
+        if ("{{ session()->has('valid_book') }}") {
+            // Dapatkan elemen col-xl-4 pertama
+            var firstCol = document.getElementById('courses');
+                    
+            // Arahkan pengguna ke posisi elemen pertama tersebut
+            if (firstCol && "{{session('valid_book')}}") {
+                firstCol.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        if ("session()->has('jenis_materi')") {
+            var firstCol = document.getElementById('courses');
+                    
+            // Arahkan pengguna ke posisi elemen pertama tersebut
+            if (firstCol && "{{session('jenis_materi')}}") {
+                firstCol.scrollIntoView({ behavior: 'smooth' });
+            }
+        }
+
+        document.getElementById('translationSelect').addEventListener('change', function() {
+            if ("{{session()->has('jenis_materi') && session('jenis_materi') == 'ai_programming'}}") {
+                document.getElementById('courseForm').submit();
+            }
+        });
+    });
+</script>
+
+@php
+    session()->forget('valid_book');
+    session()->forget('jenis_materi');
+@endphp

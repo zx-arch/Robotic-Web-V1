@@ -34,13 +34,13 @@
             <ul class="nav nav-pills nav-sidebar flex-column" data-widget="treeview" role="menu"
                 data-accordion="false">
                 <li class="nav-item">
-                    <a href="{{route('pengurus.dashboard')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'dashboard' ? 'active' : ''}}">
-                        <i class="nav-icon fas fa-tachometer-alt {{isset($currentAdminMenu) && $currentAdminMenu == 'dashboard' ? 'text-white' : ''}}"></i>&nbsp;<p>Dashboard</p>
+                    <a href="{{route('pengurus.dashboard')}}" class="nav-link {{isset($currentPengurusMenu) && $currentPengurusMenu == 'dashboard' ? 'active' : ''}}">
+                        <i class="nav-icon fas fa-tachometer-alt {{isset($currentPengurusMenu) && $currentPengurusMenu == 'dashboard' ? 'text-white' : ''}}"></i>&nbsp;<p>Dashboard</p>
                     </a>
                 </li>
                 <li class="nav-item">
-                    <a href="{{route('pengurus.tutorials.index')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'tutorials' ? 'active' : ''}}">
-                        <i class="nav-icon fa fa-play {{isset($currentAdminMenu) && $currentAdminMenu == 'tutorials' ? 'text-white' : ''}}"></i>&nbsp;<p>Tutorials</p>
+                    <a href="{{route('pengurus.tutorials.index')}}" class="nav-link {{isset($currentPengurusMenu) && $currentPengurusMenu == 'tutorials' ? 'active' : ''}}">
+                        <i class="nav-icon fa fa-play {{isset($currentPengurusMenu) && $currentPengurusMenu == 'tutorials' ? 'text-white' : ''}}"></i>&nbsp;<p>Tutorials</p>
                     </a>
                 </li>
             </ul>

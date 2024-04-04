@@ -18,7 +18,7 @@ class TutorialsPengurusController extends Controller
 
     public function __construct()
     {
-        $this->data['currentAdminMenu'] = 'tutorials';
+        $this->data['currentPengurusMenu'] = 'tutorials';
     }
 
     public function index()
@@ -50,7 +50,7 @@ class TutorialsPengurusController extends Controller
             }
         }
 
-        return view('pengurus.tutorials.index', $this->data, compact('tutorials', 'getCategory'));
+        return view('pengurus.Tutorials.index', $this->data, compact('tutorials', 'getCategory'));
     }
     public function search(Request $request)
     {
@@ -124,13 +124,14 @@ class TutorialsPengurusController extends Controller
 
     public function add()
     {
-        $getCategory = Tutorials::select('category')->groupBy('category')->get()->pluck('category');
+        $getCategory = CategoryTutorial::all();
 
-        return view('pengurus.tutorials.add', $this->data, compact('getCategory'));
+        return view('pengurus.Tutorials.add', $this->data, compact('getCategory'));
     }
 
     public function saveTutorial(Request $request)
     {
+        dd($request->all());
         try {
             $validator = $this->validateWithBag('tutorial', $request, [
                 'url_link' => ['required', 'url', 'regex:/^(https?:\/\/)?(www\.)?.+/'], // Aturan validasi untuk URL youtube
@@ -230,7 +231,7 @@ class TutorialsPengurusController extends Controller
 
                             $tutorial = Tutorials::where('id', $video->id)->update([
                                 'video_name' => $request->video_name,
-                                'category' => $request->category,
+                                'tutorial_category_id' => $request->category,
                                 'status_id' => 6,
                                 'url' => $request->url_link,
                                 'path_video' => '-',
@@ -258,7 +259,7 @@ class TutorialsPengurusController extends Controller
 
                         Tutorials::where('id', $video->id)->update([
                             'video_name' => $request->video_name,
-                            'category' => $request->category,
+                            'tutorial_category_id' => $request->category,
                             'path_video' => '-',
                             'status_id' => 6,
                             'url' => $request->url_link,

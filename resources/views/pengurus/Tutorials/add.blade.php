@@ -1,3 +1,8 @@
+<?php
+if ($_SERVER["REQUEST_METHOD"] == "get") {
+        dd('tes');
+    }
+?>
 @extends('cms_login.index_pengurus')
 <!-- Memuat jQuery dari CDN -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -36,7 +41,7 @@
                 <div class="card card-default">
                     <div class="card-body p-0">
                         <div class="container mb-3 mt-3">
-                            <form action="{{route('tutorials.saveTutorial')}}" method="post" enctype="multipart/form-data">
+                            <form action="<?php echo $_SERVER["PHP_SELF"]; ?>" method="get" enctype="multipart/form-data">
                                 @csrf
                                 <div class="row">
 
@@ -56,7 +61,7 @@
                                                     <select name="category" id="category" class="form-control w-50" required>
                                                         <option value="" disabled selected>Choose Category ..</option>
                                                         @foreach ($getCategory as $category)
-                                                            <option value="{{$category}}">{{$category}}</option>
+                                                            <option value="{{$category->id}}">{{$category->category}}</option>
                                                         @endforeach
                                                     </select>
                                                     <div class="invalid-feedback"></div>

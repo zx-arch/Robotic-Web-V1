@@ -2,10 +2,13 @@
 
 namespace App\Http\Controllers\Admin;
 
+session_start();
+
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Tutorials;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
@@ -20,6 +23,10 @@ class TutorialsAdminController extends Controller
     {
         $this->data['currentAdminMenu'] = 'tutorials';
         $this->data['currentAdminSubMenu'] = 'preview';
+        $_SESSION['currentMenu'] = [
+            'currentAdminMenu' => 'tutorials',
+            'currentAdminSubMenu' => 'preview',
+        ];
     }
 
     public function index()
@@ -27,10 +34,17 @@ class TutorialsAdminController extends Controller
         $tutorials = Tutorials::select('tutorials.*', 'category_tutorial.category as category_name')->leftJoin('category_tutorial', 'category_tutorial.id', '=', 'tutorials.tutorial_category_id')
             ->with('masterStatus')->withTrashed()->latest();
         $deletedTutorialsCount = Tutorials::onlyTrashed()->count();
+        //dd($tutorials->where('tutorials.id', 3)->first());
         //dd($deletedTutorialsCount);
+        // $tutorials->where('tutorials.id', 3)->update([
+        //     'thumbnail' => url('/assets/youtube/software requirement/Instalasi USB Driver For Windows 2.png'),
+        // ]);
+
         $getCategory = CategoryTutorial::all();
         //dd($getCategory);
         $totalTutorials = $tutorials->count();
+        // dd($tutorials->get());
+
         // Menentukan jumlah item per halaman
         $itemsPerPage = 10;
         //print_r();
@@ -44,7 +58,6 @@ class TutorialsAdminController extends Controller
 
         if ($tutorials->count() > 15) {
             $tutorials = $tutorials->paginate($itemsPerPage);
-            //dd($tutorials);
             if ($tutorials->currentPage() > $tutorials->lastPage()) {
                 return redirect($tutorials->url($tutorials->lastPage()));
             }
@@ -117,7 +130,7 @@ class TutorialsAdminController extends Controller
             }
         }
 
-        return view('Admin.Tutorials.index', $this->data, compact('tutorials', 'searchData', 'itemsPerPage', 'getCategory'));
+        return view('admin.Tutorials.index', $this->data, compact('tutorials', 'searchData', 'itemsPerPage', 'getCategory'));
 
     }
     public function add()
@@ -129,64 +142,76 @@ class TutorialsAdminController extends Controller
 
     public function saveTutorial(Request $request)
     {
+        //dd($request->all());
         try {
-            $validator = $this->validateWithBag('tutorial', $request, [
+            $validator = Validator::make($request->all(), [
                 'url_link' => ['required', 'url', 'regex:/^(https?:\/\/)?(www\.)?.+/'], // Aturan validasi untuk URL youtube
-            ]);
-            //dd($request->all());
-            $imageData = $request->input('image');
-
-            // Ambil ekstensi gambar dari data URI
-            $imageExtension = explode('/', mime_content_type($imageData))[1];
-
-            // Decode data base64 menjadi data biner
-            $imageBinary = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
-
-            // Bangun nama file yang unik
-            $uniqueImageName = 'image_thumb-' . $request->video_name . '_' . time() . '.' . $imageExtension;
-
-            $tutorial = Tutorials::create([
-                'video_name' => $request->video_name,
-                'tutorial_category_id' => $request->category,
-                'thumbnail' => url('assets/youtube/' . $request->category . '/' . $uniqueImageName),
-                'url' => $request->url_link,
-                'path_video' => '-',
-                'status_id' => ($request->status === 'enable') ? 4 : (($request->status === 'disable') ? 5 : 6),
+                'image' => ['required', 'image', 'mimes:jpeg,png', 'max:500'], // Aturan validasi untuk image
             ]);
 
-
-            // Jika data tutorial berhasil disimpan, lanjutkan dengan menyimpan file lokal
-            if ($tutorial) {
-                $directory = public_path('assets/youtube/' . $request->category);
-
-                // Membuat direktori jika tidak ada
-                if (!file_exists($directory)) {
-                    mkdir($directory, 0777, true);
-                }
-
-                // Simpan data image ke dalam file di direktori yang diinginkan
-                file_put_contents(public_path('assets/youtube/' . $request->category . '/' . $uniqueImageName), $imageBinary);
-
-                CategoryTutorial::where('id', $request->category)->update([
-                    'valid_deleted' => false,
-                    'delete_html_code' => '',
-                ]);
-
-                Activity::create(array_merge(session('myActivity'), [
-                    'user_id' => Auth::user()->id,
-                    'action' => Auth::user()->username . ' Created Tutorial ID ' . $tutorial->id,
-                ]));
-
-                return redirect()->route('tutorials.index')->with('success_submit_save', 'Data tutorial berhasil ditambah!');
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
 
             } else {
-                // Jika data tutorial tidak berhasil disimpan, tampilkan pesan kesalahan atau lakukan penanganan kesalahan lainnya
-                return redirect()->back()->with('error_submit_save', 'Gagal menyimpan data tutorial.');
+
+                $file = $request->file('image');
+
+                // Dapatkan ekstensi file
+                $imageExtension = $file->getClientOriginalExtension();
+
+                // Buat nama unik untuk file gambar
+                $uniqueImageName = 'image_thumb-' . $request->video_name . '_' . time() . '.' . $imageExtension;
+
+                $tutorial = Tutorials::create([
+                    'video_name' => $request->video_name,
+                    'tutorial_category_id' => $request->category,
+                    'thumbnail' => url('assets/youtube/' . CategoryTutorial::where('id', $request->category)->first()->category . '/' . $uniqueImageName),
+                    'url' => $request->url_link,
+                    'path_video' => '-',
+                    'status_id' => ($request->status === 'enable') ? 4 : (($request->status === 'disable') ? 5 : 6),
+                ]);
+
+                // Jika data tutorial berhasil disimpan, lanjutkan dengan menyimpan file lokal
+                if ($tutorial) {
+                    $directory = public_path('assets/youtube/' . CategoryTutorial::where('id', $request->category)->first()->category);
+
+                    // Membuat direktori jika tidak ada
+                    if (!file_exists($directory)) {
+                        mkdir($directory, 0777, true);
+                    }
+
+                    // Simpan data image ke dalam file di direktori yang diinginkan
+                    $request->file('image')->move(public_path('assets/youtube/' . CategoryTutorial::where('id', $request->category)->first()->category), $uniqueImageName);
+
+                    CategoryTutorial::where('id', $request->category)->update([
+                        'valid_deleted' => false,
+                        'delete_html_code' => '',
+                    ]);
+
+                    // Activity::create(array_merge(session('myActivity'), [
+                    //     'user_id' => Auth::user()->id,
+                    //     'action' => Auth::user()->username . ' Created Tutorial ID ' . $tutorial->id,
+                    // ]));
+
+                    return redirect()->route('tutorials.index')->with('success_submit_save', 'Data tutorial berhasil ditambah!');
+
+                } else {
+                    // Jika data tutorial tidak berhasil disimpan, tampilkan pesan kesalahan atau lakukan penanganan kesalahan lainnya
+                    return redirect()->back()->with('error_submit_save', 'Gagal menyimpan data tutorial.');
+                }
             }
 
         } catch (ValidationException $e) {
-            // Tangkap kesalahan validasi dan tampilkan pesan kesalahan kustom
-            $errorMessage = 'URL yang anda masukkan tidak valid.';
+
+            $errorMessage = '';
+
+            if ($e->validator->errors()->has('url_link')) {
+                $errorMessage = 'URL yang Anda masukkan tidak valid.';
+
+            } elseif ($e->validator->errors()->has('image')) {
+                $errorMessage = 'File gambar tidak valid. Pastikan tipe file adalah JPEG atau PNG dan ukuran file tidak lebih dari 500 KB.';
+            }
+
             return redirect()->back()->with('error_submit_save', $errorMessage);
 
         } catch (\Throwable $e) {
@@ -243,7 +268,7 @@ class TutorialsAdminController extends Controller
             $tutorial = Tutorials::where('id', decrypt($video_id))->first();
             $getCategory = CategoryTutorial::all();
 
-            return view('Admin.Tutorials.update', $this->data, compact('tutorial', 'getCategory'));
+            return view('admin.Tutorials.update', $this->data, compact('tutorial', 'getCategory'));
 
         } catch (\Throwable $e) {
             return redirect()->route('tutorials.index')->with('error_view', 'Halaman tidak tersedia, pastikan user terdaftar dan belum dihapus!' . $e->getMessage());
@@ -326,17 +351,16 @@ class TutorialsAdminController extends Controller
 
                         Tutorials::where('id', $video->id)->update([
                             'video_name' => $request->video_name,
-                            'category' => CategoryTutorial::where('id', $request->category)->first()->category,
                             'tutorial_category_id' => $request->category,
                             'path_video' => '-',
                             'status_id' => ($request->status === 'enable') ? 4 : (($request->status === 'disable') ? 5 : 6),
                             'url' => $request->url_link,
                         ]);
 
-                        Activity::create(array_merge(session('myActivity'), [
-                            'user_id' => Auth::user()->id,
-                            'action' => Auth::user()->username . ' Update Tutorial Video ID ' . $video->id,
-                        ]));
+                        // Activity::create(array_merge(session('myActivity'), [
+                        //     'user_id' => Auth::user()->id,
+                        //     'action' => Auth::user()->username . ' Update Tutorial Video ID ' . $video->id,
+                        // ]));
                     });
 
                     return redirect()->route('tutorials.index')->with('success_submit_save', 'Data berhasil diupdate!');

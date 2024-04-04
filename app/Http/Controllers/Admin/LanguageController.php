@@ -100,10 +100,10 @@ class LanguageController extends Controller
                     'language_name' => $request->language_name,
                 ]);
 
-                Activity::create(array_merge(session('myActivity'), [
-                    'user_id' => Auth::user()->id,
-                    'action' => 'Admin Created a New Translation Language',
-                ]));
+                // Activity::create(array_merge(session('myActivity'), [
+                //     'user_id' => Auth::user()->id,
+                //     'action' => 'Admin Created a New Translation Language',
+                // ]));
 
                 return redirect()->route('language.index')->with('success_add_language', 'Terjemahan berhasil ditambah!');
 

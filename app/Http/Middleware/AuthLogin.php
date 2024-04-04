@@ -2,6 +2,8 @@
 
 namespace App\Http\Middleware;
 
+session_start();
+
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -18,6 +20,7 @@ class AuthLogin
     {
         // Cek apakah pengguna terautentikasi
         if (!Auth::check()) {
+            session_unset();
             return redirect()->route('form.login')->withErrors(['message' => 'Silakan login terlebih dahulu']);
         }
 

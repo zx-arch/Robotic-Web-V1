@@ -5,7 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use App\Models\ChatDashboard;
 use Illuminate\Support\Facades\Session;
-use GeoIp2\Database\Reader;
+use Illuminate\Support\Facades\Hash;
 use App\Models\Activity;
 use App\Models\Tutorials;
 
@@ -19,47 +19,11 @@ class DashboardController extends Controller
     }
     public function index(Request $request)
     {
-        $databasePath = public_path('GeoLite2-City.mmdb');
-        $reader = new Reader($databasePath);
-
-        try {
-            //dd($getToken);
-            $ch = curl_init('https://api.ipify.org');
-            curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            $publicIpAddress = curl_exec($ch);
-            curl_close($ch);
-            $userAgent = $request->header('User-Agent');
-
-            // Mendapatkan informasi lokasi dari IP publik
-            $record = $reader->city($publicIpAddress);
-
-            // Dapatkan informasi yang Anda butuhkan, seperti nama kota, negara, koordinat, dsb.
-            $cityName = $record->city->name;
-            $countryName = $record->country->name;
-            $latitude = $record->location->latitude;
-            $longitude = $record->location->longitude;
-
-            //dd($record, $latitude, $longitude, $userAgent);
-
-            session([
-                'myActivity' => [
-                    'ip_address' => $publicIpAddress,
-                    'user_agent' => $userAgent,
-                    'latitude' => $latitude,
-                    'longitude' => $longitude,
-                    'country' => $countryName,
-                    'city' => $cityName,
-                ]
-            ]);
-
-            return view('dashboard', $this->data);
-
-        } catch (\Throwable $e) {
-            //dd($e->getMessage());
-            return view('dashboard', $this->data);
-        }
-
+        //dd($e->getMessage());
+        $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
+        return view('dashboard', $this->data, compact('tutorials'));
     }
+
     public function submitChat(Request $request)
     {
         //dd(Session::get('csrf_token'));
