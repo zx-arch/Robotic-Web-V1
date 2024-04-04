@@ -9,21 +9,23 @@
 <div class="container-fluid">
     <style>
         
-        .dropzone {
+        #drop-area {
             border: 2px dashed #ccc;
+            border-radius: 10px;
             padding: 20px;
-            text-align: center;
-            margin-top: auto;
-            width: 450px;
-            height: 300px;
+            margin-top: 20px;
+            cursor: pointer;
         }
 
-        .dropzone img {
-            max-width: 70%;
-            max-height: 70%;
+        #drop-area p {
+            margin: 0;
+            font-size: 16px;
+            line-height: 20px;
         }
 
-        .file-info {
+        #preview {
+            max-width: 100%;
+            max-height: 200px;
             margin-top: 10px;
         }
 
@@ -88,12 +90,25 @@
                                     </div>
                                     
                                     <div class="col-lg-4 ml-3">
-                                        <div class="dropzone mb-3" id="dropzone">
-                                            <p>Drag an image here <span class="text-danger">*</span></p>
+                                        <div class="form-group highlight-addon has-success">
+                                            <label for="youtube">Thumbnail <span class="text-danger">*</span></label>
+                                            <div class="custom-file">
+                                                <input type="file" name="image" required id="url_link" class="custom-file-input" accept="image/*">
+                                                <label class="custom-file-label" for="url_link">Pilih Gambar</label>
+                                            </div>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
+
+                                        <div class="card" id="drop-area">
+                                            <div class="card-body">
+                                                <p id="drop-text">Drag & drop gambar di sini</p>
+                                                <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
+                                                <p id="filename" class="d-none"></p>
+                                            </div>
                                         </div>
                                     </div>
                                     
-                                    <input type="hidden" name="image" id="imageInput">
+                                    
 
                                 </div>
 
@@ -119,56 +134,154 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        const dropzone = document.getElementById('dropzone');
+                // Get the input element
+        const inputElement = document.querySelector('.custom-file-input');
+        const labelElement = document.querySelector('.custom-file-label');
+        const dropArea = document.getElementById('drop-area');
+        const dropText = document.getElementById('drop-text');
+        const preview = document.getElementById('preview');
+        const thumbnail = document.getElementById('thumbnail');
+        const filename = document.getElementById('filename');
 
-        dropzone.addEventListener('dragover', function (event) {
+        // Add event listeners for input element
+        inputElement.addEventListener('change', handleFileSelect);
+
+        // Add event listeners for drop area
+        ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, preventDefaults, false);
+        });
+        ['dragenter', 'dragover'].forEach(eventName => {
+            dropArea.addEventListener(eventName, highlight, false);
+        });
+        ['dragleave', 'drop'].forEach(eventName => {
+            dropArea.addEventListener(eventName, unhighlight, false);
+        });
+        dropArea.addEventListener('drop', handleDrop, false);
+
+        // Prevent default behavior
+        function preventDefaults(event) {
             event.preventDefault();
-            this.classList.add('dragover');
-        });
-
-        dropzone.addEventListener('dragleave', function () {
-            this.classList.remove('dragover');
-        });
-
-        dropzone.addEventListener('drop', function (event) {
-            event.preventDefault();
-            this.classList.remove('dragover');
-            const file = event.dataTransfer.files[0];
-                
-            if (file && file.type.startsWith('image/')) {
-                const reader = new FileReader();
-                    
-                reader.onload = function () {
-                    const img = new Image();
-                    img.src = reader.result;
-                    dropzone.innerHTML = '';
-                    dropzone.appendChild(img);
-
-                    // Menampilkan nama dan ukuran file
-                    const fileInfo = document.createElement('p');
-                    fileInfo.textContent = `Name: ${file.name}, Size: ${formatBytes(file.size)}`;
-                    fileInfo.classList.add('file-info'); // Tambahkan kelas untuk styling
-                    dropzone.appendChild(fileInfo);
-                    document.getElementById('thumbnail').src = reader.result;
-                    document.getElementById('imageInput').value = reader.result;
-
-                };
-
-                reader.readAsDataURL(file);
-            } else {
-                alert('Please drop an image file.');
-            }
-        });
-
-        // Fungsi untuk mengubah ukuran file menjadi format yang lebih mudah dibaca
-        function formatBytes(bytes, decimals = 2) {
-            if (bytes === 0) return '0 Bytes';
-            const k = 1024;
-            const dm = decimals < 0 ? 0 : decimals;
-            const sizes = ['Bytes', 'KB', 'MB', 'GB', 'TB', 'PB', 'EB', 'ZB', 'YB'];
-            const i = Math.floor(Math.log(bytes) / Math.log(k));
-            return parseFloat((bytes / Math.pow(k, i)).toFixed(dm)) + ' ' + sizes[i];
+            event.stopPropagation();
         }
+
+        // Highlight drop area
+        function highlight() {
+            dropArea.classList.add('highlight');
+        }
+
+        // Unhighlight drop area
+        function unhighlight() {
+            dropArea.classList.remove('highlight');
+        }
+
+        // Handle file select
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                const file = files[0];
+                const fileSize = file.size; // Dapatkan ukuran file dalam byte
+                const fileType = file.type; // Dapatkan tipe file
+                if (fileType === 'image/png' || fileType === 'image/jpeg') { // Periksa tipe file
+                    if (fileSize < 500 * 1024) { // Periksa ukuran file jika tipe file valid
+                        inputElement.files = files;
+                        labelElement.innerText = file.name;
+                        preview.src = URL.createObjectURL(file);
+                        preview.classList.remove('d-none');
+                        filename.innerText = file.name;
+                        filename.classList.remove('d-none');
+                        dropText.classList.add('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+                    } else {
+                        // Tampilkan pesan kesalahan jika ukuran file melebihi batas
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ukuran file melebihi batas (500 KB)',
+                        });
+                        // Hapus file yang di-drop
+                        inputElement.value = '';
+                        // Reset label
+                        labelElement.innerText = 'Pilih Gambar';
+                        // Sembunyikan preview dan nama file
+                        preview.src = '#';
+                        preview.classList.add('d-none');
+                        filename.innerText = '';
+                        filename.classList.add('d-none');
+                    }
+                } else {
+                    // Tampilkan pesan kesalahan jika tipe file tidak valid
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Tipe file harus PNG atau JPEG',
+                    });
+                    // Hapus file yang di-drop
+                    inputElement.value = '';
+                    // Reset label
+                    labelElement.innerText = 'Pilih Gambar';
+                    // Sembunyikan preview dan nama file
+                    preview.src = '#';
+                    preview.classList.add('d-none');
+                    filename.innerText = '';
+                    filename.classList.add('d-none');
+                }
+            }
+        }
+
+        // Handle drop event
+        function handleDrop(event) {
+            const dt = event.dataTransfer;
+            const files = dt.files;
+            if (files.length > 0) {
+                const file = files[0];
+                const fileSize = file.size; // Dapatkan ukuran file dalam byte
+                const fileType = file.type; // Dapatkan tipe file
+                if (fileType === 'image/png' || fileType === 'image/jpeg') { // Periksa tipe file
+                    if (fileSize < 500 * 1024) { // Periksa ukuran file jika tipe file valid
+                        inputElement.files = files;
+                        labelElement.innerText = file.name;
+                        preview.src = URL.createObjectURL(file);
+                        preview.classList.remove('d-none');
+                        thumbnail.src = URL.createObjectURL(file);
+                        filename.innerText = file.name;
+                        filename.classList.remove('d-none');
+                        dropText.classList.add('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+                    } else {
+                        // Tampilkan pesan kesalahan jika ukuran file melebihi batas
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ukuran file melebihi batas (500 KB)',
+                        });
+                        // Hapus file yang di-drop
+                        inputElement.value = '';
+                        // Reset label
+                        labelElement.innerText = 'Pilih Gambar';
+                        // Sembunyikan preview dan nama file
+                        preview.src = '#';
+                        preview.classList.add('d-none');
+                        filename.innerText = '';
+                        filename.classList.add('d-none');
+                    }
+                } else {
+                    // Tampilkan pesan kesalahan jika tipe file tidak valid
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Tipe file harus PNG atau JPEG',
+                    });
+                    // Hapus file yang di-drop
+                    inputElement.value = '';
+                    // Reset label
+                    labelElement.innerText = 'Pilih Gambar';
+                    // Sembunyikan preview dan nama file
+                    preview.src = '#';
+                    preview.classList.add('d-none');
+                    filename.innerText = '';
+                    filename.classList.add('d-none');
+                }
+            }
+        }
+
             
     });
 </script>

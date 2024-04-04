@@ -113,25 +113,23 @@
                                     
                                     <div class="col-lg-4 ml-3">
                                         <div class="form-group highlight-addon has-success">
-    <label for="youtube">Thumbnail <span class="text-danger">*</span></label>
-    <div class="custom-file">
-        <input type="file" name="image" required id="url_link" class="custom-file-input" accept="image/*">
-        <label class="custom-file-label" for="url_link">Pilih Gambar</label>
-    </div>
-    <div class="invalid-feedback"></div>
-</div>
+                                            <label for="youtube">Thumbnail <span class="text-danger">*</span></label>
+                                            <div class="custom-file">
+                                                <input type="file" name="image" required id="url_link" class="custom-file-input" accept="image/*">
+                                                <label class="custom-file-label" for="url_link">Pilih Gambar</label>
+                                            </div>
+                                            <div class="invalid-feedback"></div>
+                                        </div>
 
-<div class="card" id="drop-area">
-    <div class="card-body">
-        <p id="drop-text">Drag & drop gambar di sini</p>
-        <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
-        <p id="filename" class="d-none"></p>
-    </div>
-</div>
-
+                                        <div class="card" id="drop-area">
+                                            <div class="card-body">
+                                                <p id="drop-text">Drag & drop gambar di sini</p>
+                                                <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
+                                                <p id="filename" class="d-none"></p>
+                                            </div>
+                                        </div>
                                     </div>
                                     
-
                                 </div>
 
                                 <button type="submit" class="btn btn-primary">Submit</button>

@@ -50,7 +50,7 @@
                     </div>
                     <ul class="nav nav-treeview submenu">
                         <li class="nav-item">
-                            <a href="{{route('tutorial.index')}}" class="nav-link {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'preview' ? 'active' : ''}}">
+                            <a href="{{route('tutorials.index')}}" class="nav-link {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'preview' ? 'active' : ''}}">
                                 <i class="nav-icon far fa-circle {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'preview' ? 'text-dark' : ''}}"></i>&nbsp;<p>Preview</p>
                             </a>
                         </li>

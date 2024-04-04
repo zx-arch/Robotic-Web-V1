@@ -315,15 +315,12 @@ class TutorialsAdminController extends Controller
                     DB::transaction(function () use ($request, $video) {
 
                         if ($request->image != null) {
-                            $imageData = $request->input('image');
+                            $file = $request->file('image');
 
-                            // Ambil ekstensi gambar dari data URI
-                            $imageExtension = explode('/', mime_content_type($imageData))[1];
+                            // Dapatkan ekstensi file
+                            $imageExtension = $file->getClientOriginalExtension();
 
-                            // Decode data base64 menjadi data biner
-                            $imageBinary = base64_decode(preg_replace('#^data:image/\w+;base64,#i', '', $imageData));
-
-                            // Bangun nama file yang unik
+                            // Buat nama unik untuk file gambar
                             $uniqueImageName = 'image_thumb-' . $request->video_name . '_' . time() . '.' . $imageExtension;
 
                             $tutorial = Tutorials::where('id', $video->id)->update([
@@ -332,12 +329,12 @@ class TutorialsAdminController extends Controller
                                 'status_id' => ($request->status === 'enable') ? 4 : (($request->status === 'disable') ? 5 : 6),
                                 'url' => $request->url_link,
                                 'path_video' => '-',
-                                'thumbnail' => url('assets/youtube/' . $request->category . '/' . $uniqueImageName),
+                                'thumbnail' => url('assets/youtube/' . CategoryTutorial::where('id', $request->category)->first()->category . '/' . $uniqueImageName),
                             ]);
 
                             // Jika data tutorial berhasil disimpan, lanjutkan dengan menyimpan file lokal
                             if ($tutorial) {
-                                $directory = public_path('assets/youtube/' . $request->category);
+                                $directory = public_path('assets/youtube/' . CategoryTutorial::where('id', $request->category)->first()->category);
 
                                 // Membuat direktori jika tidak ada
                                 if (!file_exists($directory)) {
@@ -345,7 +342,7 @@ class TutorialsAdminController extends Controller
                                 }
                             }
                             // Simpan data image ke dalam file di direktori yang diinginkan
-                            file_put_contents(public_path('assets/youtube/' . $request->category . '/' . $uniqueImageName), $imageBinary);
+                            $request->file('image')->move(public_path('assets/youtube/' . CategoryTutorial::where('id', $request->category)->first()->category), $uniqueImageName);
 
                         }
 

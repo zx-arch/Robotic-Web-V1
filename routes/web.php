@@ -43,9 +43,9 @@ Route::post('/login', [LoginController::class, 'login'])->name('submit_form.logi
 Route::middleware(['auth.login', 'admin.auth'])->group(function () {
 
     Route::get('/admin', [DashboardAdmin::class, 'index'])->name('admin.dashboard');
-    Route::get('/admin/tutorial', [TutorialsAdminController::class, 'index'])->name('tutorial.index');
+    Route::get('/admin/tutorials', [TutorialsAdminController::class, 'index'])->name('tutorials.index');
 
-    Route::prefix('/admin/tutorial')->group(function () {
+    Route::prefix('/admin/tutorials')->group(function () {
         Route::get('/add', [TutorialsAdminController::class, 'add'])->name('tutorials.add');
         Route::get('/search', [TutorialsAdminController::class, 'search'])->name('tutorials.search');
         Route::post('/save-add-tutorial', [TutorialsAdminController::class, 'saveTutorial'])->name('tutorials.save_tutorial');
