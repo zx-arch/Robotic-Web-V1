@@ -10,6 +10,7 @@ use App\Http\Controllers\MaterialsController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\Admin\DashboardAdmin;
 use App\Http\Controllers\Admin\TutorialsAdminController;
+use App\Http\Controllers\Admin\CoursesAdminController;
 use App\Http\Controllers\Admin\DaftarPengguna;
 use App\Http\Controllers\Admin\AktivitasPenggunaController;
 use App\Http\Controllers\user\Dashboarduser;
@@ -43,6 +44,12 @@ Route::post('/login', [LoginController::class, 'login'])->name('submit_form.logi
 Route::middleware(['auth.login', 'admin.auth'])->group(function () {
 
     Route::get('/admin', [DashboardAdmin::class, 'index'])->name('admin.dashboard');
+    Route::get('/admin/courses', [CoursesAdminController::class, 'index'])->name('admin.courses.index');
+
+    Route::prefix('/admin/courses')->group(function () {
+        Route::get('/search', [CoursesAdminController::class, 'search'])->name('admin.courses.search');
+    });
+
     Route::get('/admin/tutorials', [TutorialsAdminController::class, 'index'])->name('tutorials.index');
 
     Route::prefix('/admin/tutorials')->group(function () {

@@ -18,27 +18,6 @@ class HierarchyCategoryBook extends Model
     public static function boot()
     {
         parent::boot();
-
-        // // Aturan untuk operasi select
-        // static::retrieved(function ($hierarchyCategoryBook) {
-        //     // Periksa apakah id bahasa ada
-        //     if (is_null($hierarchyCategoryBook->language_id)) {
-        //         throw new \Exception("Language ID is required for hierarchy category book.");
-        //     }
-        // });
-
-        // // Aturan untuk operasi insert
-        // static::creating(function ($hierarchyCategoryBook) {
-        //     // Periksa apakah id bahasa ada dan valid
-        //     if (is_null($hierarchyCategoryBook->language_id)) {
-        //         throw new \Exception("Language ID is required for hierarchy category book.");
-        //     }
-        //     // Periksa apakah id bahasa valid dengan memeriksa apakah ada di HierarchyCategoryBook
-        //     $language = HierarchyCategoryBook::find($hierarchyCategoryBook->language_id);
-        //     if (!$language) {
-        //         throw new \Exception("Invalid language ID provided for hierarchy category book.");
-        //     }
-        // });
     }
 
     public function translations()
@@ -49,5 +28,9 @@ class HierarchyCategoryBook extends Model
     public function bookTranslations()
     {
         return $this->hasMany(BookTranslation::class, 'hierarchy_id');
+    }
+    public function parentCategory()
+    {
+        return $this->belongsTo(HierarchyCategoryBook::class, 'parent_id');
     }
 }

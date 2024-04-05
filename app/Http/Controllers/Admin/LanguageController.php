@@ -52,7 +52,7 @@ class LanguageController extends Controller
         $languageCode = $searchData['language_code'] ?? null;
         $languageName = $searchData['language_name'] ?? null;
 
-        // Misalnya, Anda ingin mencari data bahasa berdasarkan Code dan/atau nama
+        // Misalnya ingin mencari data bahasa berdasarkan Code dan/atau nama
         $translation = Translations::query();
 
         if ($languageCode !== null) {

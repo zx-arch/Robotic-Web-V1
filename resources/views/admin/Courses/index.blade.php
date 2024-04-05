@@ -1,17 +1,11 @@
 @extends('cms_login.index_admin')
-<!-- Memuat jQuery dari CDN -->
-<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-
-<!-- Memuat jQuery UI dari CDN -->
-<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
-
 @section('content')
 <div class="container-fluid">
-
+        
     <div class="content">
         <div class="row">
             <div class="col-lg-12">
-                <h5 class="p-2">Tutorials</h5>
+                <h5 class="p-2">Courses</h5>
 
                 <div class="card card-default">
 
@@ -70,173 +64,165 @@
 
                     <div class="card-body p-0" style="overflow-x: auto;">
                         <div id="w0" class="gridview table-responsive">
-                            <table class="table text-nowrap table-striped table-bordered mb-0" style="min-width: 110%;">
+                            <table class="table text-nowrap table-striped table-bordered mb-0" style="min-width: 120%;">
                                 <thead>
                                     <tr>
                                         <td>#</td>
-                                        <td>Video Name</td>
-                                        <td>Link</td>
-                                        <td>Category</td>
+                                        <td>Book Title</td>
+                                        <td>Terjemahan</td>
                                         <td>Status</td>
+                                        <td>Parent</td>
+                                        <td>File</td>
                                         <td>Created At</td>
                                         <td>Updated At</td>
                                         <td></td>
                                     </tr>
 
-                                    <form action="{{route('tutorials.search')}}" id="searchForm" method="get">
+                                    <form action="{{route('admin.courses.search')}}" id="searchForm" method="get">
                                         @csrf
                                         <tr id="w0-filters" class="filters">
                                             <td></td>
-                                            <td><input type="text" class="form-control" name="search[video_name]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['video_name'])) ? $searchData['video_name'] : ''}}"></td>
-                                            <td></td>
+                                            <td><input type="text" class="form-control" name="search[book_title]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['book_title'])) ? $searchData['book_title'] : ''}}"></td>
+                                            
                                             <td>
-                                                <select name="search[category]" id="category" class="form-control" onchange="this.form.submit()">
-                                                    <option value="" disabled {{(!isset($searchData['category'])) ? 'selected' : ''}}></option>
-                                                    @foreach ($getCategory as $tutorial_cat)
-                                                        <option value="{{$tutorial_cat->id}}" {{(isset($searchData['category']) && $searchData['category'] == $tutorial_cat->id) ? 'selected' : ''}}>{{$tutorial_cat->category}}</option>
+                                                @php
+                                                    $getAvailableLanguage = \App\Models\BookTranslation::select('language_id','language_name')->groupBy('language_id','language_name')->with('translations')->get();
+                                                @endphp
+                                                <select name=search[terjemahan]" id="terjemahan" class="form-control" onchange="this.form.submit()">
+                                                    <option value="" {{(!isset($searchData['terjemahan'])) ? 'selected' : ''}} disabled></option>
+                                                    @foreach ($getAvailableLanguage as $language)
+                                                        <option value="{{$language->language_id}}" {{(isset($searchData['terjemahan']) && $searchData['terjemahan'] == $language->language_id) ? 'selected' : ''}}>{{$language->language_name}}</option>
                                                     @endforeach
                                                 </select>
                                             </td>
+
                                             <td>
-                                                <select name="search[status_id]" id="status" class="form-control" required onchange="this.form.submit()">
-                                                    <option value="" disabled {{(!isset($searchData['status_id'])) ? 'selected' : ''}}></option>
-                                                    <option value="4" {{(isset($searchData['status_id']) && $searchData['status_id'] == 4) ? 'selected' : ''}}>Enable</option>
-                                                    <option value="5" {{(isset($searchData['status_id']) && $searchData['status_id'] == 5) ? 'selected' : ''}}>Disable</option>
-                                                    <option value="6" {{(isset($searchData['status_id']) && $searchData['status_id'] == 6) ? 'selected' : ''}}>Draft</option>
+                                                <select name="search[status]" id="status" class="form-control" onchange="this.form.submit()">
+                                                    <option value="" {{(!isset($searchData['status'])) ? 'selected' : ''}} disabled></option>
+                                                    <option value="1" {{(isset($searchData['status']) && $searchData['status'] == 1) ? 'selected' : ''}}>Enable</option>
+                                                    <option value="2" {{(isset($searchData['status']) && $searchData['status'] == 2) ? 'selected' : ''}}>Disable</option>
                                                 </select>
+                                            </td>
+
+                                            <td><input type="text" class="form-control" name="search[parent]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['parent'])) ? $searchData['parent'] : ''}}"></td>
+                                            <td></td>
                                             <td>
                                                 <div id="search-created_at-kvdate" class="input-group date">
                                                     <input type="date" id="search-created_at" class="form-control" onchange="this.form.submit()" name="search[created_at]" max="<?php echo date('Y-m-d'); ?>" value="{{(isset($searchData['created_at'])) ? $searchData['created_at'] : ''}}">
                                                 </div>
                                             </td>
+
                                             <td>
                                                 <div id="search-updated_at-kvdate" class="input-group date">
                                                     <input type="date" id="search-updated_at" class="form-control" onchange="this.form.submit()" name="search[updated_at]" max="<?php echo date('Y-m-d'); ?>" value="{{(isset($searchData['updated_at'])) ? $searchData['updated_at'] : ''}}">
                                                 </div>
                                             </td>
+
                                             <td></td>
                                         </tr>
                                     </form>
 
                                 </thead>
-
                                 <tbody>
-                                    @forelse ($tutorials as $tutorial)
+                                    @forelse ($bookTranslations as $translation)
                                         <tr>
                                             <td>{{$loop->index += 1}}</td>
-                                            <td>{{$tutorial->video_name}}</td>
-
+                                            <td>{{$translation->book_title}}</td>
+                                            <td>{{$translation->language_name}}</td>
+                                            <td>{{\App\Models\MasterStatus::where('id',$translation->status_id)->first()->name}}</td>
+                                            <td>{{ $translation->hierarchyCategoryBook->parentCategory->hierarchy_name }}</td>
+                                            <td><a href="{{ asset('book/'.\App\Models\Translations::where('id',$translation->language_id)->first()->language_name.'/'.$translation->file) }}" download>{{$translation->file}}</a></td>
+                                            <td>{{$translation->created_at}}</td>
+                                            <td>{{$translation->updated_at}}</td>
                                             <td>
-                                                <img src="{{$tutorial->thumbnail}}" width="65" height="45" class="img-icon" alt="">
-                                                <a href="{{$tutorial->url ?? $tutorial->path_video }}" class="glightbox ml-2">{{$tutorial->video_name}}</a>
+                                                <a class="btn btn-warning btn-sm" href="#" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
+                                                
+                                                <a class="btn btn-danger btn-sm btn-delete" href="#">
+                                                    <i class="fa-fw fas fa-trash" aria-hidden="true"></i>
+                                                </a>
+
                                             </td>
-                                            
-                                            <td>{{$tutorial->category_name}}</td>
-                                            
-                                            @if ($tutorial->deleted_at == null)
-                                                <td>{{App\Models\MasterStatus::where('id',$tutorial->status_id)->first()->name}}</td>
-                                            @else
-                                                <td class="text-danger">Deleted by admin</td>
-                                            @endif
-
-                                            <td>{{$tutorial->created_at}}</td>
-                                            <td>{{$tutorial->updated_at ?? '-'}}</td>
-
-                                            @if ($tutorial->deleted_at == null)
-                                                <td>
-                                                    <a class="btn btn-warning btn-sm" href="{{ route('tutorials.update', ['video_id' => encrypt($tutorial->id)]) }}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
-                                                    <a class="btn btn-danger btn-sm btn-delete" href="{{ route('tutorials.delete', ['video_id' => encrypt($tutorial->id)]) }}">
-                                                        <i class="fa-fw fas fa-trash" aria-hidden="true"></i>
-                                                    </a>
-                                                </td>
-                                            @else
-                                                <td>
-                                                    <a href="{{ route('tutorials.restore', ['video_id' => encrypt($tutorial->id)]) }}" class="btn btn-warning btn-sm">Restore</a>
-                                                </td>
-                                            @endif
-                                            
-                                        </tr>
+                                        </tr>    
                                     @empty
-                                        <p class="ml-2 mt-3 text-danger">Tutorials belum tersedia</p>
+                                        <p class="ml-2 mt-3 text-danger">Courses belum tersedia</p>
                                     @endforelse
                                 </tbody>
-
                             </table>
                         </div>
-
                     </div>
 
-                    @if ($tutorials->lastPage() > 1)
+                    @if ($bookTranslations->lastPage() > 1)
                         <nav aria-label="Page navigation example">
                             <ul class="pagination mt-2 ml-2">
                                 {{-- Tombol Sebelumnya --}}
-                                @if ($tutorials->currentPage() > 1)
+                                @if ($bookTranslations->currentPage() > 1)
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ $tutorials->previousPageUrl() }}" aria-label="Previous">
+                                        <a class="page-link" href="{{ $bookTranslations->previousPageUrl() }}" aria-label="Previous">
                                             <span aria-hidden="true">&laquo;</span>
                                         </a>
                                     </li>
                                 @endif
                                             {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
-                                @if ($tutorials->currentPage() > 6)
-                                    @for ($i = $tutorials->currentPage() - 3; $i < $tutorials->currentPage(); $i++)
+                                @if ($bookTranslations->currentPage() > 6)
+                                    @for ($i = $bookTranslations->currentPage() - 3; $i < $bookTranslations->currentPage(); $i++)
                                         @if ($i == 1)
                                             <li class="page-item">
-                                                <a class="page-link" href="/admin/tutorials">{{ $i }}</a>
+                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
                                             </li>
                                         @else
                                             <li class="page-item">
-                                                <a class="page-link" href="{{ $tutorials->url($i) }}">{{ $i }}</a>
+                                                <a class="page-link" href="{{ $bookTranslations->url($i) }}">{{ $i }}</a>
                                             </li>
                                         @endif
                                     @endfor
                                 @else
-                                    @for ($i = 1; $i < $tutorials->currentPage(); $i++)
+                                    @for ($i = 1; $i < $bookTranslations->currentPage(); $i++)
                                         @if ($i == 1)
                                             <li class="page-item">
-                                                <a class="page-link" href="/admin/tutorials">{{ $i }}</a>
+                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
                                             </li>
                                         @else
                                             <li class="page-item">
-                                                <a class="page-link" href="{{ $tutorials->url($i) }}">{{ $i }}</a>
+                                                <a class="page-link" href="{{ $bookTranslations->url($i) }}">{{ $i }}</a>
                                             </li>
                                         @endif
                                     @endfor
                                 @endif
                                             {{-- Halaman saat ini --}}
                                 <li class="page-item active">
-                                    <span class="page-link">{{ $tutorials->currentPage() }}</span>
+                                    <span class="page-link">{{ $bookTranslations->currentPage() }}</span>
                                 </li>
                                             {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
-                                @if ($tutorials->currentPage() < $tutorials->lastPage() - 5)
-                                    @for ($i = $tutorials->currentPage() + 1; $i <= $tutorials->currentPage() + 3; $i++)
+                                @if ($bookTranslations->currentPage() < $bookTranslations->lastPage() - 5)
+                                    @for ($i = $bookTranslations->currentPage() + 1; $i <= $bookTranslations->currentPage() + 3; $i++)
                                         @if ($i == 1)
                                             <li class="page-item">
-                                                <a class="page-link" href="/admin/tutorials">{{ $i }}</a>
+                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
                                             </li>
                                         @else
                                             <li class="page-item">
-                                                <a class="page-link" href="{{ $tutorials->url($i) }}">{{ $i }}</a>
+                                                <a class="page-link" href="{{ $bookTranslations->url($i) }}">{{ $i }}</a>
                                             </li>
                                         @endif
                                     @endfor
                                 @else
-                                    @for ($i = $tutorials->currentPage() + 1; $i <= $tutorials->lastPage(); $i++)
+                                    @for ($i = $bookTranslations->currentPage() + 1; $i <= $bookTranslations->lastPage(); $i++)
                                         @if ($i == 1)
                                             <li class="page-item">
-                                                <a class="page-link" href="/admin/tutorials">{{ $i }}</a>
+                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
                                             </li>
                                         @else
                                             <li class="page-item">
-                                                <a class="page-link" href="{{ $tutorials->url($i) }}">{{ $i }}</a>
+                                                <a class="page-link" href="{{ $bookTranslations->url($i) }}">{{ $i }}</a>
                                             </li>
                                         @endif
                                     @endfor
                                 @endif
-                                            {{-- Tombol Selanjutnya --}}
-                                @if ($tutorials->hasMorePages())
+
+                                {{-- Tombol Selanjutnya --}}
+                                @if ($bookTranslations->hasMorePages())
                                     <li class="page-item">
-                                        <a class="page-link" href="{{ $tutorials->nextPageUrl() }}" aria-label="Next">
+                                        <a class="page-link" href="{{ $bookTranslations->nextPageUrl() }}" aria-label="Next">
                                             <span aria-hidden="true">&raquo;</span>
                                         </a>
                                     </li>
@@ -248,17 +234,19 @@
                 </div>
             </div>
 
-            @if (isset($tutorials) && $tutorials->count() > 0 && $tutorials->lastPage() > 1)
+            @if (isset($bookTranslations) && $bookTranslations->count() > 0 && $bookTranslations->lastPage() > 1)
                 <div class="p-2">
-                    Showing <b>{{ $tutorials->firstItem() }}</b> 
-                    to <b>{{ $tutorials->lastItem() }}</b>
-                    of <b>{{ $tutorials->total() }}</b> items.
+                    Showing <b>{{ $bookTranslations->firstItem() }}</b> 
+                    to <b>{{ $bookTranslations->lastItem() }}</b>
+                    of <b>{{ $bookTranslations->total() }}</b> items.
                 </div><br><br>
             @endif
 
         </div>
     </div>
+
 </div>
+
 @endsection
 
 <script>
@@ -305,6 +293,7 @@
 </script>
 
 <script>
+    let successMessage = '{{ session('success') }}';
 
     function handleKeyPress(event) {
         // Periksa apakah tombol yang ditekan adalah tombol "Enter" (kode 13)
@@ -315,9 +304,9 @@
             document.getElementById('searchForm').submit();
         }
     }
-
-    let successMessage = '{{ session('success') }}';
+    
     if (successMessage) {
         showNotification(successMessage, 'success');
     }
+
 </script>

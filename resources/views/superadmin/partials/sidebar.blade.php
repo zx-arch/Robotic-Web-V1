@@ -38,6 +38,12 @@
                         <i class="nav-icon fas fa-tachometer-alt {{isset($currentAdminMenu) && $currentAdminMenu == 'dashboard' ? 'text-white' : ''}}"></i>&nbsp;<p>Dashboard</p>
                     </a>
                 </li>
+                
+                <li class="nav-item">
+                    <a href="{{route('admin.courses.index')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'courses' ? 'active' : ''}}">
+                        <i class="nav-icon fa fa-th-large {{isset($currentAdminMenu) && $currentAdminMenu == 'courses' ? 'text-white' : ''}}"></i>&nbsp;<p>Courses</p>
+                    </a>
+                </li>
                 {{-- <li class="nav-item">
                     <a href="{{route('tutorials.index')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'tutorials' ? 'active' : ''}}">
                         <i class="nav-icon fa fa-play {{isset($currentAdminMenu) && $currentAdminMenu == 'tutorials' ? 'text-white' : ''}}"></i>&nbsp;<p>Tutorials</p>
