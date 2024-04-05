@@ -59,7 +59,7 @@
 
     /* Animasi progress bar */
     .progress-bar-animated {
-    animation: progress-bar-stripes 1s linear infinite;
+        animation: progress-bar-stripes 1s linear infinite;
     }
 
     /* Kunci animasi */
