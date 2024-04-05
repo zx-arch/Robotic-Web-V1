@@ -49,7 +49,7 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
     Route::prefix('/admin/courses')->group(function () {
         Route::get('/search', [CoursesAdminController::class, 'search'])->name('admin.courses.search');
         Route::get('/add', [CoursesAdminController::class, 'add'])->name('admin.courses.add');
-        Route::post('/save-add-courses', [TutorialsAdminController::class, 'saveCourses'])->name('admin.courses.save_courses');
+        Route::post('/save-add-courses', [CoursesAdminController::class, 'saveCourses'])->name('admin.courses.save_courses');
     });
 
     Route::get('/admin/tutorials', [TutorialsAdminController::class, 'index'])->name('tutorials.index');

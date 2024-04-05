@@ -3,10 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\HierarchyCategoryBook;
 use Illuminate\Http\Request;
 use App\Models\BookTranslation;
 use App\Models\Translations;
-use App\Models\MasterStatus;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 
 class CoursesAdminController extends Controller
 {
@@ -128,6 +130,47 @@ class CoursesAdminController extends Controller
 
     public function saveCourses(Request $request)
     {
-        dd($request->all());
+        //dd($request->all());
+        try {
+            $validator = Validator::make($request->all(), [
+                'ebook_file' => ['required', 'file', 'mimes:pdf', 'max:50000'], // Aturan validasi untuk image
+            ]);
+
+            if ($validator->fails()) {
+                throw new ValidationException($validator);
+
+            } else {
+
+                $file = $request->file('ebook_file');
+
+                // Dapatkan ekstensi file
+                $imageExtension = $file->getClientOriginalExtension();
+
+                // Buat nama unik untuk file gambar
+                $uniqueImageName = $request->book_title . '.' . $imageExtension;
+
+                HierarchyCategoryBook::create([
+                    'name' => $request->book_title,
+                    'hierarchy_name' => $request->book_title,
+                    'language_id' => 7,
+                    'parent_id' => 35,
+                ]);
+
+                return redirect()->route('admin.courses.index')->with('success_submit_save', 'Data courses berhasil ditambah!');
+            }
+
+        } catch (ValidationException $e) {
+
+            $errorMessage = '';
+
+            if ($e->validator->errors()->has('ebook_file')) {
+                $errorMessage = 'File tidak valid. Pastikan tipe file adalah PDF dan ukuran file tidak lebih dari 50 MB.';
+            }
+
+            return redirect()->back()->with('error_submit_save', $errorMessage);
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_submit_save', 'Gagal tambah data courses. ' . $e->getMessage());
+        }
     }
 }

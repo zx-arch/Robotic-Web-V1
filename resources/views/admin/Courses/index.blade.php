@@ -252,6 +252,7 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+
     // Tambahkan event listener ke tombol delete
         document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', function(event) {
