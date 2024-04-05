@@ -1,6 +1,57 @@
 @extends('cms_login.index_admin')
 <!-- Memuat jQuery dari CDN -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<style>
+    #drop-area {
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    #drop-area p {
+        margin: 0;
+        font-size: 16px;
+        line-height: 20px;
+    }
+
+    #preview {
+        max-width: 100%;
+        max-height: 200px;
+        margin-top: 10px;
+    }
+
+    #filename {
+        margin-top: 10px;
+    }
+
+    #drop-area {
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    #drop-area p {
+        margin: 0;
+        font-size: 16px;
+        line-height: 20px;
+    }
+
+    .center-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+    }
+
+    #drop-text, #filename {
+        text-align: center;
+    }
+</style>
 
 <!-- Memuat jQuery UI dari CDN -->
 <script src="https://code.jquery.com/ui/1.12.1/jquery-ui.min.js"></script>
@@ -8,47 +59,7 @@
 @section('content')
 
 <div class="container-fluid">
-    <style>
-        
-        #drop-area {
-    border: 2px dashed #ccc;
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 20px;
-    cursor: pointer;
-}
 
-#drop-area p {
-    margin: 0;
-    font-size: 16px;
-    line-height: 20px;
-}
-
-#preview {
-    max-width: 100%;
-    max-height: 200px;
-    margin-top: 10px;
-}
-
-#filename {
-    margin-top: 10px;
-}
-#drop-area {
-    border: 2px dashed #ccc;
-    border-radius: 10px;
-    padding: 20px;
-    margin-top: 20px;
-    cursor: pointer;
-}
-
-#drop-area p {
-    margin: 0;
-    font-size: 16px;
-    line-height: 20px;
-}
-
-
-    </style>
     <div class="content">
         <div class="row">
             <div class="col-lg-12">
@@ -123,9 +134,13 @@
 
                                         <div class="card" id="drop-area">
                                             <div class="card-body">
-                                                <p id="drop-text">Drag & drop gambar di sini</p>
-                                                <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
-                                                <p id="filename" class="d-none"></p>
+
+                                                <div class="center-content">
+                                                    <p id="drop-text">Drag & drop gambar di sini <br> <br> max upload 500 KB</p>
+                                                    <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
+                                                    <p id="filename" class="d-none"></p>
+                                                </div>
+
                                             </div>
                                         </div>
                                     </div>
@@ -193,59 +208,62 @@
             dropArea.classList.remove('highlight');
         }
 
-// Handle file select
-function handleFileSelect(event) {
-    const files = event.target.files;
-    if (files.length > 0) {
-        const file = files[0];
-        const fileSize = file.size; // Dapatkan ukuran file dalam byte
-        const fileType = file.type; // Dapatkan tipe file
-        if (fileType === 'image/png' || fileType === 'image/jpeg') { // Periksa tipe file
-            if (fileSize < 500 * 1024) { // Periksa ukuran file jika tipe file valid
-                inputElement.files = files;
-                labelElement.innerText = file.name;
-                preview.src = URL.createObjectURL(file);
-                preview.classList.remove('d-none');
-                filename.innerText = file.name;
-                filename.classList.remove('d-none');
-                dropText.classList.add('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
-            } else {
-                // Tampilkan pesan kesalahan jika ukuran file melebihi batas
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error',
-                    text: 'Ukuran file melebihi batas (500 KB)',
-                });
-                // Hapus file yang di-drop
-                inputElement.value = '';
-                // Reset label
-                labelElement.innerText = 'Pilih Gambar';
-                // Sembunyikan preview dan nama file
-                preview.src = '#';
-                preview.classList.add('d-none');
-                filename.innerText = '';
-                filename.classList.add('d-none');
-            }
-        } else {
-            // Tampilkan pesan kesalahan jika tipe file tidak valid
-            Swal.fire({
-                icon: 'error',
-                title: 'Error',
-                text: 'Tipe file harus PNG atau JPEG',
-            });
-            // Hapus file yang di-drop
-            inputElement.value = '';
-            // Reset label
-            labelElement.innerText = 'Pilih Gambar';
-            // Sembunyikan preview dan nama file
-            preview.src = '#';
-            preview.classList.add('d-none');
-            filename.innerText = '';
-            filename.classList.add('d-none');
-        }
-    }
-}
+        // Handle file select
+        function handleFileSelect(event) {
+            const files = event.target.files;
+            if (files.length > 0) {
+                const file = files[0];
+                const fileSize = file.size; // Dapatkan ukuran file dalam byte
+                const fileType = file.type; // Dapatkan tipe file
+                if (fileType === 'image/png' || fileType === 'image/jpeg') { // Periksa tipe file
+                    if (fileSize < 500 * 1024) { // Periksa ukuran file jika tipe file valid
+                        inputElement.files = files;
+                        labelElement.innerText = file.name;
+                        preview.src = URL.createObjectURL(file);
+                        preview.classList.remove('d-none');
+                        filename.innerText = file.name;
+                        filename.classList.remove('d-none');
+                        dropText.classList.add('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+                    } else {
+                        // Tampilkan pesan kesalahan jika ukuran file melebihi batas
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Ukuran file melebihi batas (500 KB)',
+                        });
+                        // Hapus file yang di-drop
+                        inputElement.value = '';
+                        // Reset label
+                        labelElement.innerText = 'Pilih Gambar';
+                        // Sembunyikan preview dan nama file
+                        preview.src = '#';
+                        preview.classList.add('d-none');
+                        filename.innerText = '';
+                        filename.classList.add('d-none');
+                        dropText.classList.remove('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
 
+                    }
+                } else {
+                    // Tampilkan pesan kesalahan jika tipe file tidak valid
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Tipe file harus PNG atau JPEG',
+                    });
+                    // Hapus file yang di-drop
+                    inputElement.value = '';
+                    // Reset label
+                    labelElement.innerText = 'Pilih Gambar';
+                    // Sembunyikan preview dan nama file
+                    preview.src = '#';
+                    preview.classList.add('d-none');
+                    filename.innerText = '';
+                    filename.classList.add('d-none');
+                    dropText.classList.remove('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+
+                }
+            }
+        }
 
         // Handle drop event
         function handleDrop(event) {

@@ -10,7 +10,7 @@
                 <div class="card card-default">
 
                     <div class="card-header">
-                        <a href="{{{route('tutorials.add')}}}" class="btn btn-success"><i class="fa fa-plus mr-1" aria-hidden="true"></i> Add</a>
+                        <a href="{{{route('admin.courses.add')}}}" class="btn btn-success"><i class="fa fa-plus mr-1" aria-hidden="true"></i> Add</a>
                         
                         @if (session()->has('success_deleted'))
                             <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-75" role="alert">
@@ -101,6 +101,7 @@
                                                     <option value="" {{(!isset($searchData['status'])) ? 'selected' : ''}} disabled></option>
                                                     <option value="1" {{(isset($searchData['status']) && $searchData['status'] == 1) ? 'selected' : ''}}>Enable</option>
                                                     <option value="2" {{(isset($searchData['status']) && $searchData['status'] == 2) ? 'selected' : ''}}>Disable</option>
+                                                    <option value="3" {{(isset($searchData['status']) && $searchData['status'] == 3) ? 'selected' : ''}}>Draft</option>
                                                 </select>
                                             </td>
 

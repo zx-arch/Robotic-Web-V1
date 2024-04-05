@@ -5,7 +5,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\BookTranslation;
-use App\Models\HierarchyCategoryBook;
+use App\Models\Translations;
 use App\Models\MasterStatus;
 
 class CoursesAdminController extends Controller
@@ -118,5 +118,16 @@ class CoursesAdminController extends Controller
 
         return view('admin.Courses.index', $this->data, compact('bookTranslations', 'searchData', 'itemsPerPage'));
 
+    }
+
+    public function add()
+    {
+        $getTerjemahan = Translations::all();
+        return view('admin.Courses.add', $this->data, compact('getTerjemahan'));
+    }
+
+    public function saveCourses(Request $request)
+    {
+        dd($request->all());
     }
 }
