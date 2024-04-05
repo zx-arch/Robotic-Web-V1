@@ -79,7 +79,7 @@
 
                                                 <div class="form-group highlight-addon has-success">
                                                     <label for="video_name">Video Name <span class="text-danger">*</span></label>
-                                                    <input type="text" name="video_name" id="video_name" required class="form-control">
+                                                    <input type="text" name="video_name" id="video_name" required class="form-control" style="max-width: 90%;">
                                                     <div class="invalid-feedback"></div>
                                                 </div>
                                                 @php
@@ -122,7 +122,7 @@
                                         </div>
                                     </div>
                                     
-                                    <div class="col-lg-4 ml-3">
+                                    <div class="col-lg-4">
                                         <div class="form-group highlight-addon has-success">
                                             <label for="youtube">Thumbnail <span class="text-danger">*</span></label>
                                             <div class="custom-file">
