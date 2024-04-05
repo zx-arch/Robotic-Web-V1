@@ -140,23 +140,32 @@ class CoursesAdminController extends Controller
                 throw new ValidationException($validator);
 
             } else {
+                $checkLanguage = HierarchyCategoryBook::where('language_id', $request->terjemahan)->get();
 
-                $file = $request->file('ebook_file');
+                if ($checkLanguage->count() > 0) {
+                    $file = $request->file('ebook_file');
 
-                // Dapatkan ekstensi file
-                $imageExtension = $file->getClientOriginalExtension();
+                    // Dapatkan ekstensi file
+                    $imageExtension = $file->getClientOriginalExtension();
 
-                // Buat nama unik untuk file gambar
-                $uniqueImageName = $request->book_title . '.' . $imageExtension;
+                    // Buat nama unik untuk file gambar
+                    $uniqueImageName = $request->book_title . '.' . $imageExtension;
 
-                HierarchyCategoryBook::create([
-                    'name' => $request->book_title,
-                    'hierarchy_name' => $request->book_title,
-                    'language_id' => 7,
-                    'parent_id' => 35,
-                ]);
+                    HierarchyCategoryBook::create([
+                        'name' => $request->book_title,
+                        'hierarchy_name' => $request->book_title,
+                        'language_id' => 7,
+                        'parent_id' => 35,
+                    ]);
 
-                return redirect()->route('admin.courses.index')->with('success_submit_save', 'Data courses berhasil ditambah!');
+                    session(['success_submit_save' => 'berhasil simpan data!']);
+
+                    return response()->json(['message' => 'success']);
+
+                } else {
+                    // tampilan muncul di halaman add courses
+                    return response()->json(['message' => 'Tambahkan terjemahan bahasa di hierarchy category']);
+                }
             }
 
         } catch (ValidationException $e) {
@@ -167,10 +176,15 @@ class CoursesAdminController extends Controller
                 $errorMessage = 'File tidak valid. Pastikan tipe file adalah PDF dan ukuran file tidak lebih dari 50 MB.';
             }
 
-            return redirect()->back()->with('error_submit_save', $errorMessage);
+            session(['error_submit_save' => $errorMessage]);
+
+            return response()->json(['message' => 'failed']);
 
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error_submit_save', 'Gagal tambah data courses. ' . $e->getMessage());
+
+            session(['error_submit_save' => 'Gagal simpan data! ' . $e->getMessage()]);
+
+            return response()->json(['message' => 'failed']);
         }
     }
 }

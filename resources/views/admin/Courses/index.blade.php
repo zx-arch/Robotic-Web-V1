@@ -312,3 +312,8 @@
     }
 
 </script>
+
+@php
+    session()->forget('success_submit_save');
+    session()->forget('error_submit_save');
+@endphp

@@ -170,6 +170,10 @@
 
                                 </form>
 
+                                <p id="success_upload" class="text-success" style="font-weight: bold;"></p>
+                                
+                                <p id="error_upload" class="text-danger" style="font-weight: bold;"></p>
+                                
                                 @if (session()->has('error_submit_save'))
                                     <div id="w6" class="alert-danger alert alert-dismissible mt-3 w-75" role="alert">
                                         {{session('error_submit_save')}}
@@ -351,6 +355,7 @@
 
         form.addEventListener('submit', function(e) {
             e.preventDefault();
+            
             const formData = new FormData(this);
 
             // Show progress bar
@@ -362,6 +367,7 @@
             // Handle progress event
             xhr.upload.addEventListener('progress', function(event) {
                 if (event.lengthComputable) {
+                    document.getElementById('error_upload').innerHTML = '';
                     const percentCompleted = Math.round((event.loaded / event.total) * 100);
                     progressBarInner.style.width = percentCompleted + '%';
                     document.getElementById('status').innerHTML = percentCompleted + '% uploaded... please wait';
@@ -378,8 +384,17 @@
 
                     if (xhr.status === 200) {
                         // Berhasil
-                        document.getElementById('status').innerHTML = 'Upload success... please wait';
-                        window.location.href = '/admin/courses';
+                        const response = JSON.parse(xhr.responseText);
+
+                        if (response.message == 'success' || response.message == 'failed') {
+                            document.getElementById('success_upload').innerHTML = 'Upload success... please wait';
+                            window.location.href = '/admin/courses';
+
+                        } else {
+                            document.getElementById('error_upload').innerHTML = response.message;
+                        }
+
+                        //window.location.href = '/admin/courses';
                     } else {
                         // Terjadi kesalahan
                         console.error('Terjadi kesalahan saat pengungahan:', xhr.statusText);
@@ -405,3 +420,8 @@
 
     });
 </script>
+
+@php
+    session()->forget('success_submit_save');
+    session()->forget('error_submit_save');
+@endphp
