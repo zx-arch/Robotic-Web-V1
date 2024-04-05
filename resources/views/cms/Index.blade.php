@@ -9,9 +9,6 @@
     <meta content="" name="description">
     <meta content="" name="keywords">
 
-    <!-- Favicons -->
-    <link href="{{asset('assets/img/logo/artech-indonesia.png')}}" rel="artech-indonesia">
-
     <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css?family=Open+Sans:300,300i,400,400i,600,600i,700,700i|Jost:300,300i,400,400i,500,500i,600,600i,700,700i|Poppins:300,300i,400,400i,500,500i,600,600i,700,700i" rel="stylesheet">
 
@@ -61,15 +58,7 @@
                     firstCol.scrollIntoView({ behavior: 'smooth' });
                 }
             }
-            if ("{{ session()->has('jenis_materi') }}") {
-                // Dapatkan elemen col-xl-4 pertama
-                var firstCol = document.getElementById('courses');
-                
-                // Arahkan pengguna ke posisi elemen pertama tersebut
-                if (firstCol) {
-                    firstCol.scrollIntoView({ behavior: 'smooth' });
-                }
-            }
+
             if ("{{ session()->has('error_submit_chat') }}") {
                 // Dapatkan elemen col-xl-4 pertama
                 var firstCol = document.getElementById('contact');
@@ -114,7 +103,7 @@
             function checkAllInputsSelected() {
 
                 if (translationSelect.value != '') {
-                    
+
                     if ("{{ !session()->has('getChapter') || session()->has('jenis_materi') != null && session('jenis_materi') != 'ai_programming' }}") {
                         // Menghapus elemen <select> dengan id 'levelSelect' dan parentnya dengan kelas 'col-md-4'
                         var existingLevelSelect = document.getElementById('levelSelect');
@@ -172,8 +161,64 @@
                                 courseForm.submit(); // Submit formulir
                             }
                         });
-                    
-                }
+                    } else {
+                        courseForm.submit();
+
+                        // // Menghapus elemen <select> dengan id 'CevelSelect' dan parentnya dengan kelas 'col-md-4'
+                        // var existingChapterSelect = document.getElementById('chapterSelect');
+
+                        // if (existingChapterSelect) {
+                        //     var colDiv = existingChapterSelect.closest('.col-md-4');
+                        //     if (colDiv) {
+                        //         colDiv.parentNode.removeChild(colDiv);
+                        //     }
+                        // }
+
+                        // var selectedLanguageId = this.value; // Mengambil nilai id yang dipilih dari translationSelect
+                        // console.log(selectedLanguageId);
+                        // var chapterSelect = document.createElement("select");
+                        // chapterSelect.id = "chapterSelect";
+                        // chapterSelect.name = "chapter";
+                        // chapterSelect.className = "form-control";
+                        // chapterSelect.required = true;
+
+                        // // Buat opsi pertama (disabled dan selected)
+                        // var optionDefault = document.createElement("option");
+                        // optionDefault.value = "";
+                        // optionDefault.text = "Select Chapter ..";
+                        // optionDefault.disabled = true;
+                        // optionDefault.selected = true;
+                        // chapterSelect.appendChild(optionDefault);
+                        
+                        // var getChapter = {!! session('getChapter') !!};
+                        // console.log(getChapter);
+                        // getChapter.forEach(function(chapter) {
+                        //     // Jika id bahasa dari chapter ini sama dengan yang dipilih
+                        //     if (chapter.language_id == selectedLanguageId) {
+                        //         // Buat elemen option untuk ChapterSelect
+                        //         var option = document.createElement('option');
+                        //         option.value = chapter.hierarchy_id;
+                        //         option.text = chapter.name; // Sesuaikan dengan struktur data Anda
+                        //         chapterSelect.appendChild(option); // Tambahkan opsi ke chapterSelect
+                        //     }
+                        // });
+
+                        // // Sisipkan elemen select ke dalam elemen div dengan kelas "col-md-4"
+                        // var colDiv = document.createElement("div");
+                        // colDiv.className = "col-md-4";
+                        // colDiv.appendChild(chapterSelect);
+
+                        // // Sisipkan elemen div dengan kelas "col-md-4" ke dalam elemen div dengan kelas "row w-75"
+                        // var rowDiv = document.querySelector('.row.w-75');
+                        // rowDiv.appendChild(colDiv);
+
+                        // chapterSelect.addEventListener('change', function() {
+                        //     if (this.value !== '') { // Jika chapterSelect memiliki nilai yang valid
+                        //         courseForm.submit(); // Submit formulir
+                        //     }
+                        // });
+                    }
+
 
                     // levelSelect.style.display = 'block';
                 } 
@@ -191,7 +236,6 @@
         session()->forget('request_input_book');
         session()->forget('error_submit_chat');
         session()->forget('not_available_book');
-        session()->forget('jenis_materi');
     @endphp
     
     <!-- Vendor JS Files -->
