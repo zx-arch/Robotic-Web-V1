@@ -2,15 +2,13 @@
 
 namespace App\Http\Controllers;
 
-session_start();
-
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\User;
 use App\Models\Tutorials;
+use App\Models\Activity;
 use Illuminate\Support\Facades\Session;
-
-// use GeoIp2\Database\Reader;
+use GeoIp2\Database\Reader;
 
 class LoginController extends Controller
 {
@@ -28,39 +26,41 @@ class LoginController extends Controller
         } else {
 
             if (!session()->has('myActivity')) {
-                // $databasePath = public_path('GeoLite2-City.mmdb');
-                // $reader = new Reader($databasePath);
 
                 try {
-                    // //dd($getToken);
-                    // $ch = curl_init('https://api.ipify.org');
-                    // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-                    // $publicIpAddress = curl_exec($ch);
-                    // curl_close($ch);
-                    // $userAgent = $request->header('User-Agent');
+                    $databasePath = public_path('GeoLite2-City.mmdb');
+                    $reader = new Reader($databasePath);
 
-                    // // Mendapatkan informasi lokasi dari IP publik
-                    // $record = $reader->city($publicIpAddress);
+                    $userAgent = $request->header('User-Agent');
 
-                    // // Dapatkan informasi yang Anda butuhkan, seperti nama kota, negara, koordinat, dsb.
-                    // $cityName = $record->city->name;
-                    // $countryName = $record->country->name;
-                    // $latitude = $record->location->latitude;
-                    // $longitude = $record->location->longitude;
-                    // $subdivisions = $record->subdivisions[0]->names['de'];
+                    if ($_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
+                        $_SERVER['REMOTE_ADDR'] = '103.169.39.38';
+                    }
 
-                    // //dd($cityName, $latitude, $longitude, $userAgent);
+                    // Mendapatkan informasi lokasi dari IP publik
+                    $record = $reader->city($_SERVER['REMOTE_ADDR']);
 
-                    // session([
-                    //     'myActivity' => [
-                    //         'ip_address' => $publicIpAddress,
-                    //         'user_agent' => $userAgent,
-                    //         'latitude' => $latitude,
-                    //         'longitude' => $longitude,
-                    //         'country' => $countryName,
-                    //         'city' => $cityName . ', ' . $subdivisions,
-                    //     ]
-                    // ]);
+                    // Dapatkan informasi yang Anda butuhkan, seperti nama kota, negara, koordinat, dsb.
+                    $cityName = $record->city->name;
+                    $countryName = $record->country->name;
+                    $latitude = $record->location->latitude;
+                    $longitude = $record->location->longitude;
+                    $subdivisions = $record->subdivisions[0]->names['de'];
+
+                    //dd($cityName, $latitude, $longitude, $userAgent);
+
+                    // Tetapkan nilai endpoint ke dalam session hanya jika referer tidak kosong
+                    session([
+                        'myActivity' => [
+                            'ip_address' => $_SERVER['REMOTE_ADDR'],
+                            'user_agent' => $userAgent,
+                            'latitude' => $latitude,
+                            'longitude' => $longitude,
+                            'country' => $countryName,
+                            'city' => $cityName . (isset($subdivisions) ? ', ' . $subdivisions : ''),
+                            'metadata' => json_encode($request->header()),
+                        ]
+                    ]);
 
                 } catch (\Throwable $e) {
                     //dd($e->getMessage());
@@ -90,40 +90,7 @@ class LoginController extends Controller
             Auth::attempt(['email' => $credentials['username_or_email'], 'password' => $credentials['password']]) ||
             Auth::attempt(['username' => $credentials['username_or_email'], 'password' => $credentials['password']])
         ) {
-            $_SESSION['username'] = Auth::user()->username;
-            $_SESSION['role'] = Auth::user()->role;
-            $_SESSION['app_url'] = env('APP_URL');
-            // $databasePath = public_path('GeoLite2-City.mmdb');
-            // $reader = new Reader($databasePath);
 
-            // $ch = curl_init('https://api.ipify.org');
-            // curl_setopt($ch, CURLOPT_RETURNTRANSFER, true);
-            // $publicIpAddress = curl_exec($ch);
-            // curl_close($ch);
-            // $userAgent = $request->header('User-Agent');
-
-            // // Mendapatkan informasi lokasi dari IP publik
-            // $record = $reader->city($publicIpAddress);
-
-            // // Dapatkan informasi yang Anda butuhkan, seperti nama kota, negara, koordinat, dsb.
-            // $cityName = $record->city->name;
-            // $countryName = $record->country->name;
-            // $latitude = $record->location->latitude;
-            // $longitude = $record->location->longitude;
-            // //$subdivisions = $record->subdivisions[0]->names['de'];
-
-            // //dd($cityName, $latitude, $longitude, $userAgent);
-
-            // session([
-            //     'myActivity' => [
-            //         'ip_address' => $publicIpAddress,
-            //         'user_agent' => $userAgent,
-            //         'latitude' => $latitude,
-            //         'longitude' => $longitude,
-            //         'country' => $countryName,
-            //         'city' => $cityName,
-            //     ]
-            // ]);
             // Jika autentikasi berhasil, arahkan pengguna sesuai peran
             if (Auth::user()->role == 'admin') {
 
@@ -132,10 +99,12 @@ class LoginController extends Controller
                 ]);
 
                 // dd(session('myActivity'), Session::get('csrf_token'));
-                // Activity::create(array_merge(session('myActivity'), [
-                //     'user_id' => Auth::user()->id,
-                //     'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                // ]));
+                if (session()->has('myActivity')) {
+                    Activity::create(array_merge(session('myActivity'), [
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                    ]));
+                }
 
                 return redirect()->route('admin.dashboard');
 
@@ -145,10 +114,10 @@ class LoginController extends Controller
                     'last_login' => now(),
                 ]);
 
-                // Activity::create(array_merge(session('myActivity'), [
-                //     'user_id' => Auth::user()->id,
-                //     'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                // ]));
+                Activity::create(array_merge(session('myActivity'), [
+                    'user_id' => Auth::user()->id,
+                    'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                ]));
 
                 return redirect()->route('pengurus.dashboard');
 
@@ -158,10 +127,10 @@ class LoginController extends Controller
                     'last_login' => now(),
                 ]);
 
-                // Activity::create(array_merge(session('myActivity'), [
-                //     'user_id' => Auth::user()->id,
-                //     'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                // ]));
+                Activity::create(array_merge(session('myActivity'), [
+                    'user_id' => Auth::user()->id,
+                    'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                ]));
 
                 return redirect()->route('user.dashboard');
 
