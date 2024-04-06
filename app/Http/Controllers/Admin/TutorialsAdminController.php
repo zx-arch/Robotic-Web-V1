@@ -189,10 +189,10 @@ class TutorialsAdminController extends Controller
                         'delete_html_code' => '',
                     ]);
 
-                    // Activity::create(array_merge(session('myActivity'), [
-                    //     'user_id' => Auth::user()->id,
-                    //     'action' => Auth::user()->username . ' Created Tutorial ID ' . $tutorial->id,
-                    // ]));
+                    Activity::create(array_merge(session('myActivity'), [
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Created Tutorial ID ' . $tutorial->id,
+                    ]));
 
                     return redirect()->route('tutorials.index')->with('success_submit_save', 'Data tutorial berhasil ditambah!');
 
@@ -355,10 +355,10 @@ class TutorialsAdminController extends Controller
                             'url' => $request->url_link,
                         ]);
 
-                        // Activity::create(array_merge(session('myActivity'), [
-                        //     'user_id' => Auth::user()->id,
-                        //     'action' => Auth::user()->username . ' Update Tutorial Video ID ' . $video->id,
-                        // ]));
+                        Activity::create(array_merge(session('myActivity'), [
+                            'user_id' => Auth::user()->id,
+                            'action' => Auth::user()->username . ' Update Tutorial Video ID ' . $video->id,
+                        ]));
                     });
 
                     return redirect()->route('tutorials.index')->with('success_submit_save', 'Data berhasil diupdate!');
