@@ -45,4 +45,16 @@ class LoginController extends Controller
 
         return redirect()->back()->withErrors(['username_or_email' => 'These credentials do not match our records.']);
     }
+    public function logout()
+    {
+        Auth::logout();
+
+        session_unset();
+
+        session()->invalidate();
+
+        session()->regenerateToken();
+
+        return redirect('/');
+    }
 }
