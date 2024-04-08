@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\BookTranslation;
 use App\Models\Translations;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 
 class CoursesAdminController extends Controller
@@ -124,8 +125,39 @@ class CoursesAdminController extends Controller
 
     public function add()
     {
-        $getTerjemahan = Translations::all();
-        return view('admin.Courses.add', $this->data, compact('getTerjemahan'));
+        $availableIdTerjemahan = HierarchyCategoryBook::select('language_id')->with('bookTranslations')->groupBy('language_id')->get()->pluck('language_id');
+        $availableTerjemahan = Translations::whereIn('id', $availableIdTerjemahan)->with('hierarchyCategoryBook')->get();
+        $allHierarchy = HierarchyCategoryBook::with('bookTranslations')->get();
+        //dd(session()->all());
+        //dd($allHierarchy);
+        return view('admin.Courses.add', $this->data, compact('allHierarchy', 'availableTerjemahan'));
+    }
+
+    public function infoCourses(Request $request)
+    {
+        if (isset($request->courses['level'])) {
+            session([
+                'courses' => [
+                    'terjemahan' => Translations::where('id', $request->courses['terjemahan'])->first()->language_name,
+                    'parent' => HierarchyCategoryBook::where('id', $request->courses['parent'])->first()->name,
+                    'level' => (isset($request->courses['level']) ? HierarchyCategoryBook::where('id', $request->courses['level'])->first()->name : ''),
+                ],
+                'courses_asli' => $request->courses,
+            ]);
+        }
+
+        if (isset($request->courses['chapter'])) {
+            session([
+                'courses' => [
+                    'terjemahan' => Translations::where('id', $request->courses['terjemahan'])->first()->language_name,
+                    'parent' => HierarchyCategoryBook::where('id', $request->courses['parent'])->first()->name,
+                    'chapter'(isset($request->courses['chapter']) ? HierarchyCategoryBook::where('id', $request->courses['chapter'])->first()->name : ''),
+                ],
+                'courses_asli' => $request->courses,
+            ]);
+        }
+        //dd(session('courses'), session('courses_asli'));
+        return $this->add();
     }
 
     public function saveCourses(Request $request)
@@ -140,31 +172,66 @@ class CoursesAdminController extends Controller
                 throw new ValidationException($validator);
 
             } else {
-                $checkLanguage = HierarchyCategoryBook::where('language_id', $request->terjemahan)->get();
+                $checkLanguage = HierarchyCategoryBook::where('language_id', session('courses_asli')['terjemahan'])->get();
+                if (session()->has('courses_asli') && session()->has('courses')) {
+                    if ($checkLanguage->count() > 0) {
+                        $file = $request->file('ebook_file');
 
-                if ($checkLanguage->count() > 0) {
-                    $file = $request->file('ebook_file');
+                        // Dapatkan ekstensi file
+                        $imageExtension = $file->getClientOriginalExtension();
 
-                    // Dapatkan ekstensi file
-                    $imageExtension = $file->getClientOriginalExtension();
+                        // Buat nama unik untuk file gambar
+                        $uniqueImageName = $request->book_title . '.' . $imageExtension;
 
-                    // Buat nama unik untuk file gambar
-                    $uniqueImageName = $request->book_title . '.' . $imageExtension;
+                        if (isset(session('courses_asli')['level'])) {
+                            $newHierarchy = HierarchyCategoryBook::create([
+                                'name' => $request->book_title,
+                                'hierarchy_name' => HierarchyCategoryBook::where('id', session('courses_asli')['level'])->first()->hierarchy_name . ' > ' . $request->book_title,
+                                'language_id' => session('courses_asli')['terjemahan'],
+                                'parent_id' => session('courses_asli')['level'],
+                            ]);
 
-                    HierarchyCategoryBook::create([
-                        'name' => $request->book_title,
-                        'hierarchy_name' => $request->book_title,
-                        'language_id' => 7,
-                        'parent_id' => 35,
-                    ]);
+                            BookTranslation::create([
+                                'book_title' => $request->book_title,
+                                'language_id' => session('courses_asli')['terjemahan'],
+                                'language_name' => session('courses')['terjemahan'],
+                                'pages' => $request->pages,
+                                'status_id' => $request->status_id,
+                                'hierarchy_id' => $newHierarchy->id,
+                                'file' => $uniqueImageName,
+                            ]);
 
-                    session(['success_submit_save' => 'berhasil simpan data!']);
+                        } else {
+                            $newHierarchy = HierarchyCategoryBook::create([
+                                'name' => $request->book_title,
+                                'hierarchy_name' => HierarchyCategoryBook::where('id', session('courses')['parent'])->first()->hierarchy_name . ' > ' . $request->book_title,
+                                'language_id' => session('courses_asli')['terjemahan'],
+                                'parent_id' => session('courses_asli')['parent'],
+                            ]);
 
-                    return response()->json(['message' => 'success']);
+                            BookTranslation::create([
+                                'book_title' => $request->book_title,
+                                'language_id' => session('courses_asli')['terjemahan'],
+                                'language_name' => session('courses')['terjemahan'],
+                                'pages' => $request->pages,
+                                'status_id' => $request->status_id,
+                                'hierarchy_id' => $newHierarchy->id,
+                                'file' => $uniqueImageName,
+                            ]);
+                        }
+
+                        session(['success_submit_save' => 'berhasil simpan data!']);
+
+                        return response()->json(['message' => 'success']);
+
+                    } else {
+                        // tampilan muncul di halaman add courses
+                        return response()->json(['message' => 'Tambahkan terjemahan bahasa di hierarchy category']);
+                    }
 
                 } else {
                     // tampilan muncul di halaman add courses
-                    return response()->json(['message' => 'Tambahkan terjemahan bahasa di hierarchy category']);
+                    return response()->json(['message' => 'Belum memasukkan info courses!']);
                 }
             }
 
@@ -185,6 +252,41 @@ class CoursesAdminController extends Controller
             session(['error_submit_save' => 'Gagal simpan data! ' . $e->getMessage()]);
 
             return response()->json(['message' => 'failed']);
+        }
+    }
+
+    public function update($id)
+    {
+        $availableIdTerjemahan = HierarchyCategoryBook::select('language_id')->with('bookTranslations')->groupBy('language_id')->get()->pluck('language_id');
+        $availableTerjemahan = Translations::whereIn('id', $availableIdTerjemahan)->with('hierarchyCategoryBook')->get();
+        $allHierarchy = HierarchyCategoryBook::with('bookTranslations')->get();
+        //dd(session()->all());
+        //dd($allHierarchy);
+        return view('admin.Courses.update', $this->data, compact('allHierarchy', 'availableTerjemahan'));
+
+    }
+    public function forceDelete($id)
+    {
+        //dd(decrypt($id));
+        try {
+            $detailCourses = BookTranslation::where('id', decrypt($id))->first();
+            $findHierarchy = HierarchyCategoryBook::where('id', $detailCourses->hierarchy_id)->first();
+
+            if (isset($detailCourses) && isset($findHierarchy)) {
+
+                DB::transaction(function () use ($detailCourses, $findHierarchy) {
+                    $findHierarchy->forceDelete();
+                    $detailCourses->forceDelete();
+                });
+
+            } else {
+                return redirect()->route('admin.courses.index')->with('error_submit_save', 'Data gagal di delete, ID tidak ditemukan!');
+            }
+
+            return redirect()->route('admin.courses.index')->with('success_submit_save', 'Data berhasil di delete!');
+
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.courses.index')->with('error_submit_save', 'Data gagal di delete! ' . $e->getMessage());
         }
     }
 }

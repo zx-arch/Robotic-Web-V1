@@ -206,205 +206,126 @@
                 <div class="px-15px px-lg-25px">
                     <div class="col-md-10 mx-auto">
 
-                        @if (session()->has('courses'))
-                            <div class="product-form">
-                                <div class="card">
-                                    <div class="card-header">
-                                        <h5 class="mb-0 h6">Info Courses</h5>
-                                    </div>
-                                    <div class="card-body">
-                                        <div class="row">
-                                            <div class="col-lg-6">
-                                                <label for="terjemahan">Terjemahan</label>
-                                                <input type="text" name="terjemahan" id="terjemahan" value="{{session('courses')['terjemahan']}}" class="form-control" disabled style="pointer-events: none; opacity: 0.6">
-                                            </div>
-                                            <div class="col-lg-6">
-                                                <label for="parent">Parent</label>
-                                                <input type="text" name="parent" id="parent" value="{{session('courses')['parent']}}" class="form-control" disabled style="pointer-events: none; opacity: 0.6">
-                                            </div>
-                                        </div>
-                                        <div class="row mt-3">
-                                            @if (isset(session('courses')['chapter']))
-                                                <div class="col-lg-6">
-                                                    <label for="chapter">Chapter</label>
-                                                    <input type="text" name="chapter" id="chapter" value="{{session('courses')['chapter']}}" class="form-control" disabled style="pointer-events: none; opacity: 0.6">
-                                                </div>
-                                            @elseif (isset(session('courses')['level']))
-                                                <div class="col-lg-6">
-                                                    <label for="level">Level</label>
-                                                    <input type="text" name="level" id="level" value="{{session('courses')['level']}}" class="form-control" disabled style="pointer-events: none; opacity: 0.6">
-                                                </div>
-                                            @endif
-                                        </div>
-                                    </div>
+                        <div class="product-form">
+                            <div class="card">
+                                <div class="card-header">
+                                    <h5 class="mb-0 h6">Info Courses</h5>
                                 </div>
-                            </div>
-
-                            <div class="card card-default">
-                                <div class="card-body p-3">
-                                    <div class="container mb-3 mt-3">
-                                        <form action="{{route('admin.courses.save_courses')}}" id="form" method="post" enctype="multipart/form-data">
-                                            @csrf
-                                            <div class="row">
-
-                                                <div class="col-lg-6">
-                                                    <div class="row">
-
-                                                        <div class="col-md-12">
-
-                                                            <div class="form-group highlight-addon has-success">
-                                                                <label for="book_title">Book Title <span class="text-danger">*</span></label>
-                                                                <input type="text" name="book_title" id="book_title" required class="form-control" style="max-width: 90%;">
-                                                                <div class="invalid-feedback"></div>
-                                                            </div>
-
-                                                            <div class="form-group highlight-addon has-success">
-                                                                <label for="pages">Total Pages <span class="text-danger">*</span></label>
-                                                                <input type="text" name="pages" id="pages" required class="form-control w-25">
-                                                                <div class="invalid-feedback"></div>
-                                                            </div>
-
-                                                            <div class="form-group highlight-addon has-success">
-                                                                <label for="status_id">Status <span class="text-danger">*</span></label>
-                                                                <select name="status_id" id="status_id" class="form-control w-50" required onclick="showSearch()">
-                                                                    <option value="" disabled selected>Status ..</option>
-                                                                    <option value="1">Enable</option>
-                                                                    <option value="2">Disable</option>
-                                                                    <option value="3">Draft</option>
-                                                                </select>
-                                                                <input type="text" name="search[terjemahan]" class="form-control" id="terjemahan_search" style="display: none;" placeholder="Search ..">
-                                                                <div class="invalid-feedback"></div>
-                                                            </div>
-
-                                                        </div>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-4">
-                                                    <div class="form-group highlight-addon has-success">
-                                                        <label for="youtube">Upload File <span class="text-danger">*</span></label>
-                                                        <div class="custom-file">
-                                                            <input type="file" name="ebook_file" required id="url_link" class="custom-file-input" accept=".pdf" maxlength="52428800">
-                                                            <label class="custom-file-label" for="url_link">Pilih PDF</label>
-                                                        </div>
-                                                        <div class="invalid-feedback"></div>
-                                                    </div>
-
-                                                    <div class="card" id="drop-area">
-                                                        <div class="card-body">
-                                                            <div class="center-content">
-                                                                <p id="drop-text">Drag & drop Ebook PDF di sini <br> <br> max upload 50 MB</p>
-                                                                <img src="{{ asset('assets/img/logo/pdf-icon.jpg')}}" alt="Preview" id="preview" class="img-fluid d-none">
-                                                                <p id="filename" class="d-none"></p>
-                                                            </div>
-                                                        </div>
-                                                    </div>
-                                                </div>
-
+                                <div class="card-body">
+                                    <div class="row">
+                                        <div class="col-lg-6">
+                                            <label for="terjemahan">Terjemahan</label>
+                                            <input type="text" name="terjemahan" id="terjemahan" class="form-control" disabled style="pointer-events: none; opacity: 0.6">
+                                        </div>
+                                        <div class="col-lg-6">
+                                            <label for="parent">Parent</label>
+                                            <input type="text" name="parent" id="parent" class="form-control" disabled style="pointer-events: none; opacity: 0.6">
+                                        </div>
+                                    </div>
+                                    <div class="row mt-3">
+                                        @if (isset(session('courses')['chapter']))
+                                            <div class="col-lg-6">
+                                                <label for="chapter">Chapter</label>
+                                                <input type="text" name="chapter" id="chapter" class="form-control" disabled style="pointer-events: none; opacity: 0.6">
                                             </div>
-
-                                            <div id="progress" class="progress mt-3 mb-2" style="height: 30px;display:none;">
-                                                <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 0%; height: 100%; line-height: 30px;">
-                                                    <span id="status">0% uploaded... please wait</span>
-                                                </div>
-                                            </div>
-
-                                            <button type="submit" class="btn btn-primary mt-2 mb-2">Submit</button>
-
-                                        </form>
-
-                                        <p id="success_upload" class="text-success" style="font-weight: bold;"></p>
-                                        
-                                        <p id="error_upload" class="text-danger" style="font-weight: bold;"></p>
-                                        
-                                        @if (session()->has('error_submit_save'))
-                                            <div id="w6" class="alert-danger alert alert-dismissible mt-3 w-75" role="alert">
-                                                {{session('error_submit_save')}}
-                                                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                                        @elseif (isset(session('courses')['level']))
+                                            <div class="col-lg-6">
+                                                <label for="level">Level</label>
+                                                <input type="text" name="level" id="level" class="form-control" disabled style="pointer-events: none; opacity: 0.6">
                                             </div>
                                         @endif
-
                                     </div>
                                 </div>
                             </div>
+                        </div>
 
-                        @else
-                            <form action="{{route('admin.courses.info_courses')}}" method="post">
-                                @csrf
+                        <div class="card card-default">
+                            <div class="card-body p-3">
+                                <div class="container mb-3 mt-3">
+                                    <form action="{{route('admin.courses.save_courses')}}" id="form" method="post" enctype="multipart/form-data">
+                                        @csrf
+                                        <div class="row">
 
-                                <div class="product-form">
-                                    <div class="card">
+                                            <div class="col-lg-6">
+                                                <div class="row">
 
-                                        <div class="card-header">
-                                            <h5 class="mb-0 h6">Info Courses</h5>
+                                                    <div class="col-md-12">
+
+                                                        <div class="form-group highlight-addon has-success">
+                                                            <label for="book_title">Book Title <span class="text-danger">*</span></label>
+                                                            <input type="text" name="book_title" id="book_title" required class="form-control" style="max-width: 90%;">
+                                                            <div class="invalid-feedback"></div>
+                                                        </div>
+
+                                                        <div class="form-group highlight-addon has-success">
+                                                            <label for="pages">Total Pages <span class="text-danger">*</span></label>
+                                                            <input type="text" name="pages" id="pages" required class="form-control w-25">
+                                                            <div class="invalid-feedback"></div>
+                                                        </div>
+
+                                                        <div class="form-group highlight-addon has-success">
+                                                            <label for="status_id">Status <span class="text-danger">*</span></label>
+                                                            <select name="status_id" id="status_id" class="form-control w-50" required onclick="showSearch()">
+                                                                <option value="" disabled selected>Status ..</option>
+                                                                <option value="1">Enable</option>
+                                                                <option value="2">Disable</option>
+                                                                <option value="3">Draft</option>
+                                                            </select>
+                                                            <input type="text" name="search[terjemahan]" class="form-control" id="terjemahan_search" style="display: none;" placeholder="Search ..">
+                                                            <div class="invalid-feedback"></div>
+                                                        </div>
+
+                                                    </div>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-lg-4">
+                                                <div class="form-group highlight-addon has-success">
+                                                    <label for="youtube">Upload File <span class="text-danger">*</span></label>
+                                                    <div class="custom-file">
+                                                        <input type="file" name="ebook_file" required id="url_link" class="custom-file-input" accept=".pdf" maxlength="52428800">
+                                                        <label class="custom-file-label" for="url_link">Pilih PDF</label>
+                                                    </div>
+                                                    <div class="invalid-feedback"></div>
+                                                </div>
+
+                                                <div class="card" id="drop-area">
+                                                    <div class="card-body">
+                                                        <div class="center-content">
+                                                            <p id="drop-text">Drag & drop Ebook PDF di sini <br> <br> max upload 50 MB</p>
+                                                            <img src="{{ asset('assets/img/logo/pdf-icon.jpg')}}" alt="Preview" id="preview" class="img-fluid d-none">
+                                                            <p id="filename" class="d-none"></p>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+
                                         </div>
 
-                                        <div class="card-body">
-
-                                            <div class="row">
-                                                <div class="col-lg-12">
-                                                    <div class="alert alert-warning" role="alert">
-                                                        <b>Perhatian!</b> Pengaturan courses pada bagian ini, setelah di simpan <b>tidak dapat</b> di edit.
-                                                    </div>
-                                                </div>
-                                            </div>
-
-                                            <div class="row">
-                                                <div class="col-lg-6">
-                                                    <div class="form-group field-terjemahan required">
-                                                        <label for="terjemahan">Terjemahan</label>
-                                                        <select name="courses[terjemahan]" id="terjemahan" class="form-control">
-                                                            <option value="" data-select2-id="2">Choose Terjemahan ..</option>
-                                                            @foreach ($availableTerjemahan as $terjemahan)
-                                                                <option value="{{$terjemahan->id}}">{{$terjemahan->language_name}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                    </div>
-                                                </div>
-
-                                                <div class="col-lg-6">
-                                                    <div class="form-group field-parent required">
-                                                        <label for="parent">Parent Courses</label>
-                                                        <select name="courses[parent]" id="parent" class="form-control">
-                                                            <option value="" data-select2-id="2">Choose Parent ..</option>
-                                                        </select>
-                                                        <div class="invalid-feedback"></div>
-                                                    </div>
-                                                </div>
-                                                
-                                            </div>
-
-                                            <div class="row">
-
-                                                <div class="col-lg-6" id="container-chapter">
-                                                    <div class="form-group field-chapter required">
-                                                        {{-- <input type="text" name="courses[chapter]" id="chapter"> --}}
-                                                        <div class="invalid-feedback"></div>
-                                                    </div>
-                                                </div>
-
-                                            </div>
-                                            <div class="row">
-                                                
-                                                <div class="col-lg-6" id="container-level">
-                                                    <div class="form-group field-level required">
-                                                        <select name="courses[level]" id="level" class="form-control" style="display: none;">
-                                                        </select>
-                                                        <div class="invalid-feedback"></div>
-                                                    </div>
-                                                </div>
+                                        <div id="progress" class="progress mt-3 mb-2" style="height: 30px;display:none;">
+                                            <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 0%; height: 100%; line-height: 30px;">
+                                                <span id="status">0% uploaded... please wait</span>
                                             </div>
                                         </div>
 
-                                        <div class="card-footer">
-                                            <button type="submit" class="btn btn-success" name="save" value="save"><i class="fas fa-save"></i> Save &amp; Next Step</button>
-                                        </div>
+                                        <button type="submit" class="btn btn-primary mt-2 mb-2">Submit</button>
+                                        
+                                    </form>
 
-                                    </div>
+                                    <p id="success_upload" class="text-success" style="font-weight: bold;"></p>
+                                    
+                                    <p id="error_upload" class="text-danger" style="font-weight: bold;"></p>
+                                        
+                                    @if (session()->has('error_submit_save'))
+                                        <div id="w6" class="alert-danger alert alert-dismissible mt-3 w-75" role="alert">
+                                            {{session('error_submit_save')}}
+                                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                                        </div>
+                                    @endif
+
                                 </div>
-                            </form>
-
-                        @endif
+                            </div>
+                        </div>
                         
                     </div>
                 </div>

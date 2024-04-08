@@ -16,6 +16,7 @@ class BookTranslation extends Model
         'language_name',
         'status_id',
         'hierarchy_id',
+        'pages',
         'file'
     ];
 
