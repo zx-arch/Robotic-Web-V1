@@ -71,7 +71,7 @@ class LoginController extends Controller
 
             }
             $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
-
+            dd($tutorials);
             return view('login', $this->data, compact('tutorials'));
 
         }
