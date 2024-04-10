@@ -73,6 +73,25 @@
         }
     }
 
+    section .row {
+        background: #e9f0ff;
+        margin-bottom: 10px;
+        list-style: none;
+        padding: 15px 10px;
+        border-radius: 5px;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+    }
+
+    section .row i {
+        font-size: 30px;
+        color: #6990f2;
+    }
+
+    section .details span {
+        font-size: 18px;
+    }
 </style>
 
 <!-- Memuat jQuery UI dari CDN -->
@@ -81,128 +100,10 @@
 @section('content')
 
     <div class="container-fluid">
-        {{-- <div class="content">
-            <div class="row">
-                <div class="col-lg-12">
-                    <h5 class="p-2">Add Courses</h5>
 
-                    <div class="card card-default">
-                        <div class="card-body p-0">
-                            <div class="container mb-3 mt-3">
-                                <form action="{{route('admin.courses.save_courses')}}" id="form" method="post" enctype="multipart/form-data">
-                                    @csrf
-                                    <div class="row">
-
-                                        <div class="col-lg-6">
-                                            <div class="row">
-
-                                                <div class="col-md-12">
-
-                                                    <div class="form-group highlight-addon has-success">
-                                                        <label for="book_title">Book Title <span class="text-danger">*</span></label>
-                                                        <input type="text" name="book_title" id="book_title" required class="form-control" style="max-width: 90%;">
-                                                        <div class="invalid-feedback"></div>
-                                                    </div>
-
-                                                    <div class="form-group highlight-addon has-success">
-                                                        <label for="terjemahan">Terjemahan <span class="text-danger">*</span></label>
-                                                        <select name="terjemahan" id="terjemahan" class="form-control w-50" required onclick="showSearch()">
-                                                            <option value="" disabled selected>Terjemahan ..</option>
-                                                            @foreach ($getTerjemahan as $terjemahan)
-                                                                <option value="{{$terjemahan->id}}">{{$terjemahan->language_name}}</option>
-                                                            @endforeach
-                                                        </select>
-                                                        <input type="text" name="search[terjemahan]" class="form-control" id="terjemahan_search" style="display: none;" placeholder="Search ..">
-                                                        <div class="invalid-feedback"></div>
-                                                    </div>
-
-                                                    <div class="form-group highlight-addon has-success">
-                                                        <label for="pages">Total Pages <span class="text-danger">*</span></label>
-                                                        <input type="text" name="pages" id="pages" required class="form-control w-25">
-                                                        <div class="invalid-feedback"></div>
-                                                    </div>
-
-                                                    <div class="form-group highlight-addon has-success">
-                                                        <label for="status_id">Status <span class="text-danger">*</span></label>
-                                                        <select name="status_id" id="status_id" class="form-control w-50" required onclick="showSearch()">
-                                                            <option value="" disabled selected>Status ..</option>
-                                                            <option value="1">Enable</option>
-                                                            <option value="2">Disable</option>
-                                                            <option value="3">Draft</option>
-                                                        </select>
-                                                        <input type="text" name="search[terjemahan]" class="form-control" id="terjemahan_search" style="display: none;" placeholder="Search ..">
-                                                        <div class="invalid-feedback"></div>
-                                                    </div>
-
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                        <div class="col-lg-4">
-                                            <div class="form-group highlight-addon has-success">
-                                                <label for="youtube">Upload File <span class="text-danger">*</span></label>
-                                                <div class="custom-file">
-                                                    <input type="file" name="ebook_file" required id="url_link" class="custom-file-input" accept=".pdf" maxlength="52428800">
-                                                    <label class="custom-file-label" for="url_link">Pilih PDF</label>
-                                                </div>
-                                                <div class="invalid-feedback"></div>
-                                            </div>
-
-                                            <div class="card" id="drop-area">
-                                                <div class="card-body">
-                                                    <div class="center-content">
-                                                        <p id="drop-text">Drag & drop Ebook PDF di sini <br> <br> max upload 50 MB</p>
-                                                        <img src="{{ asset('assets/img/logo/pdf-icon.jpg')}}" alt="Preview" id="preview" class="img-fluid d-none">
-                                                        <p id="filename" class="d-none"></p>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        </div>
-
-                                    </div>
-
-                                    <div id="progress" class="progress mt-3 mb-2" style="height: 30px;display:none;">
-                                        <div id="progress-bar" class="progress-bar progress-bar-striped progress-bar-animated" role="progressbar" aria-valuemin="0" aria-valuemax="100" style="width: 0%; height: 100%; line-height: 30px;">
-                                            <span id="status">0% uploaded... please wait</span>
-                                        </div>
-                                    </div>
-
-                                    <button type="submit" class="btn btn-primary mt-2 mb-2">Submit</button>
-
-                                </form>
-
-                                <p id="success_upload" class="text-success" style="font-weight: bold;"></p>
-                                
-                                <p id="error_upload" class="text-danger" style="font-weight: bold;"></p>
-                                
-                                @if (session()->has('error_submit_save'))
-                                    <div id="w6" class="alert-danger alert alert-dismissible mt-3 w-75" role="alert">
-                                        {{session('error_submit_save')}}
-                                        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
-                                    </div>
-                                @endif
-
-                            </div>
-                        </div>
-                    </div>
-
-                </div>
-            </div>
-        </div> --}}
-
-        <div class="box">
+        <div class="box mt-2">
             <div class="box-body">
-                <div class="row">
-                    <div class="col-lg-12 text-center mt-3 mb-2">
-                        <a href="{{route('admin.courses.add')}}" class="btn btn-app bg-secondary">
-                            <i class="fas fa-cog"></i> Info Courses
-                        </a>
-                        <a href="#" class="btn btn-app">
-                            <i class="fas fa-cloud-download-alt"></i> Add Parent
-                        </a>
-                    </div>
 
-                </div>
                 <div class="px-15px px-lg-25px">
                     <div class="col-md-10 mx-auto">
 
@@ -253,28 +154,44 @@
 
                                                         <div class="form-group highlight-addon has-success">
                                                             <label for="book_title">Book Title <span class="text-danger">*</span></label>
-                                                            <input type="text" name="book_title" id="book_title" required class="form-control" style="max-width: 90%;">
+                                                            <input type="text" name="book_title" id="book_title" value="{{$detailCourses->book_title}}" required class="form-control" style="max-width: 90%;">
                                                             <div class="invalid-feedback"></div>
                                                         </div>
 
                                                         <div class="form-group highlight-addon has-success">
                                                             <label for="pages">Total Pages <span class="text-danger">*</span></label>
-                                                            <input type="text" name="pages" id="pages" required class="form-control w-25">
+                                                            <input type="text" name="pages" id="pages" required value="{{$detailCourses->pages}}" class="form-control w-25">
                                                             <div class="invalid-feedback"></div>
                                                         </div>
 
                                                         <div class="form-group highlight-addon has-success">
                                                             <label for="status_id">Status <span class="text-danger">*</span></label>
                                                             <select name="status_id" id="status_id" class="form-control w-50" required onclick="showSearch()">
-                                                                <option value="" disabled selected>Status ..</option>
-                                                                <option value="1">Enable</option>
-                                                                <option value="2">Disable</option>
-                                                                <option value="3">Draft</option>
+                                                                <option value="" disabled {{isset($detailCourses->status_id) ?? ''}}>Status ..</option>
+                                                                <option value="1" {{isset($detailCourses->status_id) && $detailCourses->status_id == 1 ? 'selected': ''}}>Enable</option>
+                                                                <option value="2" {{isset($detailCourses->status_id) && $detailCourses->status_id == 2 ? 'selected': ''}}>Disable</option>
+                                                                <option value="3" {{isset($detailCourses->status_id) && $detailCourses->status_id == 3 ? 'selected': ''}}>Draft</option>
                                                             </select>
-                                                            <input type="text" name="search[terjemahan]" class="form-control" id="terjemahan_search" style="display: none;" placeholder="Search ..">
                                                             <div class="invalid-feedback"></div>
                                                         </div>
+                                                        
+                                                        <section class="uploaded-area">
+                                                            <li class="row">
+                                                                <div class="content">
+                                                                    <i class="fas fa-file"></i>
+                                                                    <div class="details ml-2" style="float: right;">
+                                                                        <span class="name" id="name_file">
+                                                                            <a href="{{ asset('book/'.$detailCourses->language_name.'/'.$detailCourses->file) }}" download>
+                                                                                {{$detailCourses->file}}
+                                                                            </a>
+                                                                        </span>
+                                                                    </div>
+                                                                </div>
 
+                                                                {{-- <span class="size">70 KB</span> --}}
+                                                                <i class="fas fa-check"></i>
+                                                            </li>
+                                                        </section>
                                                     </div>
                                                 </div>
                                             </div>
@@ -338,93 +255,6 @@
 <script>
 
     document.addEventListener('DOMContentLoaded', function () {
-        const parentSelect = document.getElementById('parent');
-        const terjemahanSelect = document.getElementById('terjemahan');
-        const chapterContainer = document.getElementById('container-chapter');
-        const levelSelectContainer = document.getElementById('container-level');
-        let chapterInput = document.createElement('input');
-        let levelSelect = document.createElement('select');
-        const jsonData = {!! json_encode($allHierarchy) !!};
-
-        // Fungsi untuk menampilkan pilihan parent sesuai dengan terjemahan yang dipilih
-        function showParentOptions(selectedTerjemahan) {
-            parentSelect.innerHTML = '<option value="" selected disabled>Choose Parent ..</option>';
-            chapterContainer.innerHTML = ''; // Menghapus konten input chapter
-            levelSelectContainer.innerHTML = ''; // Menghapus konten select level
-            jsonData.forEach(function(hierarchy) {
-                if (hierarchy.language_id == selectedTerjemahan && hierarchy.parent_id == 0) {
-                    let option = document.createElement("option");
-                    option.text = hierarchy.name;
-                    option.value = hierarchy.id;
-                    option.name = hierarchy.name;
-                    parentSelect.appendChild(option);
-                }
-            });
-        }
-
-        // Fungsi untuk menampilkan input chapter atau select level berdasarkan parent yang dipilih
-        function showChapterOrLevel(parentValue) {
-            if (parentValue === '35') {
-                chapterContainer.innerHTML = ''; // Menghapus konten input chapter jika parentValue adalah 35
-                chapterInput = document.createElement('input');
-                chapterInput.id = 'chapter';
-                chapterInput.name = 'courses[chapter]';
-                chapterInput.classList.add('form-control');
-                chapterContainer.appendChild(chapterInput);
-                levelSelectContainer.innerHTML = ''; // Menghapus konten select level jika parentValue adalah 35
-            
-            } else {
-                chapterContainer.innerHTML = ''; // Menghapus konten input chapter jika parentValue bukan 35
-                levelSelectContainer.innerHTML = ''; // Menghapus konten select level jika parentValue bukan 35
-                
-                let selectLabel = document.createElement("label");
-                selectLabel.setAttribute("for", "level");
-                selectLabel.textContent = "Level";
-                levelSelectContainer.appendChild(selectLabel);
-
-                levelSelect = document.createElement('select');
-                levelSelect.id = 'level';
-                levelSelect.name = 'courses[level]';
-                levelSelect.classList.add('form-control');
-                levelSelectContainer.appendChild(levelSelect);
-
-                option = document.createElement('option');
-                option.text = 'Choose Level ..';
-                option.value = '';
-                option.selected = true;
-                option.disabled = true;
-                levelSelect.appendChild(option);
-
-                jsonData.forEach(function(hierarchy) {
-                    if (hierarchy.parent_id == parentValue && hierarchy.language_id == terjemahanSelect.value) {
-                        let option = document.createElement("option");
-                        option.text = hierarchy.name;
-                        option.value = hierarchy.id;
-                        option.name = hierarchy.name;
-                        levelSelect.appendChild(option);
-                    }
-                });
-            }
-        }
-
-        // Event listener untuk perubahan pada terjemahan
-        terjemahanSelect.addEventListener('change', function () {
-            if (terjemahanSelect.value == '') {
-                chapterContainer.style.display = 'none';
-                levelSelectContainer.style.display = 'none';
-            }
-            showParentOptions(terjemahanSelect.value);
-        });
-
-        // Event listener untuk perubahan pada parent
-        parentSelect.addEventListener('change', function () {
-            if (parentSelect.value !== '35') {
-                if (chapterContainer.classList.contains('container-chapter')) {
-                    chapterContainer.classList.remove('container-chapter');
-                }
-            }
-            showChapterOrLevel(parentSelect.value);
-        });
 
         // Get the input element
         const inputElement = document.querySelector('.custom-file-input');
@@ -433,6 +263,7 @@
         const dropText = document.getElementById('drop-text');
         const preview = document.getElementById('preview');
         const filename = document.getElementById('filename');
+        const nameFile = document.getElementById('name_file');
 
         // Add event listeners for input element
         inputElement.addEventListener('change', handleFileSelect);
@@ -441,12 +272,15 @@
         ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, preventDefaults, false);
         });
+
         ['dragenter', 'dragover'].forEach(eventName => {
             dropArea.addEventListener(eventName, highlight, false);
         });
+
         ['dragleave', 'drop'].forEach(eventName => {
             dropArea.addEventListener(eventName, unhighlight, false);
         });
+
         dropArea.addEventListener('drop', handleDrop, false);
 
         // Prevent default behavior
@@ -531,6 +365,7 @@
                         labelElement.innerText = file.name;
                         preview.classList.remove('d-none');
                         filename.innerText = file.name;
+                        nameFile.innerText = file.name;
                         filename.classList.remove('d-none');
                         dropText.classList.add('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
                     } else {

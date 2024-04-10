@@ -136,7 +136,7 @@
                                             <td>{{$translation->created_at}}</td>
                                             <td>{{$translation->updated_at}}</td>
                                             <td>
-                                                <a class="btn btn-warning btn-sm" href="{{route('admin.courses.update', ['id'=> encrypt($translation->id)])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
+                                                <a class="btn btn-warning btn-sm" href="{{route('admin.courses.update', ['id'=> $translation->id])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
                                                 
                                                 <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.courses.forceDelete', ['id' => encrypt($translation->id)])}}">
                                                     <i class="fa-fw fas fa-trash" aria-hidden="true"></i>

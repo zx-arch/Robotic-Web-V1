@@ -220,10 +220,10 @@ class CategoryTutorialController extends Controller
 
                 CategoryTutorial::where('id', $id_cat)->update($arryUpdate);
 
-                // Activity::create(array_merge(session('myActivity'), [
-                //     'user_id' => Auth::user()->id,
-                //     'action' => Auth::user()->username . ' Update Categories ' . $findCat->category,
-                // ]));
+                Activity::create(array_merge(session('myActivity'), [
+                    'user_id' => Auth::user()->id,
+                    'action' => Auth::user()->username . ' Update Categories ' . $findCat->category,
+                ]));
 
                 return redirect()->route('category_tutorial.index')->with('success_submit_save', 'Category berhasil diupdate!');
 
