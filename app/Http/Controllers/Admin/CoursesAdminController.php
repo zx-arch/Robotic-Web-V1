@@ -63,6 +63,7 @@ class CoursesAdminController extends Controller
         $created_at = $searchData['created_at'] ?? null;
         $updated_at = $searchData['updated_at'] ?? null;
         //dd($request->all());
+        $getAvailableLanguage = BookTranslation::select('language_id', 'language_name')->groupBy('language_id', 'language_name')->with('translations')->get();
 
         // Misalnya ingin mencari data user berdasarkan book_title, terjemahan, status, created_at, atau updated_at
         $bookTranslations = BookTranslation::with(['hierarchyCategoryBook', 'hierarchyCategoryBook.parentCategory'])->withTrashed()
@@ -122,7 +123,7 @@ class CoursesAdminController extends Controller
             }
         }
 
-        return view('admin.Courses.index', $this->data, compact('bookTranslations', 'searchData', 'itemsPerPage'));
+        return view('admin.Courses.index', $this->data, compact('bookTranslations', 'searchData', 'itemsPerPage', 'getAvailableLanguage'));
 
     }
 
