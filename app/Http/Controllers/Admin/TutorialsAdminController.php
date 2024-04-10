@@ -79,9 +79,8 @@ class TutorialsAdminController extends Controller
         //dd($request->all());
 
         // Misalnya ingin mencari data user berdasarkan video_name, category, status_id, created_at, atau updated_at
-        $tutorials = Tutorials::select('tutorials.*', 'category_tutorial.category as category_name')
-            ->leftJoin('category_tutorial', 'category_tutorial.id', '=', 'tutorials.tutorial_category_id')
-            ->withTrashed();
+        $tutorials = Tutorials::select('tutorials.*', 'category_tutorial.category as category_name')->leftJoin('category_tutorial', 'category_tutorial.id', '=', 'tutorials.tutorial_category_id')
+            ->with('masterStatus')->withTrashed()->latest();
 
         $tutorials->where(function ($query) use ($video_name, $status_id, $category, $created_at, $updated_at) {
             if ($video_name !== null) {
