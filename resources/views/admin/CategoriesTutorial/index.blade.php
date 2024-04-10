@@ -150,7 +150,7 @@
                                         <tr>
                                             <td>{{$loop->index += 1}}</td>
                                             <td>{{$category->category}}</td>
-                                            <td>{{isset(\App\Models\MasterStatus::where('id', $category->status_id)->first()->name) ? \App\Models\MasterStatus::where('id', $category->status_id)->first()->name : "Not Valid"}}</td>
+                                            <td>{{isset($category->masterStatus->name) ? $category->masterStatus->name : "Not Valid"}}</td>
                                             <td>{{ $category->is_shown ? 'True' : 'False' }}</td>
                                             <td>{{$category->created_at}}</td>
                                             <td>{{$category->updated_at}}</td>

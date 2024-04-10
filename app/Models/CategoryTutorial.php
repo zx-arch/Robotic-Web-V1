@@ -14,4 +14,8 @@ class CategoryTutorial extends Model
         'delete_html_code',
         'is_shown',
     ];
+    public function masterStatus()
+    {
+        return $this->belongsTo(MasterStatus::class, 'status_id');
+    }
 }

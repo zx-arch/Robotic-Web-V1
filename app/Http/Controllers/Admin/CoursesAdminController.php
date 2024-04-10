@@ -26,7 +26,8 @@ class CoursesAdminController extends Controller
         // $bookTranslations = BookTranslation::select('book_translation.*', 'hierarchy_category_book.hierarchy_name')->leftJoin('hierarchy_category_book', 'hierarchy_category_book.id', '=', 'book_translation.hierarchy_id')
         //     ->with('hierarchyCategoryBook')->get();
         //dd($bookTranslations);
-        $bookTranslations = BookTranslation::with(['hierarchyCategoryBook', 'hierarchyCategoryBook.parentCategory'])->withTrashed()->latest();
+        $bookTranslations = BookTranslation::select('book_translation.*', 'master_status.name as status')->leftJoin('master_status', 'master_status.id', '=', 'book_translation.status_id')->with(['hierarchyCategoryBook', 'hierarchyCategoryBook.parentCategory', 'masterStatus', 'translations'])->withTrashed()->latest();
+        $getAvailableLanguage = BookTranslation::select('language_id', 'language_name')->groupBy('language_id', 'language_name')->with('translations')->get();
 
         $totalCatBookTranslations = $bookTranslations->count();
 
@@ -48,7 +49,7 @@ class CoursesAdminController extends Controller
                 return redirect($bookTranslations->url($bookTranslations->lastPage()));
             }
         }
-        return view('admin.Courses.index', $this->data, compact('bookTranslations'));
+        return view('admin.Courses.index', $this->data, compact('bookTranslations', 'getAvailableLanguage'));
     }
 
     public function search(Request $request)

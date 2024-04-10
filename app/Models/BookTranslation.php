@@ -47,4 +47,8 @@ class BookTranslation extends Model
     {
         return $this->belongsTo(HierarchyCategoryBook::class, 'hierarchy_id');
     }
+    public function masterStatus()
+    {
+        return $this->belongsTo(MasterStatus::class, 'status_id');
+    }
 }

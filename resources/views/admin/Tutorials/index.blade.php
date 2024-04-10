@@ -134,7 +134,7 @@
                                             <td>{{$tutorial->category_name}}</td>
                                             
                                             @if ($tutorial->deleted_at == null)
-                                                <td>{{App\Models\MasterStatus::where('id',$tutorial->status_id)->first()->name}}</td>
+                                                <td>{{$tutorial->masterStatus->name}}</td>
                                             @else
                                                 <td class="text-danger">Deleted by admin</td>
                                             @endif

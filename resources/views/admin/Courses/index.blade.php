@@ -1,4 +1,9 @@
 @extends('cms_login.index_admin')
+<style>
+    body {
+        max-height: 120vh;
+    }
+</style>
 @section('content')
 <div class="container-fluid">
         
@@ -85,9 +90,6 @@
                                             <td><input type="text" class="form-control" name="search[book_title]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['book_title'])) ? $searchData['book_title'] : ''}}"></td>
                                             
                                             <td>
-                                                @php
-                                                    $getAvailableLanguage = \App\Models\BookTranslation::select('language_id','language_name')->groupBy('language_id','language_name')->with('translations')->get();
-                                                @endphp
                                                 <select name=search[terjemahan]" id="terjemahan" class="form-control" onchange="this.form.submit()">
                                                     <option value="" {{(!isset($searchData['terjemahan'])) ? 'selected' : ''}} disabled></option>
                                                     @foreach ($getAvailableLanguage as $language)
@@ -129,8 +131,8 @@
                                         <tr>
                                             <td>{{$loop->index += 1}}</td>
                                             <td>{{$translation->book_title}}</td>
-                                            <td>{{$translation->language_name}}</td>
-                                            <td>{{\App\Models\MasterStatus::where('id',$translation->status_id)->first()->name}}</td>
+                                            <td>{{$translation->translations->language_name}}</td>
+                                            <td>{{$translation->status}}</td>
                                             <td>{{ $translation->hierarchyCategoryBook->parentCategory->hierarchy_name }}</td>
                                             <td><a href="{{ asset('book/'.\App\Models\Translations::where('id',$translation->language_id)->first()->language_name.'/'.$translation->file) }}" download>{{$translation->file}}</a></td>
                                             <td>{{$translation->created_at}}</td>
