@@ -301,6 +301,12 @@ class CoursesAdminController extends Controller
                 DB::transaction(function () use ($detailCourses, $findHierarchy) {
                     $findHierarchy->forceDelete();
                     $detailCourses->forceDelete();
+
+                    // Hapus file-file dari penyimpanan
+                    $path = public_path('book/' . $detailCourses->language_name . '/' . $detailCourses->file);
+                    if (file_exists($path)) {
+                        unlink($path);
+                    }
                 });
 
             } else {
