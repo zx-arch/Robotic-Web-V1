@@ -66,7 +66,7 @@ class CoursesAdminController extends Controller
         $getAvailableLanguage = BookTranslation::select('language_id', 'language_name')->groupBy('language_id', 'language_name')->with('translations')->get();
 
         // Misalnya ingin mencari data user berdasarkan book_title, terjemahan, status, created_at, atau updated_at
-        $bookTranslations = BookTranslation::with(['hierarchyCategoryBook', 'hierarchyCategoryBook.parentCategory'])->withTrashed()
+        $bookTranslations = BookTranslation::select('book_translation.*', 'master_status.name as status')->leftJoin('master_status', 'master_status.id', '=', 'book_translation.status_id')->with(['hierarchyCategoryBook', 'hierarchyCategoryBook.parentCategory', 'masterStatus', 'translations'])
             ->withTrashed()->latest();
 
         $bookTranslations->where(function ($query) use ($book_title, $status, $terjemahan, $parent, $created_at, $updated_at) {
