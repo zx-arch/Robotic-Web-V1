@@ -17,13 +17,12 @@ class AktivitasPenggunaController extends Controller
     public function index()
     {
         $activities = Activity::latest();
-        $totalActivity = $activities->count();
 
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
         // Menentukan jumlah halaman maksimum untuk semua data
-        $totalPagesAll = ceil($totalActivity / $itemsPerPage);
+        $totalPagesAll = $itemsPerPage;
         $activities = $activities->paginate($itemsPerPage);
 
         if ($totalPagesAll >= 15) {
