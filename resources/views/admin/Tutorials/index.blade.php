@@ -1,3 +1,8 @@
+<style>
+    body {
+        max-height: 125vh;
+    }
+</style>
 @extends('cms_login.index_admin')
 <!-- Memuat jQuery dari CDN -->
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
