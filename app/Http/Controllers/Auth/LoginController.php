@@ -7,6 +7,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tutorials;
 use GeoIp2\Database\Reader;
+use App\Models\User;
+use App\Models\Activity;
 
 class LoginController extends Controller
 {
@@ -85,12 +87,51 @@ class LoginController extends Controller
             session(['username' => Auth::user()->username]);
 
             if ($user->role == 'admin') {
+
+                User::where('id', Auth::user()->id)->update([
+                    'last_login' => now(),
+                ]);
+
+                // dd(session('myActivity'), Session::get('csrf_token'));
+                if (session()->has('myActivity')) {
+                    Activity::create(array_merge(session('myActivity'), [
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                    ]));
+                }
+
                 return redirect()->route('admin.dashboard');
 
             } elseif ($user->role == 'pengurus') {
+
+                User::where('id', Auth::user()->id)->update([
+                    'last_login' => now(),
+                ]);
+
+                // dd(session('myActivity'), Session::get('csrf_token'));
+                if (session()->has('myActivity')) {
+                    Activity::create(array_merge(session('myActivity'), [
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                    ]));
+                }
+
                 return redirect()->route('pengurus.dashboard');
 
             } elseif ($user->role == 'user') {
+
+                User::where('id', Auth::user()->id)->update([
+                    'last_login' => now(),
+                ]);
+
+                // dd(session('myActivity'), Session::get('csrf_token'));
+                if (session()->has('myActivity')) {
+                    Activity::create(array_merge(session('myActivity'), [
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                    ]));
+                }
+
                 return redirect()->route('user.dashboard');
 
             } else {

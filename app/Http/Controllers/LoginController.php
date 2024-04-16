@@ -71,7 +71,7 @@ class LoginController extends Controller
 
             }
             $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
-            dd($tutorials);
+            //dd($tutorials);
             return view('login', $this->data, compact('tutorials'));
 
         }
@@ -93,45 +93,12 @@ class LoginController extends Controller
 
             // Jika autentikasi berhasil, arahkan pengguna sesuai peran
             if (Auth::user()->role == 'admin') {
-
-                User::where('id', Auth::user()->id)->update([
-                    'last_login' => now(),
-                ]);
-
-                // dd(session('myActivity'), Session::get('csrf_token'));
-                if (session()->has('myActivity')) {
-                    Activity::create(array_merge(session('myActivity'), [
-                        'user_id' => Auth::user()->id,
-                        'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                    ]));
-                }
-
                 return redirect()->route('admin.dashboard');
 
             } elseif (Auth::user()->role == 'pengurus') {
-
-                User::where('id', Auth::user()->id)->update([
-                    'last_login' => now(),
-                ]);
-
-                Activity::create(array_merge(session('myActivity'), [
-                    'user_id' => Auth::user()->id,
-                    'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                ]));
-
                 return redirect()->route('pengurus.dashboard');
 
             } elseif (Auth::user()->role == 'user') {
-
-                User::where('id', Auth::user()->id)->update([
-                    'last_login' => now(),
-                ]);
-
-                Activity::create(array_merge(session('myActivity'), [
-                    'user_id' => Auth::user()->id,
-                    'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                ]));
-
                 return redirect()->route('user.dashboard');
 
             } else {
