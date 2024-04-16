@@ -17,6 +17,7 @@ use App\Http\Controllers\user\Dashboarduser;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Pengurus\DashboardPengurus;
 use App\Http\Controllers\Pengurus\TutorialsPengurusController;
+use App\Http\Controllers\Admin\ChatDashboardController;
 
 /*
 |--------------------------------------------------------------------------
@@ -83,6 +84,8 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
         Route::get('/view/{user_id}', [DaftarPengguna::class, 'view'])->name('daftar_pengguna.view');
         Route::get('/restore/{user_id}', [DaftarPengguna::class, 'restore'])->name('daftar_pengguna.restore');
     });
+
+    Route::get('/admin/chat', [ChatDashboardController::class, 'index'])->name('admin.chat_dashboard.index');
 
     Route::get('/admin/category_tutorial', [CategoryTutorialController::class, 'index'])->name('category_tutorial.index');
 
