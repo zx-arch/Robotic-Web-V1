@@ -23,20 +23,15 @@ class DaftarPengguna extends Controller
 
     public function index()
     {
-        $users = Users::where('role', '!=', 'admin')
-            ->withTrashed() // Ini akan hanya mengambil pengguna yang telah dihapus secara lembut
-            ->latest();
-
-        $totalUsers = $users->count();
+        $users = Users::withTrashed()->latest();
 
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
         // Menentukan jumlah halaman maksimum untuk semua data
-        $totalPagesAll = ceil($totalUsers / $itemsPerPage);
         $users = $users->paginate($itemsPerPage);
 
-        if ($totalPagesAll >= 15) {
+        if ($itemsPerPage >= 15) {
             $totalPages = 15;
         }
 
@@ -47,7 +42,13 @@ class DaftarPengguna extends Controller
                 return redirect($users->url($users->lastPage()));
             }
         }
-        return view('admin.DaftarPengguna.index', $this->data, compact('users', 'itemsPerPage'));
+
+        $allUser = $users->count();
+        $userActive = $users->where('status', 'active')->count();
+        $userInActive = $users->where('status', 'inactive')->count();
+        $userDeleted = $users->where('status', 'deleted')->count();
+
+        return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted', 'itemsPerPage'));
     }
     public function search(Request $request)
     {
@@ -61,7 +62,7 @@ class DaftarPengguna extends Controller
         $last_login = $searchData['last_login'] ?? null;
 
         // Misalnya, Anda ingin mencari data user berdasarkan username, email, status, created_at, atau last_login
-        $users = Users::query()->where('role', '!=', 'admin')->withTrashed();
+        $users = Users::query()->withTrashed()->latest();
 
         if ($status !== null || $last_login !== null && ($username !== null || $email !== null || $created_at !== null)) {
             // Menggunakan where untuk menambahkan kondisi pencarian tambahan

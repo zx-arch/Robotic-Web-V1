@@ -18,7 +18,7 @@
                         <span class="info-box-icon"><i class="fas fa-user"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Total Semua User</span>
-                            <span class="info-box-number">{{\App\Models\Users::all()->count()}}</span>
+                            <span class="info-box-number">{{$allUser}}</span>
                         </div>
                     </div>
                 </div>
@@ -27,7 +27,7 @@
                         <span class="info-box-icon"><i class="fas fa-check"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Total User Aktif</span>
-                            <span class="info-box-number">{{\App\Models\Users::where('status', 'active')->get()->count()}}</span>
+                            <span class="info-box-number">{{$userActive}}</span>
                         </div>
                     </div>
                 </div>
@@ -36,7 +36,7 @@
                         <span class="info-box-icon"><i class="fas fa-times"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Total User Belum Aktif</span>
-                            <span class="info-box-number">{{\App\Models\Users::where('status', 'inactive')->get()->count() ?? 0}}</span>
+                            <span class="info-box-number">{{$userInActive}}</span>
                         </div>
                     </div>
                 </div>
@@ -45,7 +45,7 @@
                         <span class="info-box-icon"><i class="fas fa-times"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Total User Dihapus</span>
-                            <span class="info-box-number">{{\App\Models\Users::onlyTrashed()->get()->count()}}</span>
+                            <span class="info-box-number">{{$userDeleted}}</span>
                         </div>
                     </div>
                 </div>
