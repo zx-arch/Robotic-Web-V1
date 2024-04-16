@@ -12,7 +12,8 @@
         <div class="row">
             <div class="col-lg-12">
                 <h5 class="p-2">Category Tutorial</h5>
-                <button id="addCategory" class="btn btn-success mb-3" style="width: 6%;"><i class="fa fa-plus mr-1" aria-hidden="true"></i> Add</button>
+                <button id="addCategory" class="btn btn-success mb-3"><i class="fa fa-plus mr-1" aria-hidden="true"></i> Add</button>
+
                 <div class="card card-default">
 
                     <div class="card-header" id="formAddCat" style="{{ session('success_submit_save') || session('error_submit_save') || session('success_deleted') || session('error_deleted') ? '' : 'display: none;' }}">
