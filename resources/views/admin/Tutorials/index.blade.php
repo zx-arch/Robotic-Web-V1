@@ -134,7 +134,7 @@
                                             <td>{{$tutorial->category_name}}</td>
                                             
                                             @if ($tutorial->deleted_at == null)
-                                                <td>{{$tutorial->masterStatus->name}}</td>
+                                                <td>{{$tutorial->status_name}}</td>
                                             @else
                                                 <td class="text-danger">Deleted by admin</td>
                                             @endif

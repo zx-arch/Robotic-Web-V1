@@ -31,7 +31,8 @@ class TutorialsAdminController extends Controller
 
     public function index()
     {
-        $tutorials = Tutorials::select('tutorials.*', 'category_tutorial.category as category_name')->leftJoin('category_tutorial', 'category_tutorial.id', '=', 'tutorials.tutorial_category_id')
+        $tutorials = Tutorials::select('tutorials.*', 'category_tutorial.category as category_name', 'master_status.name as status_name')->leftJoin('category_tutorial', 'category_tutorial.id', '=', 'tutorials.tutorial_category_id')
+            ->leftJoin('master_status', 'master_status.id', '=', 'tutorials.status_id')
             ->with('masterStatus')->withTrashed()->latest();
         $deletedTutorialsCount = Tutorials::onlyTrashed()->count();
         //dd($tutorials->where('tutorials.id', 3)->first());
@@ -43,7 +44,8 @@ class TutorialsAdminController extends Controller
         $getCategory = CategoryTutorial::all();
         //dd($getCategory);
         $totalTutorials = $tutorials->count();
-        // dd($tutorials->get());
+        // 
+        //dd($tutorials->get());
 
         // Menentukan jumlah item per halaman
         $itemsPerPage = 10;
