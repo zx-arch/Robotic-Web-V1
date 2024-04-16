@@ -34,6 +34,7 @@ class TutorialsAdminController extends Controller
         $tutorials = Tutorials::select('tutorials.*', 'category_tutorial.category as category_name', 'master_status.name as status_name')->leftJoin('category_tutorial', 'category_tutorial.id', '=', 'tutorials.tutorial_category_id')
             ->leftJoin('master_status', 'master_status.id', '=', 'tutorials.status_id')
             ->with('masterStatus')->withTrashed()->latest();
+
         $deletedTutorialsCount = Tutorials::onlyTrashed()->count();
         //dd($tutorials->where('tutorials.id', 3)->first());
         //dd($deletedTutorialsCount);
@@ -41,17 +42,19 @@ class TutorialsAdminController extends Controller
         //     'thumbnail' => url('/assets/youtube/software requirement/Instalasi USB Driver For Windows 2.png'),
         // ]);
 
-        $getCategory = CategoryTutorial::all();
+        $getCategory = CategoryTutorial::select('category_tutorial.*', 'master_status.name as status_name')
+            ->leftJoin('master_status', 'master_status.id', '=', 'category_tutorial.status_id')
+            ->with('masterStatus')->latest()->get();
+
         //dd($getCategory);
-        $totalTutorials = $tutorials->count();
-        // 
+
         //dd($tutorials->get());
 
         // Menentukan jumlah item per halaman
         $itemsPerPage = 10;
-        //print_r();
+
         // Menentukan jumlah halaman maksimum untuk semua data
-        $totalPagesAll = ceil($totalTutorials / $itemsPerPage);
+        $totalPagesAll = $itemsPerPage;
         $tutorials = $tutorials->paginate($itemsPerPage);
 
         if ($totalPagesAll >= 15) {
