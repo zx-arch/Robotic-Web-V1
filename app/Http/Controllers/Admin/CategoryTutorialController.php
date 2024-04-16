@@ -22,7 +22,10 @@ class CategoryTutorialController extends Controller
 
     public function index()
     {
-        $categoryTutorial = CategoryTutorial::latest();
+        $categoryTutorial = CategoryTutorial::select('category_tutorial.*', 'master_status.name as status_name')
+            ->leftJoin('master_status', 'master_status.id', '=', 'category_tutorial.status_id')
+            ->with('masterStatus')->latest();
+
         $totalCatTutorials = $categoryTutorial->count();
 
         // Menentukan jumlah item per halaman
