@@ -56,8 +56,4 @@ class Users extends Model
     {
         return $this->belongsTo(MasterStatus::class, 'id');
     }
-    public function roles()
-    {
-        return $this->belongsTo(roles::class, 'role_id');
-    }
 }
