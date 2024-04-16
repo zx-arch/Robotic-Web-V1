@@ -62,7 +62,10 @@ class CategoryTutorialController extends Controller
         $updated_at = $searchData['updated_at'] ?? null;
         //dd($searchData);
         // Misalnya, Anda ingin mencari data user berdasarkan username, category, status, created_at, atau updated_at
-        $categoryTutorial = CategoryTutorial::latest();
+        $categoryTutorial = CategoryTutorial::select('category_tutorial.*', 'master_status.name as status_name')
+            ->leftJoin('master_status', 'master_status.id', '=', 'category_tutorial.status_id')
+            ->with('masterStatus')->latest();
+
         $getCategory = $categoryTutorial->get();
 
         $categoryTutorial->where(function ($query) use ($status, $category, $created_at, $updated_at) {
