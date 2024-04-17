@@ -7,8 +7,8 @@ namespace Composer\Autoload;
 class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
 {
     public static $files = array (
-        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         'a4a119a56e50fbb293281d9a48007e0e' => __DIR__ . '/..' . '/symfony/polyfill-php80/bootstrap.php',
+        '0e6d7bf4a5811bfa5cf40c5ccd6fae6a' => __DIR__ . '/..' . '/symfony/polyfill-mbstring/bootstrap.php',
         '6e3fae29631ef280660b3cdad06f25a8' => __DIR__ . '/..' . '/symfony/deprecation-contracts/function.php',
         'e69f7f6ee287b969198c3c9d6777bd38' => __DIR__ . '/..' . '/symfony/polyfill-intl-normalizer/bootstrap.php',
         '320cde22f66dd4f5d3fd621d3e88b98f' => __DIR__ . '/..' . '/symfony/polyfill-ctype/bootstrap.php',
@@ -143,6 +143,7 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         ),
         'F' => 
         array (
+            'Fruitcake\\Cors\\' => 15,
             'Faker\\' => 6,
             'Facade\\Ignition\\' => 16,
             'Facade\\IgnitionContracts\\' => 25,
@@ -178,6 +179,7 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         ),
         'A' => 
         array (
+            'Asm89\\Stack\\' => 12,
             'App\\' => 4,
         ),
     );
@@ -445,6 +447,10 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         array (
             0 => __DIR__ . '/..' . '/geoip2/geoip2/src',
         ),
+        'Fruitcake\\Cors\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/fruitcake/laravel-cors/src',
+        ),
         'Faker\\' => 
         array (
             0 => __DIR__ . '/..' . '/fakerphp/faker/src/Faker',
@@ -525,6 +531,10 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         array (
             0 => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src',
         ),
+        'Asm89\\Stack\\' => 
+        array (
+            0 => __DIR__ . '/..' . '/asm89/stack-cors/src',
+        ),
         'App\\' => 
         array (
             0 => __DIR__ . '/../..' . '/app',
@@ -536,7 +546,6 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         'App\\Exceptions\\Handler' => __DIR__ . '/../..' . '/app/Exceptions/Handler.php',
         'App\\Http\\Controllers\\Admin\\AktivitasPenggunaController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/AktivitasPenggunaController.php',
         'App\\Http\\Controllers\\Admin\\CategoryTutorialController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/CategoryTutorialController.php',
-        'App\\Http\\Controllers\\Admin\\ChatDashboardController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/ChatDashboardController.php',
         'App\\Http\\Controllers\\Admin\\CoursesAdminController' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/CoursesAdminController.php',
         'App\\Http\\Controllers\\Admin\\DaftarPengguna' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/DaftarPengguna.php',
         'App\\Http\\Controllers\\Admin\\DashboardAdmin' => __DIR__ . '/../..' . '/app/Http/Controllers/Admin/DashboardAdmin.php',
@@ -588,6 +597,8 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         'App\\Providers\\EventServiceProvider' => __DIR__ . '/../..' . '/app/Providers/EventServiceProvider.php',
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
         'App\\Scopes\\ExcludeAdminScope' => __DIR__ . '/../..' . '/app/Scopes/ExcludeAdminScope.php',
+        'Asm89\\Stack\\Cors' => __DIR__ . '/..' . '/asm89/stack-cors/src/Cors.php',
+        'Asm89\\Stack\\CorsService' => __DIR__ . '/..' . '/asm89/stack-cors/src/CorsService.php',
         'Attribute' => __DIR__ . '/..' . '/symfony/polyfill-php80/Resources/stubs/Attribute.php',
         'Barryvdh\\Debugbar\\Console\\ClearCommand' => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src/Console/ClearCommand.php',
         'Barryvdh\\Debugbar\\Controllers\\AssetController' => __DIR__ . '/..' . '/barryvdh/laravel-debugbar/src/Controllers/AssetController.php',
@@ -1637,6 +1648,8 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         'Faker\\Provider\\zh_TW\\Text' => __DIR__ . '/..' . '/fakerphp/faker/src/Faker/Provider/zh_TW/Text.php',
         'Faker\\UniqueGenerator' => __DIR__ . '/..' . '/fakerphp/faker/src/Faker/UniqueGenerator.php',
         'Faker\\ValidGenerator' => __DIR__ . '/..' . '/fakerphp/faker/src/Faker/ValidGenerator.php',
+        'Fruitcake\\Cors\\CorsServiceProvider' => __DIR__ . '/..' . '/fruitcake/laravel-cors/src/CorsServiceProvider.php',
+        'Fruitcake\\Cors\\HandleCors' => __DIR__ . '/..' . '/fruitcake/laravel-cors/src/HandleCors.php',
         'GeoIp2\\Database\\Reader' => __DIR__ . '/..' . '/geoip2/geoip2/src/Database/Reader.php',
         'GeoIp2\\Exception\\AddressNotFoundException' => __DIR__ . '/..' . '/geoip2/geoip2/src/Exception/AddressNotFoundException.php',
         'GeoIp2\\Exception\\AuthenticationException' => __DIR__ . '/..' . '/geoip2/geoip2/src/Exception/AuthenticationException.php',
