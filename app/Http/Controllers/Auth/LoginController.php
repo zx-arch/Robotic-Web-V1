@@ -9,6 +9,7 @@ use App\Models\Tutorials;
 use GeoIp2\Database\Reader;
 use App\Models\User;
 use App\Models\Activity;
+use App\Models\ChatDashboard;
 
 class LoginController extends Controller
 {
@@ -91,6 +92,8 @@ class LoginController extends Controller
                 User::where('id', Auth::user()->id)->update([
                     'last_login' => now(),
                 ]);
+
+                session(['countChat' => ChatDashboard::get()->count()]);
 
                 // dd(session('myActivity'), Session::get('csrf_token'));
                 if (session()->has('myActivity')) {

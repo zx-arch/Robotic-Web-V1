@@ -74,7 +74,7 @@
                 </li>
                 <li class="nav-item">
                     <a href="{{route('admin.chat_dashboard.index')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'chat_dashboard' ? 'active' : ''}}">
-                        <i class="nav-icon fa fa-comments {{isset($currentAdminMenu) && $currentAdminMenu == 'chat_dashboard' ? 'text-white' : ''}}"></i>&nbsp;<p>Chat</p>
+                        <i class="nav-icon fa fa-comments {{isset($currentAdminMenu) && $currentAdminMenu == 'chat_dashboard' ? 'text-white' : ''}}"></i>&nbsp;<p>Chat <span class="badge right badge-success">{{session()->has('countChat') ? session('countChat') : 0}}</span></p>
                     </a>
                 </li>
                 <li class="nav-item">
