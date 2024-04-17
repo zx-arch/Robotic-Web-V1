@@ -49,7 +49,7 @@
                             <thead>
                                 <tr>
                                     <td></td>
-                                    <td>#</td>
+                                    <td>ID</td>
                                     <td>Name</td>
                                     <td>Email</td>
                                     <td>Subject</td>
@@ -62,7 +62,7 @@
                                 @forelse ($chats as $chat)
                                     <tr>
                                         <td><input type="checkbox" name="check[delete]" id="delete_id" value="{{$chat->id}}"></td>
-                                        <td>{{$loop->index += 1}}</td>
+                                        <td>{{$chat->id}}</td>
                                         <td>{{$chat->name}}</td>
                                         <td><a href="mailto:{{$chat->email}}">{{$chat->email}}</a></td>
                                         <td>{{$chat->subject}}</td>
@@ -88,6 +88,7 @@
                     @if ($chats->lastPage() > 1)
                         <nav aria-label="Page navigation example">
                             <ul class="pagination mt-2 ml-2">
+
                                 {{-- Tombol Sebelumnya --}}
                                 @if ($chats->currentPage() > 1)
                                     <li class="page-item">
@@ -96,12 +97,13 @@
                                         </a>
                                     </li>
                                 @endif
-                                            {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
+                                
+                                {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
                                 @if ($chats->currentPage() > 6)
                                     @for ($i = $chats->currentPage() - 3; $i < $chats->currentPage(); $i++)
                                         @if ($i == 1)
                                             <li class="page-item">
-                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
+                                                <a class="page-link" href="/admin/chat">{{ $i }}</a>
                                             </li>
                                         @else
                                             <li class="page-item">
@@ -109,11 +111,12 @@
                                             </li>
                                         @endif
                                     @endfor
+
                                 @else
                                     @for ($i = 1; $i < $chats->currentPage(); $i++)
                                         @if ($i == 1)
                                             <li class="page-item">
-                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
+                                                <a class="page-link" href="/admin/chat">{{ $i }}</a>
                                             </li>
                                         @else
                                             <li class="page-item">
@@ -131,7 +134,7 @@
                                     @for ($i = $chats->currentPage() + 1; $i <= $chats->currentPage() + 3; $i++)
                                         @if ($i == 1)
                                             <li class="page-item">
-                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
+                                                <a class="page-link" href="/admin/chat">{{ $i }}</a>
                                             </li>
                                         @else
                                             <li class="page-item">
@@ -139,6 +142,7 @@
                                             </li>
                                         @endif
                                     @endfor
+                                    
                                 @else
                                     @for ($i = $chats->currentPage() + 1; $i <= $chats->lastPage(); $i++)
                                         @if ($i == 1)
