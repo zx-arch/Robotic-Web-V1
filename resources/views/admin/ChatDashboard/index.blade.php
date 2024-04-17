@@ -85,7 +85,96 @@
 
                     </div>
                 </div>
+                    @if ($chats->lastPage() > 1)
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination mt-2 ml-2">
+                                {{-- Tombol Sebelumnya --}}
+                                @if ($chats->currentPage() > 1)
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $chats->previousPageUrl() }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                @endif
+                                            {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
+                                @if ($chats->currentPage() > 6)
+                                    @for ($i = $chats->currentPage() - 3; $i < $chats->currentPage(); $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $chats->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @else
+                                    @for ($i = 1; $i < $chats->currentPage(); $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $chats->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @endif
+                                            {{-- Halaman saat ini --}}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ $chats->currentPage() }}</span>
+                                </li>
+                                            {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
+                                @if ($chats->currentPage() < $chats->lastPage() - 5)
+                                    @for ($i = $chats->currentPage() + 1; $i <= $chats->currentPage() + 3; $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/courses">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $chats->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @else
+                                    @for ($i = $chats->currentPage() + 1; $i <= $chats->lastPage(); $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/chat">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $chats->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @endif
+
+                                {{-- Tombol Selanjutnya --}}
+                                @if ($chats->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $chats->nextPageUrl() }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    @endif
+
+                </div>
             </div>
+
+            @if (isset($chats) && $chats->count() > 0 && $chats->lastPage() > 1)
+                <div class="p-2">
+                    Showing <b>{{ $chats->firstItem() }}</b> 
+                    to <b>{{ $chats->lastItem() }}</b>
+                    of <b>{{ $chats->total() }}</b> items.
+                </div><br><br>
+            @endif
             
         </div>
     </div>

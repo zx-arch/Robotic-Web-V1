@@ -19,10 +19,26 @@ class ChatDashboardController extends Controller
 
     public function index()
     {
-        $chats = ChatDashboard::latest()->get();
+        $chats = ChatDashboard::latest();
 
-        session(['countChat' => $chats->count()]);
+        // Menentukan jumlah item per halaman
+        $itemsPerPage = 15;
+        //print_r();
+        // Menentukan jumlah halaman maksimum untuk semua data
+        $totalPagesAll = $itemsPerPage;
+        $chats = $chats->paginate($itemsPerPage);
 
+        if ($totalPagesAll >= 15) {
+            $totalPages = 15;
+        }
+
+        if ($chats->count() > 15) {
+            $chats = $chats->paginate($itemsPerPage);
+            //dd($chats);
+            if ($chats->currentPage() > $chats->lastPage()) {
+                return redirect($chats->url($chats->lastPage()));
+            }
+        }
         return view('admin.ChatDashboard.index', $this->data, compact('chats'));
     }
 
@@ -43,6 +59,8 @@ class ChatDashboardController extends Controller
             if (count($validIds) === count($idsArray)) {
                 // dd($request->all(), explode(',', $request->delete_ids));
                 ChatDashboard::whereIn('id', $idsArray)->forceDelete();
+
+                session(['countChat' => ChatDashboard::get()->count()]);
 
                 Activity::create(array_merge(session('myActivity'), [
                     'user_id' => Auth::user()->id,
