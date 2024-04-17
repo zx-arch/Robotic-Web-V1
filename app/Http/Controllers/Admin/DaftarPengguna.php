@@ -281,7 +281,7 @@ class DaftarPengguna extends Controller
                     'username' => $user->username,
                     'email' => $user->email,
                     'role' => $user->role,
-                    'status' => $user->status,
+                    'status' => $request->status,
                     'password' => $hashedPassword,
                 ]);
 
