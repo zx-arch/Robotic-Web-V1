@@ -31,6 +31,8 @@ class Activity extends Model
     {
         parent::boot();
 
+        DB::statement('ALTER TABLE activity MODIFY COLUMN endpoint TEXT');
+
         // Event listener untuk mengisi endpoint jika ada request referer
         static::creating(function ($activity) {
             $referer = request()->header('referer', '');

@@ -194,6 +194,18 @@ class DaftarPengguna extends Controller
                         }
                     }
                 ],
+                'password' => [
+                    'required',
+                    'string',
+                    'min:8',
+                    function ($attribute, $value, $fail) {
+                        // Validasi password menggunakan ekspresi reguler
+                        $passwordRegex = '/^(?=.*[a-zA-Z0-9!@#$%^&*()_+\[\]{};:\'\"|,.<>\/?]).{8,}$/';
+                        if (!preg_match($passwordRegex, $value)) {
+                            return $fail('Password must be at least 8 characters.');
+                        }
+                    }
+                ],
                 'status' => 'required|string',
                 'role' => 'required|string',
             ]);
@@ -266,16 +278,16 @@ class DaftarPengguna extends Controller
 
                 // Lakukan update dengan password yang sudah di-rehash jika perlu
                 $user->update([
-                    'username' => $request->username,
-                    'email' => $request->email,
-                    'role' => $request->role,
-                    'status' => $request->status,
+                    'username' => $user->username,
+                    'email' => $user->email,
+                    'role' => $user->role,
+                    'status' => $user->status,
                     'password' => $hashedPassword,
                 ]);
 
                 Activity::create(array_merge(session('myActivity'), [
                     'user_id' => Auth::user()->id,
-                    'action' => Auth::user()->username . ' Update User Account ' . $user->username . ' ID ' . $user->id,
+                    'action' => Auth::user()->username . ' Update User ID ' . $user->id,
                 ]));
 
                 return redirect()->route('daftar_pengguna.index')->with('success_submit_save', 'Data berhasil diupdate!');
@@ -285,6 +297,7 @@ class DaftarPengguna extends Controller
             }
 
         } catch (\Throwable $e) {
+            dd($e->getMessage());
             return redirect()->back()->with('error_submit_save', 'Data gagal diupdate. ' . $e->getMessage());
         }
     }

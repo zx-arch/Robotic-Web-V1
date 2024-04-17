@@ -51,18 +51,18 @@ document.addEventListener("DOMContentLoaded", function() {
     buttonSubmit.style.opacity = '0.5';
     password.innerHTML = '';
 
-    password.addEventListener('input', function() {
-        if (password.value !== confirm_password.value) {
-                password.classList.remove('is-valid');
-                password.classList.add('is-invalid');
-                password.nextElementSibling.textContent = 'Password and confirm password do not match!';
-            } else {
-                password.classList.remove('is-invalid');
-                password.classList.add('is-valid');
-                password.nextElementSibling.textContent = '';
-            }
-            checkFormValidity();
-    });
+    // password.addEventListener('input', function() {
+    //     if (password.value !== confirm_password.value) {
+    //             password.classList.remove('is-valid');
+    //             password.classList.add('is-invalid');
+    //             password.nextElementSibling.textContent = 'Password and confirm password do not match!';
+    //         } else {
+    //             password.classList.remove('is-invalid');
+    //             password.classList.add('is-valid');
+    //             password.nextElementSibling.textContent = '';
+    //         }
+    //         checkFormValidity();
+    // });
 
     confirm_password.addEventListener('keyup', function() {
     if (password.value !== confirm_password.value) {
@@ -83,6 +83,7 @@ document.addEventListener("DOMContentLoaded", function() {
         password.addEventListener('input', function() {
             validateInput(password);
         });
+        
         if (password.value !== confirm_password.value) {
             input.classList.remove('is-valid');
             input.classList.add('is-invalid');
@@ -97,7 +98,7 @@ document.addEventListener("DOMContentLoaded", function() {
     }
 
     function checkFormValidity(e) {
-        const inputs = [password, confirm_password];
+        const inputs = [confirm_password];
         const isValid = inputs.every(input => input.classList.contains('is-valid'));
         
         if (isValid) {

@@ -128,7 +128,7 @@
             } else if (input === password && !validatePassword(input.value)) {
                 input.classList.add('is-invalid');
                 input.classList.remove('is-valid');
-                input.nextElementSibling.textContent = 'Password should have at least 8 characters with number combination';
+                input.nextElementSibling.textContent = 'Password should have at least 8 characters';
             
             } else if (input === email && !isValidEmail(input.value)) {
                 input.classList.remove('is-valid');
@@ -150,11 +150,9 @@
         }
 
         function validatePassword(password) {
-            const regex = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)[a-zA-Z\d]{8,}$/;
+            const regex = /^(?=.*[a-zA-Z0-9!@#$%^&*()_+\[\]{};':"|,.<>\/?]).{8,}$/;
             return regex.test(password);
         }
-
-
 
         function checkFormValidity() {
             const inputs = [username, email, password, status, role];
