@@ -29,13 +29,11 @@ class CoursesAdminController extends Controller
         $bookTranslations = BookTranslation::select('book_translation.*', 'master_status.name as status')->leftJoin('master_status', 'master_status.id', '=', 'book_translation.status_id')->with(['hierarchyCategoryBook', 'hierarchyCategoryBook.parentCategory', 'masterStatus', 'translations'])->withTrashed()->latest();
         $getAvailableLanguage = BookTranslation::select('language_id', 'language_name')->groupBy('language_id', 'language_name')->with('translations')->get();
 
-        $totalCatBookTranslations = $bookTranslations->count();
-
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
         // Menentukan jumlah halaman maksimum untuk semua data
-        $totalPagesAll = ceil($totalCatBookTranslations / $itemsPerPage);
+        $totalPagesAll = $itemsPerPage;
         $bookTranslations = $bookTranslations->paginate($itemsPerPage);
 
         if ($totalPagesAll >= 15) {
@@ -43,7 +41,7 @@ class CoursesAdminController extends Controller
         }
 
         if ($bookTranslations->count() > 15) {
-            $bookTranslations = $bookTranslations->paginate($itemsPerPage);
+            //$bookTranslations = $bookTranslations->paginate($itemsPerPage);
             //dd($bookTranslations);
             if ($bookTranslations->currentPage() > $bookTranslations->lastPage()) {
                 return redirect($bookTranslations->url($bookTranslations->lastPage()));

@@ -134,7 +134,7 @@
                                             <td>{{$translation->translations->language_name}}</td>
                                             <td>{{$translation->status}}</td>
                                             <td>{{ $translation->hierarchyCategoryBook->parentCategory->hierarchy_name }}</td>
-                                            <td><a href="{{ asset('book/'.\App\Models\Translations::where('id',$translation->language_id)->first()->language_name.'/'.$translation->file) }}" download>{{$translation->file}}</a></td>
+                                            <td><a href="{{ asset('book/'.$translation->translations->language_name.'/'.$translation->file) }}" download>{{$translation->file}}</a></td>
                                             <td>{{$translation->created_at}}</td>
                                             <td>{{$translation->updated_at}}</td>
                                             <td>
