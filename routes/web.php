@@ -87,6 +87,10 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
 
     Route::get('/admin/chat', [ChatDashboardController::class, 'index'])->name('admin.chat_dashboard.index');
 
+    Route::prefix('/admin/chat')->group(function () {
+        Route::post('/delete', [ChatDashboardController::class, 'delete'])->name('admin.chat_dashboard.delete');
+    });
+
     Route::get('/admin/category_tutorial', [CategoryTutorialController::class, 'index'])->name('category_tutorial.index');
 
     Route::prefix('/admin/category_tutorial')->group(function () {
