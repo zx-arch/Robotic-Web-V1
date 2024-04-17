@@ -61,7 +61,7 @@
                                 
                                 @forelse ($chats as $chat)
                                     <tr>
-                                        <td><input type="checkbox" name="check[delete]" id="delete_id" value="{{$chat->id}}"></td>
+                                        <td><input type="checkbox" name="check[delete]" class="form-control" style="max-width: 15px;" id="delete_id" value="{{$chat->id}}"></td>
                                         <td>{{$chat->id}}</td>
                                         <td>{{$chat->name}}</td>
                                         <td><a href="mailto:{{$chat->email}}">{{$chat->email}}</a></td>
@@ -125,11 +125,13 @@
                                         @endif
                                     @endfor
                                 @endif
-                                            {{-- Halaman saat ini --}}
+                                
+                                {{-- Halaman saat ini --}}
                                 <li class="page-item active">
                                     <span class="page-link">{{ $chats->currentPage() }}</span>
                                 </li>
-                                            {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
+                                
+                                {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
                                 @if ($chats->currentPage() < $chats->lastPage() - 5)
                                     @for ($i = $chats->currentPage() + 1; $i <= $chats->currentPage() + 3; $i++)
                                         @if ($i == 1)
