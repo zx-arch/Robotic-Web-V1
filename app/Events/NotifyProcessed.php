@@ -21,18 +21,18 @@ class NotifyProcessed implements ShouldBroadcast
      */
     public $message;
 
-  public function __construct($message)
-  {
-      $this->message = $message;
-  }
+    public function __construct($message)
+    {
+        $this->message = $message;
+    }
 
-  public function broadcastOn()
-  {
-      return ['notify-channel'];
-  }
+    public function broadcastOn()
+    {
+        return ['notify-channel'];
+    }
 
-  public function broadcastAs()
-  {
-      return 'form-submit';
-  }
+    public function broadcastAs()
+    {
+        return 'form-submit';
+    }
 }

@@ -15,21 +15,7 @@
         height: 70px;
     }
 </style>
-<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
-  <script>
 
-    // Enable pusher logging - don't include this in production
-    Pusher.logToConsole = true;
-
-    var pusher = new Pusher('5c418c0a6fdac11b6271', {
-      cluster: 'ap1'
-    });
-
-    var channel = pusher.subscribe('notify-channel');
-    channel.bind('form-submit', function(data) {
-      alert(JSON.stringify(data));
-    });
-  </script>
 @section('content')
         
     <section id="hero" class="d-flex align-items-center">

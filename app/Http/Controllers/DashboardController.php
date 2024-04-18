@@ -8,6 +8,7 @@ use Illuminate\Support\Facades\Session;
 use GeoIp2\Database\Reader;
 use App\Models\Activity;
 use App\Models\Tutorials;
+use App\Events\NotifyProcessed;
 
 class DashboardController extends Controller
 {
@@ -114,6 +115,8 @@ class DashboardController extends Controller
                         } else {
                             // Penyimpanan chat hanya dilakukan jika tidak terjadi kesalahan pada token CSRF
                             $chat->save();
+
+                            event(new NotifyProcessed(['count_message' => ChatDashboard::get()->count()]));
 
                             Activity::create(array_merge(session('myActivity'), [
                                 'action' => 'User Created a New Chat ID ' . $chat->id,

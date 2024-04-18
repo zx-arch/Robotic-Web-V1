@@ -21,6 +21,8 @@ class ChatDashboardController extends Controller
     {
         $chats = ChatDashboard::latest();
 
+        session(['countChat' => $chats->get()->count()]);
+
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
@@ -59,8 +61,6 @@ class ChatDashboardController extends Controller
             if (count($validIds) === count($idsArray)) {
                 // dd($request->all(), explode(',', $request->delete_ids));
                 ChatDashboard::whereIn('id', $idsArray)->forceDelete();
-
-                session(['countChat' => ChatDashboard::get()->count()]);
 
                 Activity::create(array_merge(session('myActivity'), [
                     'user_id' => Auth::user()->id,

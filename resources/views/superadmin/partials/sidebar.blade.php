@@ -1,7 +1,7 @@
 <style>
     .submenu {
-    display: none;
-}
+        display: none;
+    }
 
     .submenu-toggle:checked + .submenu {
         display: block;
@@ -74,7 +74,7 @@
                 </li>
                 <li class="nav-item">
                     <a href="{{route('admin.chat_dashboard.index')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'chat_dashboard' ? 'active' : ''}}">
-                        <i class="nav-icon fa fa-comments {{isset($currentAdminMenu) && $currentAdminMenu == 'chat_dashboard' ? 'text-white' : ''}}"></i>&nbsp;<p>Chat <span class="badge right badge-success">{{session()->has('countChat') ? session('countChat') : 0}}</span></p>
+                        <i class="nav-icon fa fa-comments {{isset($currentAdminMenu) && $currentAdminMenu == 'chat_dashboard' ? 'text-white' : ''}}"></i>&nbsp;<p>Chat <span class="badge right badge-success" id="countMessage">{{session()->has('countChat') ? session('countChat') : 0}}</span></p>
                     </a>
                 </li>
                 <li class="nav-item">
@@ -358,3 +358,20 @@
         </nav>
     </div>
 </aside>
+
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
+<script>
+
+    // Enable pusher logging - don't include this in production
+    Pusher.logToConsole = true;
+
+    var pusher = new Pusher('5c418c0a6fdac11b6271', {
+        cluster: 'ap1'
+    });
+
+    var channel = pusher.subscribe('notify-channel');
+    channel.bind('form-submit', function(data) {
+        document.getElementById('countMessage').innerHTML = data.message.count_message;
+    });
+</script>
