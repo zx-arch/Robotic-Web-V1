@@ -19,17 +19,17 @@ class LanguageController extends Controller
     {
         $translation = Translations::with('hierarchyCategoryBook')->orderBy('created_at', 'desc');
         //dd($translation);
-        $totalUsers = $translation->count();
+        //$totalUsers = $translation->count();
 
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
         // Menentukan jumlah halaman maksimum untuk semua data
-        $totalPagesAll = ceil($totalUsers / $itemsPerPage);
+        //$totalPagesAll = ceil($totalUsers / $itemsPerPage);
         $translation = $translation->paginate($itemsPerPage);
         $fullUri = '/admin/language_translate';
 
-        if ($totalPagesAll >= 15) {
+        if ($itemsPerPage >= 15) {
             $totalPages = 15;
         }
 
@@ -102,7 +102,7 @@ class LanguageController extends Controller
 
                 Activity::create(array_merge(session('myActivity'), [
                     'user_id' => Auth::user()->id,
-                    'action' => 'Admin Created a New Translation Language '.$request->language_name,
+                    'action' => 'Admin Created a New Translation Language ' . $request->language_name,
                 ]));
 
                 return redirect()->route('language.index')->with('success_add_language', 'Terjemahan berhasil ditambah!');
