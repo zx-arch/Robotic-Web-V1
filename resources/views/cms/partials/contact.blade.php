@@ -1,3 +1,18 @@
+<style>
+    .contact .php-email-form button[type=button] {
+        background: #47b2e4;
+        border: 0;
+        padding: 12px 34px;
+        color: #fff;
+        transition: 0.4s;
+        border-radius: 50px;
+    }
+
+    .contact .php-email-form button[type=button]:hover {
+        background: #209dd8;
+    }
+</style>
+
 <section id="contact" class="contact">
     <div class="container" data-aos="fade-up">
 
@@ -82,7 +97,7 @@
                             </div>
 
                             <div class="text-center">
-                                <button type="submit" id="buttonSubmit">Send Message</button>
+                                <button type="button" id="buttonSubmit">Send Message</button>
                             </div>
                             
                             <div class="my-3">
@@ -118,8 +133,8 @@
     
     }
 
-    form.addEventListener('submit', function(event) {
-        event.preventDefault(); // Prevent default form submission
+    buttonSubmit.addEventListener('click', function(event) {
+        //event.preventDefault(); // Prevent default form submission
 
         // Reset styles and error messages
         const inputs = form.querySelectorAll('input, textarea');
