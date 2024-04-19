@@ -107,14 +107,15 @@
     const buttonSubmit = document.getElementById('buttonSubmit');
     var errorMessageDiv = document.querySelector('.error-message');
 
-    // Periksa apakah elemen error-message memiliki konten
-    if (errorMessageDiv.innerHTML.trim() !== '') {
-        // Dapatkan elemen col-xl-4 pertama
+    // Periksa apakah elemen error-message memiliki konten atau ada session chat sukses terkirim
+    if (errorMessageDiv.innerHTML.trim() !== '' || "{{session()->has('success_submit_chat')}}") {
+
         var firstCol = document.getElementById('contact');
                 
         if (firstCol) {
             firstCol.scrollIntoView({ behavior: 'smooth' });
         }
+    
     }
 
     form.addEventListener('submit', function(event) {
