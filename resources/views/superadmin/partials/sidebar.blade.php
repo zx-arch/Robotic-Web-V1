@@ -362,16 +362,35 @@
 <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
 
 <script>
+    // Simpan referensi ke fungsi log asli dari console
+    var originalConsoleLog = console.log;
 
-    // Enable pusher logging - don't include this in production
-    Pusher.logToConsole = true;
+    // Override fungsi log dari console untuk mencegah pesan log dari Pusher
+    console.log = function() {
+        // Periksa apakah pesan log berasal dari Pusher
+        if (arguments.length > 0 && typeof arguments[0] === 'string' && arguments[0].includes('Pusher :')) {
+            // Jika ya, jangan cetak pesan log
+            return;
+        }
+        // Jika bukan dari Pusher, cetak pesan log seperti biasa
+        originalConsoleLog.apply(console, arguments);
+    };
+    // Pesan log dari Pusher yang mencetak ke konsol akan dihentikan, tetapi pesan log lainnya akan tetap dicetak ke konsol.
 
-    var pusher = new Pusher('5c418c0a6fdac11b6271', {
-        cluster: 'ap1'
-    });
+    fetch('/api/pusher-key')
+        .then(response => response.json())
 
-    var channel = pusher.subscribe('notify-channel');
-    channel.bind('form-submit', function(data) {
-        document.getElementById('countMessage').innerHTML = data.message.count_message;
-    });
+        .then(data => {
+            var pusher = new Pusher(data.pusher_app_key, {
+                cluster: data.pusher_app_cluster
+            });
+
+            var channel = pusher.subscribe('notify-channel');
+            channel.bind('form-submit', function(data) {
+                document.getElementById('countMessage').innerHTML = data.message.count_message;
+            });
+        });
+    
+    .catch(error => console.error('Error:', error));
+
 </script>
