@@ -1,18 +1,3 @@
-<style>
-    .contact .php-email-form button[type=button] {
-        background: #47b2e4;
-        border: 0;
-        padding: 12px 34px;
-        color: #fff;
-        transition: 0.4s;
-        border-radius: 50px;
-    }
-
-    .contact .php-email-form button[type=button]:hover {
-        background: #209dd8;
-    }
-</style>
-
 <section id="contact" class="contact">
     <div class="container" data-aos="fade-up">
 
