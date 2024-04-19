@@ -215,6 +215,7 @@
             var deleteForm = document.getElementById('deleteForm');
             var deleteIdsInput = document.getElementById('delete_ids');
 
+            // Tambahkan logika untuk menentukan apakah tombol hapus harus ditampilkan atau disembunyikan
             if (checkedCheckboxes.length > 0) {
                 deleteButton.style.display = 'inline-block';
                 deleteForm.style.display = 'inline-block';
@@ -253,18 +254,21 @@
             }
         }
 
+        // Panggil fungsi saat ada perubahan pada input ceklis
+        var checkboxes = document.querySelectorAll('input[name="check[delete]"]');
+        checkboxes.forEach(function(checkbox) {
+            checkbox.addEventListener('change', updateButton);
+        });
+        
         fetch('/api/pusher-key')
             .then(response => response.json())
-
             .then(data => {
-
                 var pusher = new Pusher(data.pusher_app_key, {
                     cluster: data.pusher_app_cluster
                 });
 
                 var channel = pusher.subscribe('notify-channel');
                 channel.bind('form-submit', function(data) {
-                    
                     // Update tbody with new data
                     var tbody = document.querySelector('tbody');
                     tbody.innerHTML = ''; // Clear tbody first
@@ -327,24 +331,22 @@
                         tbody.appendChild(tr);
                     });
 
-                    // If data is empty, show a message
-                    if (data.message.chats.length === 0) {
-                        var tr = document.createElement('tr');
-                        var td = document.createElement('td');
-                        td.setAttribute('colspan', '7');
-                        td.setAttribute('style', 'font-weight: bold;');
-                        td.setAttribute('class', 'text-danger');
-                        td.textContent = 'Chat belum tersedia';
-                        tr.appendChild(td);
-                        tbody.appendChild(tr);
-                    }
-
                     // Call the function to update the delete button status
+                    updateButton();
+                })
+
+                .catch(error => {
+                    console.error('Error:', error);
+                    // Jika terjadi kesalahan saat fetching data pusher, panggil fungsi updateButton untuk memastikan tombol hapus tetap ditampilkan atau disembunyikan
                     updateButton();
                 });
             })
-            
-        .catch(error => console.error('Error:', error));
+
+        .catch(error => {
+            console.error('Error:', error);
+            // Jika terjadi kesalahan saat fetching data pusher, panggil fungsi updateButton untuk memastikan tombol hapus tetap ditampilkan atau disembunyikan
+            updateButton();
+        });
     });
-    
+
 </script>
