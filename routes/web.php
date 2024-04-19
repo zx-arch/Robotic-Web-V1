@@ -41,6 +41,13 @@ Route::post('/dashboard/chat/submit', [DashboardController::class, 'submitChat']
 
 Route::post('/login', [LoginController::class, 'login'])->name('submit_form.login');
 
+Route::get('/api/pusher-key', function () {
+    return [
+        'pusher_app_key' => env('PUSHER_APP_KEY'),
+        'pusher_app_cluster' => env('PUSHER_APP_CLUSTER'),
+    ];
+});
+
 // Tambahkan rute lain untuk admin di sini
 Route::middleware(['auth.login', 'admin.auth'])->group(function () {
 
@@ -54,7 +61,6 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
         Route::post('/save-add-courses', [CoursesAdminController::class, 'saveCourses'])->name('admin.courses.save_courses');
         Route::get('/force-delete/{id}', [CoursesAdminController::class, 'forceDelete'])->name('admin.courses.forceDelete');
         Route::get('/update/{id}', [CoursesAdminController::class, 'update'])->name('admin.courses.update');
-
     });
 
     Route::get('/admin/tutorials', [TutorialsAdminController::class, 'index'])->name('tutorials.index');
@@ -102,18 +108,7 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
     });
 
     Route::get('/admin/language_translate', [LanguageController::class, 'index'])->name('language.index');
-    Route::view('/admin/view', 'admin.view');
-    Route::post('/admin/view', function (Request $request) {
-        // Proses data yang diterima dari form
-        $data = $request->input('data');
 
-        // Simpan data ke dalam database atau lakukan tindakan lainnya
-        // Misalnya:
-        // YourModel::create(['field' => $data]);
-
-        // Berikan pesan sukses ke view
-        return view('admin.view')->with('message', 'Data berhasil disimpan');
-    })->name('self.post');
     Route::prefix('/admin/language_translate')->group(function () {
         Route::get('/add', [LanguageController::class, 'add'])->name('language.add');
         Route::get('/search', [LanguageController::class, 'search'])->name('language.search');
@@ -135,7 +130,6 @@ Route::middleware(['auth.login', 'pengurus.auth'])->group(function () {
     Route::put('/save-update-tutorial/video_id/{video_id}', [TutorialsPengurusController::class, 'saveUpdate'])->name('pengurus.tutorials.save_update');
     Route::post('/pengurus/save-tutorial', [TutorialsPengurusController::class, 'saveTutorial'])->name('pengurus.saveTutorial');
     Route::post('/pengurus/tutorials', [TutorialsPengurusController::class, 'index']);
-
 });
 
 

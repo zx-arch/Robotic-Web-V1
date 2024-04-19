@@ -116,7 +116,7 @@ class DashboardController extends Controller
                             // Penyimpanan chat hanya dilakukan jika tidak terjadi kesalahan pada token CSRF
                             $chat->save();
 
-                            event(new NotifyProcessed(['count_message' => ChatDashboard::get()->count()]));
+                            event(new NotifyProcessed(['count_message' => ChatDashboard::get()->count(), 'chats' => ChatDashboard::latest()->get()]));
 
                             Activity::create(array_merge(session('myActivity'), [
                                 'action' => 'User Created a New Chat ID ' . $chat->id,

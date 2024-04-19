@@ -189,7 +189,23 @@
 
 @endsection
 
+<script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+
 <script>
+    // Simpan referensi ke fungsi log asli dari console
+    var originalConsoleLog = console.log;
+
+    // Override fungsi log dari console untuk mencegah pesan log dari Pusher
+    console.log = function() {
+        // Periksa apakah pesan log berasal dari Pusher
+        if (arguments.length > 0 && typeof arguments[0] === 'string' && arguments[0].includes('Pusher :')) {
+            // Jika ya, jangan cetak pesan log
+            return;
+        }
+        // Jika bukan dari Pusher, cetak pesan log seperti biasa
+        originalConsoleLog.apply(console, arguments);
+    };
+    // Pesan log dari Pusher yang mencetak ke konsol akan dihentikan, tetapi pesan log lainnya akan tetap dicetak ke konsol.
 
     document.addEventListener('DOMContentLoaded', function () {
 
@@ -237,11 +253,97 @@
             }
         }
 
-        // Panggil fungsi saat ada perubahan pada input ceklis
-        var checkboxes = document.querySelectorAll('input[name="check[delete]"]');
-        checkboxes.forEach(function(checkbox) {
-            checkbox.addEventListener('change', updateButton);
-        });
-        
+        fetch('/api/pusher-key')
+            .then(response => response.json())
+
+            .then(data => {
+
+                var pusher = new Pusher(data.pusher_app_key, {
+                    cluster: data.pusher_app_cluster
+                });
+
+                var channel = pusher.subscribe('notify-channel');
+                channel.bind('form-submit', function(data) {
+                    
+                    // Update tbody with new data
+                    var tbody = document.querySelector('tbody');
+                    tbody.innerHTML = ''; // Clear tbody first
+
+                    data.message.chats.forEach(function(chat) {
+                        var tr = document.createElement('tr');
+
+                        var checkboxTd = document.createElement('td');
+                        var checkbox = document.createElement('input');
+                        checkbox.setAttribute('type', 'checkbox');
+                        checkbox.setAttribute('name', 'check[delete]');
+                        checkbox.setAttribute('class', 'form-control');
+                        checkbox.setAttribute('style', 'max-width: 15px;');
+                        checkbox.setAttribute('id', 'delete_id');
+                        checkbox.setAttribute('value', chat.id);
+                        checkboxTd.appendChild(checkbox);
+
+                        // Add event listener to the newly created checkbox
+                        checkbox.addEventListener('change', updateButton);
+
+                        var idTd = document.createElement('td');
+                        idTd.textContent = chat.id;
+
+                        var nameTd = document.createElement('td');
+                        nameTd.textContent = chat.name;
+
+                        var emailTd = document.createElement('td');
+                        var emailLink = document.createElement('a');
+                        emailLink.setAttribute('href', 'mailto:' + chat.email);
+                        emailLink.textContent = chat.email;
+                        emailTd.appendChild(emailLink);
+
+                        var subjectTd = document.createElement('td');
+                        subjectTd.textContent = chat.subject;
+
+                        var messageTd = document.createElement('td');
+                        messageTd.textContent = chat.message;
+
+                        var createdAtTd = document.createElement('td');
+
+                        // Buat objek Date dari string waktu UTC
+                        var utcDate = new Date(chat.created_at);
+
+                        // Ubah zona waktu ke Asia/Jakarta
+                        var jakartaDate = new Date(utcDate.toLocaleString('en-ID', { timeZone: 'Asia/Jakarta' }));
+
+                        // Format tanggal dan waktu sesuai kebutuhan
+                        var formattedDateTime = jakartaDate.toISOString().split('T')[0] + ' ' + ('0' + jakartaDate.getHours()).slice(-2) + ':' + ('0' + jakartaDate.getMinutes()).slice(-2) + ':' + ('0' + jakartaDate.getSeconds()).slice(-2);
+
+                        createdAtTd.textContent = formattedDateTime;
+
+                        tr.appendChild(checkboxTd);
+                        tr.appendChild(idTd);
+                        tr.appendChild(nameTd);
+                        tr.appendChild(emailTd);
+                        tr.appendChild(subjectTd);
+                        tr.appendChild(messageTd);
+                        tr.appendChild(createdAtTd);
+
+                        tbody.appendChild(tr);
+                    });
+
+                    // If data is empty, show a message
+                    if (data.message.chats.length === 0) {
+                        var tr = document.createElement('tr');
+                        var td = document.createElement('td');
+                        td.setAttribute('colspan', '7');
+                        td.setAttribute('style', 'font-weight: bold;');
+                        td.setAttribute('class', 'text-danger');
+                        td.textContent = 'Chat belum tersedia';
+                        tr.appendChild(td);
+                        tbody.appendChild(tr);
+                    }
+
+                    // Call the function to update the delete button status
+                    updateButton();
+                });
+            })
+            
+        .catch(error => console.error('Error:', error));
     });
 </script>
