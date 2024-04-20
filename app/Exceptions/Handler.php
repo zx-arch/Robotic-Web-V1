@@ -26,16 +26,19 @@ class Handler extends ExceptionHandler
             $status = 404;
             $message = $exception->getMessage() ?: 'Halaman yang Anda cari tidak ditemukan.';
             return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+
         } elseif ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
             // Pengecualian ketika model tidak ditemukan
             $status = 404;
             $message = $exception->getMessage() ?: 'Data yang Anda minta tidak ditemukan.';
             return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+
         } elseif ($exception instanceof \Illuminate\Auth\AuthenticationException) {
             // Pengecualian ketika autentikasi gagal
             $status = 401;
             $message = $exception->getMessage() ?: 'Anda harus login untuk mengakses halaman ini.';
             return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+
         } elseif ($exception instanceof \Illuminate\Validation\ValidationException) {
             // Pengecualian ketika validasi gagal
             $status = 422;
