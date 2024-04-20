@@ -21,7 +21,10 @@ class LoginController extends Controller
     public function index(Request $request)
     {
         if (Auth::check()) {
-            return redirect()->route('home_dashboard');
+            $status = 403;
+            $message = 'Anda tidak memiliki akses ke halaman ini.';
+            return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+
         } else {
 
             if (!session()->has('myActivity')) {

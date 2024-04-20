@@ -1,111 +1,118 @@
 <!DOCTYPE html>
-<html lang="en">
+<meta charset="UTF-8">
+<style>
+    @import url("https://fonts.googleapis.com/css?family=Bungee");
+
+    body {
+        background: #1b1b1b;
+        color: white;
+        font-family: "Bungee", cursive;
+        margin-top: 50px;
+        text-align: center;
+    }
+
+    a {
+        color: #2aa7cc;
+        text-decoration: none;
+    }
+
+    a:hover {
+        color: white;
+    }
+
+    svg {
+        width: 50vw;
+    }
+
+    .lightblue {
+        fill: rgb(5, 230, 69) 68, 68)000;
+    }
+
+    .eye {
+        cx: calc(115px + 30px * var(--mouse-x));
+        cy: calc(50px + 30px * var(--mouse-y));
+    }
+
+    #eye-wrap {
+        overflow: hidden;
+    }
+
+    .error-text {
+        font-size: 120px;
+    }
+
+    .alarm {
+        animation: alarmOn 0.5s infinite;
+    }
+
+    @keyframes alarmOn {
+        to {
+            fill: rgb(172, 131, 8);
+        }
+    }
+</style>
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Error Page</title>
-    <style>
-        body {
-    font-family: Arial, sans-serif;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    height: 100vh;
-    margin: 0;
-    overflow: hidden; /* Menghilangkan scroll */
-}
-
-.error-container {
-    text-align: center;
-    padding: 40px;
-    border-radius: 10px;
-    background-color: #ffffff;
-    box-shadow: 0px 0px 20px rgba(0, 0, 0, 0.1);
-    animation: fadeInDown 1s;
-}
-
-@keyframes fadeInDown {
-    0% {
-        opacity: 0;
-        transform: translateY(-20px);
-    }
-    100% {
-        opacity: 1;
-        transform: translateY(0);
-    }
-}
-
-.error-heading {
-    font-size: 2.5rem;
-    color: #ff0000;
-    margin-bottom: 20px;
-}
-
-.error-message {
-    font-size: 1.5rem;
-    color: #333333;
-    margin-bottom: 30px;
-}
-
-.error-image {
-    width: 150px;
-    margin-bottom: 30px;
-}
-
-.error-back {
-    background-color: #007bff;
-    color: #ffffff;
-    border: none;
-    padding: 12px 24px;
-    border-radius: 5px;
-    font-size: 1.2rem;
-    cursor: pointer;
-    transition: background-color 0.3s;
-}
-
-.error-back:hover {
-    background-color: #0056b3;
-}
-
-/* Animasi background */
-@keyframes moveBackground {
-    0% {
-        background-position: 0% 50%;
-    }
-    50% {
-        background-position: 100% 50%;
-    }
-    100% {
-        background-position: 0% 50%;
-    }
-}
-
-.parallax-bg {
-    position: fixed;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: -1;
-    animation: moveBackground 10s infinite linear;
-    background-image: linear-gradient(90deg, #4b6cb7, #182848);
-}
-
-    </style>
-    {{-- <link rel="stylesheet" href="{{ asset('css/error.css') }}"> <!-- Menggunakan file CSS yang telah didefinisikan --> --}}
+    <link href="https://fonts.googleapis.com/css?family=Ubuntu" rel="stylesheet">
+    <title>Forbidden {{$status}}</title>
 </head>
+
 <body>
-    <div class="parallax-bg"></div> <!-- Latar belakang animasi -->
-    <div class="error-container">
-        <h2 class="error-heading">Oops! Something went wrong</h2>
-        <p class="error-message">{{ $error->getMessage() }}</p>
-        <button class="error-back" onclick="goBack()">Go Back</button>
-    </div>
+    <svg xmlns="http://www.w3.org/2000/svg" id="robot-error" viewBox="0 0 260 118.9">
+        <defs>
+            <clipPath id="white-clip">
+                <circle id="white-eye" fill="#cacaca" cx="130" cy="65" r="20" />
+            </clipPath>
+            <text id="text-s" class="error-text" y="106"> {{$status}}</text>
+        </defs>
+        <path class="alarm" fill="#e62326" d="M120.9 19.6V9.1c0-5 4.1-9.1 9.1-9.1h0c5 0 9.1 4.1 9.1 9.1v10.6" />
+        <use xlink:href="#text-s" x="-0.5px" y="-1px" fill="black"></use>
+        <use xlink:href="#text-s" fill="#2b2b2b"></use>
+        <g id="robot">
+            <g id="eye-wrap">
+                <use xlink:href="#white-eye"></use>
+                <circle id="eyef" class="eye" clip-path="url(#white-clip)" fill="#000" stroke="#2aa7cc"
+                    stroke-width="2" stroke-miterlimit="10" cx="130" cy="65" r="11" />
+                <ellipse id="white-eye" fill="#2b2b2b" cx="130" cy="40" rx="18" ry="12" />
+            </g>
+            <circle class="lightblue" cx="105" cy="32" r="2.5" id="tornillo" />
+            <use xlink:href="#tornillo" x="50"></use>
+            <use xlink:href="#tornillo" x="50" y="60"></use>
+            <use xlink:href="#tornillo" y="60"></use>
+        </g>
+    </svg>
+
+    <h1>Forbidden {{$status}}</h1>
+    <h2>{{$message}}</h2>
+    <a href="#" onclick="goBack()">Kembali</a>
 
     <script>
+        var root = document.documentElement;
+        var eyef = document.getElementById('eyef');
+        var cx = document.getElementById("eyef").getAttribute("cx");
+        var cy = document.getElementById("eyef").getAttribute("cy");
+        
         function goBack() {
             window.history.back();
         }
+
+        document.addEventListener("mousemove", evt => {
+            let x = evt.clientX / innerWidth;
+            let y = evt.clientY / innerHeight;
+            root.style.setProperty("--mouse-x", x);
+            root.style.setProperty("--mouse-y", y);
+            cx = 115 + 30 * x;
+            cy = 50 + 30 * y;
+            eyef.setAttribute("cx", cx);
+            eyef.setAttribute("cy", cy);
+        });
+        document.addEventListener("touchmove", touchHandler => {
+            let x = touchHandler.touches[0].clientX / innerWidth;
+            let y = touchHandler.touches[0].clientY / innerHeight;
+            root.style.setProperty("--mouse-x", x);
+            root.style.setProperty("--mouse-y", y);
+        });
     </script>
 </body>
+
 </html>
