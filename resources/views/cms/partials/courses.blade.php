@@ -116,7 +116,7 @@
                                         <td>{{$loop->index + 1}}</td>
                                         <td>{{$book->book_title}}</td>
                                         <td>{{$book->pages}}</td>
-                                        <td><a href="{{ asset('book/'.\App\Models\Translations::where('id',$book->language_id)->first()->language_name.'/'.$book->file) }}" download>{{$book->file}}</a></td>
+                                        <td><a href="{{ asset('book/'.$book->translations->language_name.'/'.$book->file) }}" download>{{$book->file}}</a></td>
                                         <td>
                                             @if ($loop->index < count($randomVideos))
                                                 <img src="{{$randomVideos[$loop->index]->thumbnail}}" width="65" height="45" class="img-icon" alt="">

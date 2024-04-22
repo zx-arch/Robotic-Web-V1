@@ -82,13 +82,13 @@ class CoursesController extends Controller
                             ->where('hierarchy_category_book.language_id', $request->terjemahan)->get()->pluck('id');
 
                         $getBook = BookTranslation::whereIn('hierarchy_id', $getIDHierarchy)->where('status_id', true)
-                            ->get();
+                            ->with('translations')->get();
 
                     } else {
                         $subCatIDMateri = HierarchyCategoryBook::where('parent_id', 0)->where('hierarchy_name', 'like', $request->jenis_materi . '%')->first()->id;
                         $getBook = BookTranslation::where('language_id', $request->terjemahan)
                             ->whereIn('hierarchy_id', HierarchyCategoryBook::where('parent_id', $subCatIDMateri)->get()->pluck('id'))->where('status_id', true)
-                            ->get();
+                            ->with('translations')->get();
                         //dd($getBook, $request->all());
 
                         $getIDHierarchy = $getBook;
@@ -102,7 +102,7 @@ class CoursesController extends Controller
                         ->where('hierarchy_category_book.language_id', $request->terjemahan)->get()->pluck('id');
 
                     $getBook = BookTranslation::whereIn('hierarchy_id', $getIDHierarchy)->where('status_id', true)
-                        ->get();
+                        > with('translations')->get();
                 }
 
                 //dd($request->all(), $getIDHierarchy, $getBook);
