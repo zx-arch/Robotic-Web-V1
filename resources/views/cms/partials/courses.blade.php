@@ -64,7 +64,7 @@
                                 @endphp --}}
                                 <div class="row w-75">
                                     <div class="col-md-4 mb-2">
-                                        <select id="translationSelect" name="terjemahan" class="form-control" required>
+                                        <select id="translationSelect" name="terjemahan" class="form-control" required {{ session()->has('jenis_materi') && session('jenis_materi') == 'ai_programming' ? 'onchange="this.form.submit()"' : '' }}>
                                             <option value="" disabled selected>Select Version ..</option>
                                             @foreach (session('getLanguages') as $language)
                                                 <option value="{{$language->language_id}}">{{$language->language_name}}</option>
