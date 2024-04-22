@@ -18,7 +18,7 @@ return [
     |
     */
 
-    'driver' => env('SESSION_DRIVER', 'file'),
+    'driver' => env('SESSION_DRIVER', 'redis'),
 
     /*
     |--------------------------------------------------------------------------
@@ -197,5 +197,7 @@ return [
     */
 
     'same_site' => 'lax',
+
+    'prefix' => 'laravel_session',
 
 ];
