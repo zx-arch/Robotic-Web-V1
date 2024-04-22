@@ -31,7 +31,7 @@ class CoursesController extends Controller
             //     ->with('translations')
             //     ->groupBy('book_translation.language_id', 'translations.language_name')
             //     ->get();
-
+            session()->forget('getChapter');
             $getLevels = HierarchyCategoryBook::select('hierarchy_category_book.*', 'translations.language_name')
                 ->leftJoin('translations', 'translations.id', '=', 'hierarchy_category_book.language_id')
                 ->whereIn('hierarchy_category_book.id', $subCatMateri)
