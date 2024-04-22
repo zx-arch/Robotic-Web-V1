@@ -12,7 +12,7 @@ class DashboardAdmin extends Controller
     public function __construct()
     {
         $this->data['currentAdminMenu'] = 'dashboard';
-        $this->data['currentTitle'] = 'Dashboard';
+        $this->data['currentTitle'] = 'Dashboard | Artec Coding Indonesia';
     }
     public function index()
     {

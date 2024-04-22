@@ -23,10 +23,7 @@ class TutorialsAdminController extends Controller
     {
         $this->data['currentAdminMenu'] = 'tutorials';
         $this->data['currentAdminSubMenu'] = 'preview';
-        $_SESSION['currentMenu'] = [
-            'currentAdminMenu' => 'tutorials',
-            'currentAdminSubMenu' => 'preview',
-        ];
+        $this->data['currentTitle'] = 'Preview Tutorials | Artec Coding Indonesia';
     }
 
     public function index()

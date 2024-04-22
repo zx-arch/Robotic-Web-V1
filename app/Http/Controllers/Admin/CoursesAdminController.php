@@ -20,6 +20,7 @@ class CoursesAdminController extends Controller
     public function __construct()
     {
         $this->data['currentAdminMenu'] = 'courses';
+        $this->data['currentTitle'] = 'Courses | Artec Coding Indonesia';
     }
     public function index()
     {
@@ -41,7 +42,7 @@ class CoursesAdminController extends Controller
         }
 
         if ($bookTranslations->count() > 15) {
-            //$bookTranslations = $bookTranslations->paginate($itemsPerPage);
+            $bookTranslations = $bookTranslations->paginate($itemsPerPage);
             //dd($bookTranslations);
             if ($bookTranslations->currentPage() > $bookTranslations->lastPage()) {
                 return redirect($bookTranslations->url($bookTranslations->lastPage()));

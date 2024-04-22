@@ -14,6 +14,7 @@ class LanguageController extends Controller
     public function __construct()
     {
         $this->data['currentAdminMenu'] = 'language';
+        $this->data['currentTitle'] = 'Language | Artec Coding Indonesia';
     }
     public function index()
     {

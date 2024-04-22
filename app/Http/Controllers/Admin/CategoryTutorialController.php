@@ -18,6 +18,8 @@ class CategoryTutorialController extends Controller
     {
         $this->data['currentAdminMenu'] = 'tutorials';
         $this->data['currentAdminSubMenu'] = 'category_tutorial';
+        $this->data['currentTitle'] = 'Category Tutorials | Artec Coding Indonesia';
+
     }
 
     public function index()

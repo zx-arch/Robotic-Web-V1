@@ -12,7 +12,7 @@ class AktivitasPenggunaController extends Controller
     public function __construct()
     {
         $this->data['currentAdminMenu'] = 'aktivitas_pengguna';
-        $this->data['currentTitle'] = 'Aktivitas Pengguna';
+        $this->data['currentTitle'] = 'Aktivitas Pengguna | Artec Coding Indonesia';
     }
     public function index()
     {
@@ -36,6 +36,7 @@ class AktivitasPenggunaController extends Controller
                 return redirect($activities->url($activities->lastPage()));
             }
         }
+
         return view('admin.AktivitasPengguna.index', $this->data, compact('activities'));
     }
 }

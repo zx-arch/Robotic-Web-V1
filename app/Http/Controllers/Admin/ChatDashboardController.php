@@ -15,6 +15,7 @@ class ChatDashboardController extends Controller
     public function __construct()
     {
         $this->data['currentAdminMenu'] = 'chat_dashboard';
+        $this->data['currentTitle'] = 'Chat Dashboard | Artec Coding Indonesia';
     }
 
     public function index()
