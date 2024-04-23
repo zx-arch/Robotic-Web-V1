@@ -18,6 +18,7 @@ use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Pengurus\DashboardPengurus;
 use App\Http\Controllers\Pengurus\TutorialsPengurusController;
 use App\Http\Controllers\Admin\ChatDashboardController;
+use App\Http\Controllers\Admin\IpAddressController;
 
 /*
 |--------------------------------------------------------------------------
@@ -117,6 +118,7 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
 
     Route::get('/admin/aktivitas_pengguna', [AktivitasPenggunaController::class, 'index'])->name('aktivitas_pengguna.index');
 
+    Route::get('/admin/ip_address', [IpAddressController::class, 'index'])->name('ip_address.index');
 });
 
 

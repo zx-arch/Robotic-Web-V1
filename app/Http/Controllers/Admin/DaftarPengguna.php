@@ -17,8 +17,9 @@ class DaftarPengguna extends Controller
 
     public function __construct()
     {
-        $this->data['currentAdminMenu'] = 'daftar_pengguna';
-        $this->data['currentTitle'] = 'Daftar Pengguna | Artec Coding Indonesia';
+        $this->data['currentAdminMenu'] = 'authentication';
+        $this->data['currentAdminSubMenu'] = 'account';
+        $this->data['currentTitle'] = 'Account | Artec Coding Indonesia';
     }
 
     public function index()

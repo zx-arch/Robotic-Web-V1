@@ -77,10 +77,23 @@
                         <i class="nav-icon fa fa-comments {{isset($currentAdminMenu) && $currentAdminMenu == 'chat_dashboard' ? 'text-white' : ''}}"></i>&nbsp;<p>Chat <span class="badge right badge-success" id="countMessage">{{session()->has('countChat') ? session('countChat') : 0}}</span></p>
                     </a>
                 </li>
-                <li class="nav-item">
-                    <a href="{{route('daftar_pengguna.index')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'daftar_pengguna' ? 'active' : ''}}">
-                        <i class="nav-icon fas fa-users {{isset($currentAdminMenu) && $currentAdminMenu == 'daftar_pengguna' ? 'text-white' : ''}}"></i>&nbsp;<p>Daftar Pengguna</p>
-                    </a>
+                <li class="nav-item has-treeview {{isset($currentAdminMenu) && $currentAdminMenu == 'authentication' ? 'menu-open' : ''}}">
+                    <div class="nav-link toggle-label {{isset($currentAdminMenu) && $currentAdminMenu == 'authentication' ? 'active' : ''}}" onclick="toggleSubMenu(event)">
+                        <i class="nav-icon fas fa-users {{isset($currentAdminMenu) && $currentAdminMenu == 'authentication' ? 'text-white' : ''}}"></i>&nbsp;
+                        <p class="menu-text {{isset($currentAdminMenu) && $currentAdminMenu == 'authentication' ? 'text text-white' : ''}}">Authentication<i class="fas fa-angle-left right"></i></p>
+                    </div>
+                    <ul class="nav nav-treeview submenu">
+                        <li class="nav-item">
+                            <a href="{{route('daftar_pengguna.index')}}" class="nav-link {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'account' ? 'active' : ''}}">
+                                <i class="nav-icon fas fa-user-circle {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'account' ? 'text-dark' : ''}}"></i>&nbsp;<p>Account</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{route('ip_address.index')}}" class="nav-link {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_address' ? 'active' : ''}}">
+                                <i class="nav-icon fas fa-server {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_address' ? 'text-dark' : ''}}"></i>&nbsp;<p>IP Address</p>
+                            </a>
+                        </li>
+                    </ul>
                 </li>
                 <li class="nav-item">
                     <a href="{{route('language.index')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'language' ? 'active' : ''}}">
