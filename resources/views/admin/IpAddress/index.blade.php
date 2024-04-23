@@ -71,7 +71,40 @@
                                     <td>Is blocked</td>
                                     <td></td>
                                 </tr>
+
+                                <form action="{{route('ip_address.search')}}" id="searchForm" method="get">
+                                    @csrf
+                                    <tr id="w0-filters" class="filters">
+                                        <td></td>
+                                        <td><input type="text" class="form-control" name="search[network]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['network'])) ? $searchData['network'] : ''}}"></td>
+                                        <td><input type="text" class="form-control" name="search[netmask]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['netmask'])) ? $searchData['netmask'] : ''}}"></td>
+                                        <td></td>
+                                        <td>
+                                            <select name="search[is_anonymous_proxy]" id="is_anonymous_proxy" class="form-control" onchange="this.form.submit()">
+                                                <option value="" {{(!isset($searchData['is_anonymous_proxy'])) ? 'selected' : ''}} disabled></option>
+                                                <option value="1" {{(isset($searchData['is_anonymous_proxy']) && $searchData['is_anonymous_proxy'] == 1) ? 'selected' : ''}}>True</option>
+                                                <option value="0" {{(isset($searchData['is_anonymous_proxy']) && $searchData['is_anonymous_proxy'] == 0) ? 'selected' : ''}}>False</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="search[is_satellite_provider]" id="is_satellite_provider" class="form-control" onchange="this.form.submit()">
+                                                <option value="" {{(!isset($searchData['is_satellite_provider'])) ? 'selected' : ''}} disabled></option>
+                                                <option value="1" {{(isset($searchData['is_satellite_provider']) && $searchData['is_satellite_provider'] == 1) ? 'selected' : ''}}>True</option>
+                                                <option value="0" {{(isset($searchData['is_satellite_provider']) && $searchData['is_satellite_provider'] == 0) ? 'selected' : ''}}>False</option>
+                                            </select>
+                                        </td>
+                                        <td>
+                                            <select name="search[is_blocked]" id="is_blocked" class="form-control" onchange="this.form.submit()">
+                                                <option value="" {{(!isset($searchData['is_blocked'])) ? 'selected' : ''}} disabled></option>
+                                                <option value="1" {{(isset($searchData['is_blocked']) && $searchData['is_blocked'] == '1') ? 'selected' : ''}}>True</option>
+                                                <option value="0" {{(isset($searchData['is_blocked']) && $searchData['is_blocked'] == '0') ? 'selected' : ''}}>False</option>
+                                            </select>
+                                        </td>
+                                    </tr>
+                                </form>
+
                             </thead>
+
                             <tbody>
                                 @forelse ($listIP as $ip)
                                     <tr>
@@ -191,3 +224,15 @@
 </div>
 
 @endsection
+
+<script>
+    function handleKeyPress(event) {
+        // Periksa apakah tombol yang ditekan adalah tombol "Enter" (kode 13)
+        if (event.keyCode === 13) {
+            // Hentikan perilaku bawaan dari tombol "Enter" (yang akan mengirimkan formulir)
+            event.preventDefault();
+            // Submit formulir secara manual
+            document.getElementById('searchForm').submit();
+        }
+    }
+</script>

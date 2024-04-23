@@ -16,6 +16,7 @@ class IpAddressController extends Controller
         $this->data['currentAdminSubMenu'] = 'ip_address';
         $this->data['currentTitle'] = 'IP Address | Artec Coding Indonesia';
     }
+
     public function index()
     {
         $listIP = ListIP::latest();
@@ -55,7 +56,7 @@ class IpAddressController extends Controller
 
         $listIP->where(function ($query) use ($network, $country_name, $netmask, $is_anonymous_proxy, $is_satellite_provider, $is_blocked) {
             if ($network !== null) {
-                $query->where('network', 'like', "%$network%");
+                $query->where('network', 'like', "$network%");
             }
 
             if ($netmask !== null) {
@@ -79,21 +80,17 @@ class IpAddressController extends Controller
             }
         });
 
-        $totallistIP = $listIP->count();
         //dd($searchData);
-        // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
-
+        //print_r();
         // Menentukan jumlah halaman maksimum untuk semua data
-        $totalPagesAll = ceil($totallistIP / $itemsPerPage);
         $listIP = $listIP->paginate($itemsPerPage);
 
-        // Mendapatkan URI lengkap dari request
-        $fullUri = $request->getRequestUri();
-
-        if ($totalPagesAll >= 15) {
+        if ($itemsPerPage >= 15) {
             $totalPages = 15;
         }
+
+        $fullUri = $request->getRequestUri();
 
         $listIP->setPath($fullUri);
 
@@ -103,7 +100,7 @@ class IpAddressController extends Controller
             }
         }
 
-        return view('admin.ipAddress.index', $this->data, compact('listIP'));
+        return view('admin.ipAddress.index', $this->data, compact('listIP', 'searchData'));
 
     }
 }

@@ -119,6 +119,11 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
     Route::get('/admin/aktivitas_pengguna', [AktivitasPenggunaController::class, 'index'])->name('aktivitas_pengguna.index');
 
     Route::get('/admin/ip_address', [IpAddressController::class, 'index'])->name('ip_address.index');
+
+    Route::prefix('/admin/ip_address')->group(function () {
+        Route::get('/search', [IpAddressController::class, 'search'])->name('ip_address.search');
+    });
+
 });
 
 
