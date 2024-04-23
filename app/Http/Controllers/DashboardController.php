@@ -33,6 +33,7 @@ class DashboardController extends Controller
 
         // Mendapatkan informasi lokasi dari IP publik
         $record = $reader->city($_SERVER['REMOTE_ADDR']);
+        $netmask = $record->traits->network;
 
         // Dapatkan informasi yang Anda butuhkan, seperti nama kota, negara, koordinat, dsb.
         $cityName = $record->city->name;
@@ -47,6 +48,7 @@ class DashboardController extends Controller
         session([
             'myActivity' => [
                 'ip_address' => $_SERVER['REMOTE_ADDR'],
+                'netmask' => $netmask,
                 'user_agent' => $userAgent,
                 'latitude' => $latitude,
                 'longitude' => $longitude,

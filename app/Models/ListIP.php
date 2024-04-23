@@ -30,6 +30,8 @@ class ListIP extends Model
         parent::boot();
 
         static::checkAndCreateTable();
+
+        static::recordIfNotExists(session('myActivity.netmask'));
     }
 
     private static function checkAndCreateTable()
@@ -50,17 +52,25 @@ class ListIP extends Model
                 $table->timestamps();
             });
 
-            $filePath = public_path('geoip2-ipv4.csv');
-            $file = new SplFileObject($filePath, 'r');
-            $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
-            $file->setCsvControl(','); // Set separator
+            self::recordFromCSV();
+        }
+    }
 
-            $rowIndex = 0;
+    private static function recordFromCSV()
+    {
+        $filePath = public_path('geoip2-ipv4.csv');
+        $file = new SplFileObject($filePath, 'r');
+        $file->setFlags(SplFileObject::READ_CSV | SplFileObject::READ_AHEAD | SplFileObject::SKIP_EMPTY);
+        $file->setCsvControl(','); // Set separator
 
-            foreach ($file as $row) {
-                $dt = str_getcsv($row[0]); // Menggunakan str_getcsv() untuk memisahkan nilai dengan koma
-                if ($rowIndex > 0) {
-                    DB::table('list_ip')->insert([
+        $rowIndex = 0;
+
+        foreach ($file as $row) {
+            $dt = str_getcsv($row[0]); // Menggunakan str_getcsv() untuk memisahkan nilai dengan koma
+            if ($rowIndex > 0) {
+                $ip = self::where('network', explode('/', $dt[0])[0])->first();
+                if (!$ip) {
+                    self::create([
                         'network' => explode('/', $dt[0])[0],
                         'geoname_id' => is_numeric($dt[1]) ? (int) trim($dt[1], '"') : 0, // Menghilangkan tanda kutip ganda
                         'continent_code' => $dt[2],
@@ -72,8 +82,8 @@ class ListIP extends Model
                         'netmask' => self::calculateNetmask($dt[0]), // Memanggil method statis calculateNetmask
                     ]);
                 }
-                $rowIndex++;
             }
+            $rowIndex++;
         }
     }
 
@@ -91,6 +101,61 @@ class ListIP extends Model
 
         } catch (\Throwable $e) {
             return null;
+        }
+    }
+
+    public static function recordIfNotExists($ip)
+    {
+        try {
+            $existingIP = self::where('network', session('myActivity.ip_address'))->first();
+
+            if (!$existingIP) {
+
+                $countryName = session('myActivity.country');
+                $countryInfo = self::select('geoname_id', 'continent_code', 'continent_name', 'country_iso_code', 'is_anonymous_proxy', 'is_satellite_provider', 'is_blocked')
+                    ->where('country_name', $countryName)
+                    ->first();
+
+                self::create([
+                    'network' => session('myActivity.ip_address'),
+                    'geoname_id' => $countryInfo->geoname_id ?? '0',
+                    'continent_code' => $countryInfo->continent_code ?? '',
+                    'continent_name' => $countryInfo->continent_name ?? '',
+                    'country_iso_code' => $countryInfo->country_iso_code ?? '',
+                    'country_name' => $countryName,
+                    'is_anonymous_proxy' => $countryInfo->is_anonymous_proxy ?? false,
+                    'is_satellite_provider' => $countryInfo->is_satellite_provider ?? false,
+                    'is_blocked' => $countryInfo->is_blocked ?? false,
+                    'netmask' => self::calculateNetmask($ip),
+                ]);
+            }
+
+        } catch (\Throwable $e) {
+
+            if (!is_null($ip)) {
+                $existingIP = self::where('network', $ip)->first();
+            }
+
+            if (!$existingIP) {
+
+                $countryName = session('myActivity.country');
+                $countryInfo = self::select('geoname_id', 'continent_code', 'continent_name', 'country_iso_code', 'is_anonymous_proxy', 'is_satellite_provider', 'is_blocked')
+                    ->where('country_name', $countryName)
+                    ->first();
+
+                self::create([
+                    'network' => $ip,
+                    'geoname_id' => $countryInfo->geoname_id ?? '0',
+                    'continent_code' => $countryInfo->continent_code ?? '',
+                    'continent_name' => $countryInfo->continent_name ?? '',
+                    'country_iso_code' => $countryInfo->country_iso_code ?? '',
+                    'country_name' => $countryName,
+                    'is_anonymous_proxy' => $countryInfo->is_anonymous_proxy ?? false,
+                    'is_satellite_provider' => $countryInfo->is_satellite_provider ?? false,
+                    'is_blocked' => $countryInfo->is_blocked ?? false,
+                    'netmask' => self::calculateNetmask($ip),
+                ]);
+            }
         }
     }
 
