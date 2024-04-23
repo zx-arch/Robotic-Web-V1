@@ -51,8 +51,9 @@ class ListIP extends Model
                 $table->boolean('is_blocked')->default(false);
                 $table->timestamps();
             });
-
-            self::recordFromCSV();
+            if (self::doesntExist()) {
+                self::recordFromCSV();
+            }
         }
     }
 
@@ -80,6 +81,8 @@ class ListIP extends Model
                         'is_anonymous_proxy' => ($dt[6] === '1') ? true : false,
                         'is_satellite_provider' => ($dt[7] === '1') ? true : false,
                         'netmask' => self::calculateNetmask($dt[0]), // Memanggil method statis calculateNetmask
+                        'created_at' => now(),
+                        'updated_at' => now()
                     ]);
                 }
             }

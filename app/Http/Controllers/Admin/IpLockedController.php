@@ -7,20 +7,21 @@ use App\Models\IpLocked;
 use Illuminate\Http\Request;
 use App\Models\ListIP;
 
-class IpAddressController extends Controller
+class IpLockedController extends Controller
 {
     private $data;
 
     public function __construct()
     {
         $this->data['currentAdminMenu'] = 'authentication';
-        $this->data['currentAdminSubMenu'] = 'ip_address';
-        $this->data['currentTitle'] = 'IP Address | Artec Coding Indonesia';
+        $this->data['currentAdminSubMenu'] = 'ip_locked';
+        $this->data['currentTitle'] = 'IP Locked | Artec Coding Indonesia';
     }
 
     public function index()
     {
-        $listIP = ListIP::latest();
+        $listIP = IpLocked::select('list_ip.*')->leftJoin('list_ip', 'list_ip.network', '=', 'ip_locked.network')
+            ->latest();
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
@@ -36,12 +37,12 @@ class IpAddressController extends Controller
                 return redirect($listIP->url($listIP->lastPage()));
             }
         }
+
         $ipBlocked = ListIP::where('is_blocked', 1)->get()->count();
         $ipUnblocked = ListIP::where('is_blocked', 0)->get()->count();
-        //dd($getAll);
-        return view('admin.ipAddress.index', $this->data, compact('listIP', 'ipBlocked', 'ipUnblocked'));
-    }
 
+        return view('admin.IpAddress.locked', $this->data, compact('listIP', 'ipBlocked', 'ipUnblocked'));
+    }
 
     public function search(Request $request)
     {
@@ -56,31 +57,32 @@ class IpAddressController extends Controller
         //dd($request->all());
 
         // Misalnya ingin mencari data ip berdasarkan network, netmask, country_name, is_satellite_provider, atau is_blocked
-        $listIP = ListIP::latest();
+        $listIP = IpLocked::select('list_ip.*')->leftJoin('list_ip', 'list_ip.network', '=', 'ip_locked.network')
+            ->latest();
 
         $listIP->where(function ($query) use ($network, $country_name, $netmask, $is_anonymous_proxy, $is_satellite_provider, $is_blocked) {
             if ($network !== null) {
-                $query->where('network', 'like', "$network%");
+                $query->where('list_ip.network', 'like', "$network%");
             }
 
             if ($netmask !== null) {
-                $query->where('netmask', $netmask);
+                $query->where('list_ip.netmask', $netmask);
             }
 
             if ($country_name !== null) {
-                $query->where('country_name', $country_name);
+                $query->where('list_ip.country_name', $country_name);
             }
 
             if ($is_anonymous_proxy !== null) {
-                $query->where('is_anonymous_proxy', $is_anonymous_proxy);
+                $query->where('list_ip.is_anonymous_proxy', $is_anonymous_proxy);
             }
 
             if ($is_satellite_provider !== null) {
-                $query->where('is_satellite_provider', $is_satellite_provider);
+                $query->where('list_ip.is_satellite_provider', $is_satellite_provider);
             }
 
             if ($is_blocked !== null) {
-                $query->whereDate('is_blocked', $is_blocked);
+                $query->whereDate('list_ip.is_blocked', $is_blocked);
             }
         });
 
@@ -111,27 +113,17 @@ class IpAddressController extends Controller
 
     }
 
-    public function blocked($id)
+    public function saveLocked($id)
     {
-        try {
-            //dd(decrypt($id));
-            $checkIp = ListIP::where('id', decrypt($id))->first();
-            $checkLock = IpLocked::where('network', $checkIp->network)->first();
+        $findIp = ListIP::where('id', decrypt($id))->first();
 
-            if (!$checkLock) {
-
-                $checkIp->update([
-                    'is_blocked' => true,
-                ]);
-
-                return redirect()->back()->with('success_blocked', 'IP berhasil diblock, user dengan ip tersebut tidak dapat login!');
-
-            } else {
-                return redirect()->back()->with('error_blocked', 'IP tidak dapat diblock karena sudah di-lock!');
-            }
-
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error_blocked', 'IP berhasil diblock. ' . $e->getMessage());
+        if ($findIp) {
+            IpLocked::where('id', decrypt($id))->create([
+                'network' => $findIp->network,
+            ]);
         }
+
+        return redirect()->back()->with('success_locked', 'IP berhasil dilock, IP tidak dapat dihapus!');
+
     }
 }

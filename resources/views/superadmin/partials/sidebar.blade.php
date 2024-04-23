@@ -85,12 +85,17 @@
                     <ul class="nav nav-treeview submenu">
                         <li class="nav-item">
                             <a href="{{route('daftar_pengguna.index')}}" class="nav-link {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'account' ? 'active' : ''}}">
-                                <i class="nav-icon fas fa-user-circle {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'account' ? 'text-dark' : ''}}"></i>&nbsp;<p>Account</p>
+                                <i class="nav-icon far fa-circle {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'account' ? 'text-dark' : ''}}"></i>&nbsp;<p>Account</p>
                             </a>
                         </li>
                         <li class="nav-item">
                             <a href="{{route('ip_address.index')}}" class="nav-link {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_address' ? 'active' : ''}}">
-                                <i class="nav-icon fas fa-server {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_address' ? 'text-dark' : ''}}"></i>&nbsp;<p>IP Address</p>
+                                <i class="nav-icon far fa-circle {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_address' ? 'text-dark' : ''}}"></i>&nbsp;<p>List IP Address</p>
+                            </a>
+                        </li>
+                        <li class="nav-item">
+                            <a href="{{route('ip_locked.index')}}" class="nav-link {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_locked' ? 'active' : ''}}">
+                                <i class="nav-icon far fa-circle {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_locked' ? 'text-dark' : ''}}"></i>&nbsp;<p>IP Locked</p>
                             </a>
                         </li>
                     </ul>

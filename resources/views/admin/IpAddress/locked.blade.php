@@ -53,16 +53,16 @@
             <div class="card mt-3">
                 <div class="card-header">
                     
-                    @if (session()->has('success_blocked'))
+                    @if (session()->has('success_locked'))
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
-                            {{session('success_blocked')}}
+                            {{session('success_locked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
                     @endif
 
-                    @if (session()->has('error_blocked'))
+                    @if (session()->has('error_locked'))
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
-                            {{session('error_blocked')}}
+                            {{session('error_locked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
                     @endif
@@ -83,7 +83,7 @@
                                     <td></td>
                                 </tr>
 
-                                <form action="{{route('ip_address.search')}}" id="searchForm" method="get">
+                                <form action="{{route('ip_locked.search')}}" id="searchForm" method="get">
                                     @csrf
                                     <tr id="w0-filters" class="filters">
                                         <td></td>
@@ -126,24 +126,13 @@
                                         <td>{{ $ip->is_anonymous_proxy ? 'True' : 'False' }}</td>
                                         <td>{{ $ip->is_satellite_provider ? 'True' : 'False' }}</td>
                                         <td>{{$ip->is_blocked ? 'True' : 'False'}}</td>
-                                        
-                                        @php
-                                            $checkLock = \App\Models\IpLocked::where('network', $ip->network)->first();
-                                        @endphp
-
-                                        @if (!$checkLock)
-                                            <td>
-                                                <a class="btn btn-warning btn-sm btn-delete" href="{{route('ip_address.blocked', ['id' => encrypt($ip->id)])}}"><i class="fa-fw fas fa-ban" aria-hidden></i></a>
-                                            </td>
-                                        @else
-                                            <td></td>
-                                        @endif
+                                        <td>
+                                            <a class="btn btn-primary btn-sm btn-unlocked" href="#"><i class="fa-fw fa fa-unlock" aria-hidden></i></a>
+                                        </td>
                                     </tr>
-
                                 @empty
                                     <p class="ml-2 mt-3 text-danger">IP address belum tersedia</p>
                                 @endforelse
-
                             </tbody>
                         </table>
                     </div>
@@ -250,8 +239,8 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
-    // Tambahkan event listener ke tombol delete
-        document.querySelectorAll('.btn-delete').forEach(button => {
+    // Tambahkan event listener ke tombol locked
+        document.querySelectorAll('.btn-locked').forEach(button => {
             button.addEventListener('click', function(event) {
                 event.preventDefault();
                 const url = this.getAttribute('href');
@@ -259,7 +248,7 @@
                 // Tampilkan SweetAlert konfirmasi penghapusan
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
-                    text: "User dengan ip address tersebut tidak akan dapat mengakses sistem!",
+                    text: "Ip address yang di-lock tidak dapat dihapus!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',

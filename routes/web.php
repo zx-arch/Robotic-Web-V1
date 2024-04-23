@@ -19,6 +19,7 @@ use App\Http\Controllers\Pengurus\DashboardPengurus;
 use App\Http\Controllers\Pengurus\TutorialsPengurusController;
 use App\Http\Controllers\Admin\ChatDashboardController;
 use App\Http\Controllers\Admin\IpAddressController;
+use App\Http\Controllers\Admin\IpLockedController;
 
 /*
 |--------------------------------------------------------------------------
@@ -122,7 +123,12 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
 
     Route::prefix('/admin/ip_address')->group(function () {
         Route::get('/search', [IpAddressController::class, 'search'])->name('ip_address.search');
+        Route::get('/blocked/{id}', [IpAddressController::class, 'blocked'])->name('ip_address.blocked');
     });
+
+    Route::get('/admin/ip_locked', [IpLockedController::class, 'index'])->name('ip_locked.index');
+    Route::get('/admin/ip_locked/save/{id}', [IpLockedController::class, 'saveLocked'])->name('ip_address.saveLocked');
+    Route::get('/admin/ip_locked/search', [IpLockedController::class, 'search'])->name('ip_locked.search');
 
 });
 
