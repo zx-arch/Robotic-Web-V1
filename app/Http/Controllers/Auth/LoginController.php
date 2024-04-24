@@ -21,9 +21,12 @@ class LoginController extends Controller
     public function index(Request $request)
     {
         if (Auth::check()) {
-            $status = 403;
-            $message = 'Anda tidak memiliki akses ke halaman ini.';
-            return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+
+            if (!session('blocked_ip')) {
+                $status = 403;
+                $message = 'Anda tidak memiliki akses ke halaman ini.';
+                return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+            }
 
         } else {
 
