@@ -20,7 +20,13 @@ class IpAddressController extends Controller
 
     public function index()
     {
-        $listIP = ListIP::latest();
+        $listIP = ListIP::leftJoin('ip_locked', function ($join) {
+            $join->on('list_ip.network', '=', 'ip_locked.network');
+        })
+            ->select('list_ip.*')
+            ->selectRaw('IF(ip_locked.network IS NULL, false, true) as is_locked')
+            ->latest();
+
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
@@ -56,31 +62,36 @@ class IpAddressController extends Controller
         //dd($request->all());
 
         // Misalnya ingin mencari data ip berdasarkan network, netmask, country_name, is_satellite_provider, atau is_blocked
-        $listIP = ListIP::latest();
+        $listIP = ListIP::leftJoin('ip_locked', function ($join) {
+            $join->on('list_ip.network', '=', 'ip_locked.network');
+        })
+            ->select('list_ip.*')
+            ->selectRaw('IF(ip_locked.network IS NULL, false, true) as is_locked')
+            ->latest();
 
         $listIP->where(function ($query) use ($network, $country_name, $netmask, $is_anonymous_proxy, $is_satellite_provider, $is_blocked) {
             if ($network !== null) {
-                $query->where('network', 'like', "$network%");
+                $query->where('list_ip.network', 'like', "$network%");
             }
 
             if ($netmask !== null) {
-                $query->where('netmask', $netmask);
+                $query->where('list_ip.netmask', $netmask);
             }
 
             if ($country_name !== null) {
-                $query->where('country_name', $country_name);
+                $query->where('list_ip.country_name', $country_name);
             }
 
             if ($is_anonymous_proxy !== null) {
-                $query->where('is_anonymous_proxy', $is_anonymous_proxy);
+                $query->where('list_ip.is_anonymous_proxy', $is_anonymous_proxy);
             }
 
             if ($is_satellite_provider !== null) {
-                $query->where('is_satellite_provider', $is_satellite_provider);
+                $query->where('list_ip.is_satellite_provider', $is_satellite_provider);
             }
 
             if ($is_blocked !== null) {
-                $query->whereDate('is_blocked', $is_blocked);
+                $query->whereDate('list_ip.is_blocked', $is_blocked);
             }
         });
 

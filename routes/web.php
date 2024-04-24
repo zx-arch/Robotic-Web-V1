@@ -129,7 +129,7 @@ Route::middleware(['auth.login', 'admin.auth'])->group(function () {
     Route::get('/admin/ip_locked', [IpLockedController::class, 'index'])->name('ip_locked.index');
     Route::get('/admin/ip_locked/save/{id}', [IpLockedController::class, 'saveLocked'])->name('ip_address.saveLocked');
     Route::get('/admin/ip_locked/search', [IpLockedController::class, 'search'])->name('ip_locked.search');
-
+    Route::get('/admin/ip_locked/save-unlock/{id}', [IpLockedController::class, 'saveUnlocked'])->name('ip_locked.saveUnlocked');
 });
 
 

@@ -53,6 +53,20 @@
             <div class="card mt-3">
                 <div class="card-header">
                     
+                    @if (session()->has('success_locked'))
+                        <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
+                            {{session('success_locked')}}
+                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                        </div>
+                    @endif
+
+                    @if (session()->has('error_locked'))
+                        <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
+                            {{session('error_locked')}}
+                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                        </div>
+                    @endif
+
                     @if (session()->has('success_blocked'))
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
                             {{session('success_blocked')}}
@@ -126,13 +140,10 @@
                                         <td>{{ $ip->is_anonymous_proxy ? 'True' : 'False' }}</td>
                                         <td>{{ $ip->is_satellite_provider ? 'True' : 'False' }}</td>
                                         <td>{{$ip->is_blocked ? 'True' : 'False'}}</td>
-                                        
-                                        @php
-                                            $checkLock = \App\Models\IpLocked::where('network', $ip->network)->first();
-                                        @endphp
 
-                                        @if (!$checkLock)
+                                        @if ($ip->is_locked == 0)
                                             <td>
+                                                <a class="btn btn-info btn-sm btn-locked" href="{{route('ip_address.saveLocked', ['id' => encrypt($ip->id)])}}"><i class="fa-fw fa fa-lock" aria-hidden></i></a>
                                                 <a class="btn btn-warning btn-sm btn-delete" href="{{route('ip_address.blocked', ['id' => encrypt($ip->id)])}}"><i class="fa-fw fas fa-ban" aria-hidden></i></a>
                                             </td>
                                         @else
@@ -250,7 +261,30 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
-    // Tambahkan event listener ke tombol delete
+        document.querySelectorAll('.btn-locked').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const url = this.getAttribute('href');
+                
+                // Tampilkan SweetAlert konfirmasi penghapusan
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Ip address yang di-lock tidak dapat di-block!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Jika pengguna menekan tombol "Ya, hapus", arahkan ke URL penghapusan
+                        window.location.href = url;
+                    }
+                });
+            });
+        });
+
+        // Tambahkan event listener ke tombol delete
         document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', function(event) {
                 event.preventDefault();

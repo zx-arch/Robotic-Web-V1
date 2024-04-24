@@ -35,6 +35,8 @@ class ListIpSeeder extends Seeder
                     'is_anonymous_proxy' => ($dt[6] === '1') ? true : false,
                     'is_satellite_provider' => ($dt[7] === '1') ? true : false,
                     'netmask' => $this->calculateNetmask($dt[0]),
+                    'created_at' => now(),
+                    'updated_at' => now(),
                 ]);
             }
             $rowIndex++;

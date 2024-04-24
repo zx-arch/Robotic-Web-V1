@@ -52,20 +52,21 @@
 
             <div class="card mt-3">
                 <div class="card-header">
-                    
-                    @if (session()->has('success_locked'))
+
+                    @if (session()->has('success_unlocked'))
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
-                            {{session('success_locked')}}
+                            {{session('success_unlocked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
                     @endif
 
-                    @if (session()->has('error_locked'))
+                    @if (session()->has('error_unlocked'))
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
-                            {{session('error_locked')}}
+                            {{session('error_unlocked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
                     @endif
+
                 </div>
 
                 <div class="card-body p-0">
@@ -127,7 +128,7 @@
                                         <td>{{ $ip->is_satellite_provider ? 'True' : 'False' }}</td>
                                         <td>{{$ip->is_blocked ? 'True' : 'False'}}</td>
                                         <td>
-                                            <a class="btn btn-primary btn-sm btn-unlocked" href="#"><i class="fa-fw fa fa-unlock" aria-hidden></i></a>
+                                            <a class="btn btn-primary btn-sm btn-unlocked" href="{{route('ip_locked.saveUnlocked', ['id' => encrypt($ip->id)])}}"><i class="fa-fw fa fa-unlock" aria-hidden></i></a>
                                         </td>
                                     </tr>
                                 @empty
