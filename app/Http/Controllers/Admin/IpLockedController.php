@@ -125,8 +125,8 @@ class IpLockedController extends Controller
             }
         }
 
-        $ipBlocked = IpGlobal::where('is_blocked', 1)->get()->count();
-        $ipUnblocked = IpGlobal::where('is_blocked', 0)->get()->count();
+        $ipBlocked = $listIP->where('is_blocked', 1)->count();
+        $ipUnblocked = $listIP->where('is_blocked', 0)->count();
 
         return view('admin.IpLocked.index', $this->data, compact('listIP', 'searchData', 'ipBlocked', 'ipUnblocked'));
 
