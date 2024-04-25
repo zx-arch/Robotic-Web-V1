@@ -23,7 +23,7 @@
                     <div class="info-box bg-info d-flex align-items-center">
                         <span class="info-box-icon"><i class="fas fa-user"></i></span>
                         <div class="info-box-content">
-                            <span class="info-box-text">Total IP Address</span>
+                            <span class="info-box-text">Total IP Locked</span>
                             <span class="info-box-number">{{ $listIP->total() }}</span>
                         </div>
                     </div>
@@ -51,23 +51,25 @@
             </div>
 
             <div class="card mt-3">
-                <div class="card-header">
 
-                    @if (session()->has('success_unlocked'))
+                @if (session()->has('success_unlocked'))
+                    <div class="card-header">
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
                             {{session('success_unlocked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
-                    @endif
+                    </div>
+                @endif
 
-                    @if (session()->has('error_unlocked'))
+                @if (session()->has('error_unlocked'))
+                    <div class="card-header">
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
                             {{session('error_unlocked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
-                    @endif
+                    </div>
+                @endif
 
-                </div>
 
                 <div class="card-body p-0">
                     <div id="w0" class="gridview table-responsive">
@@ -80,7 +82,6 @@
                                     <td>Country</td>
                                     <td>Is anonymous proxy</td>
                                     <td>Is satellite provider</td>
-                                    <td>Is blocked</td>
                                     <td></td>
                                 </tr>
 
@@ -105,13 +106,6 @@
                                                 <option value="0" {{(isset($searchData['is_satellite_provider']) && $searchData['is_satellite_provider'] == 0) ? 'selected' : ''}}>False</option>
                                             </select>
                                         </td>
-                                        <td>
-                                            <select name="search[is_blocked]" id="is_blocked" class="form-control" onchange="this.form.submit()">
-                                                <option value="" {{(!isset($searchData['is_blocked'])) ? 'selected' : ''}} disabled></option>
-                                                <option value="1" {{(isset($searchData['is_blocked']) && $searchData['is_blocked'] == '1') ? 'selected' : ''}}>True</option>
-                                                <option value="0" {{(isset($searchData['is_blocked']) && $searchData['is_blocked'] == '0') ? 'selected' : ''}}>False</option>
-                                            </select>
-                                        </td>
                                     </tr>
                                 </form>
 
@@ -126,7 +120,6 @@
                                         <td>{{$ip->country_name}}</td>
                                         <td>{{ $ip->is_anonymous_proxy ? 'True' : 'False' }}</td>
                                         <td>{{ $ip->is_satellite_provider ? 'True' : 'False' }}</td>
-                                        <td>{{$ip->is_blocked ? 'True' : 'False'}}</td>
                                         <td>
                                             <a class="btn btn-primary btn-sm btn-unlocked" href="{{route('ip_locked.saveUnlocked', ['id' => encrypt($ip->id)])}}"><i class="fa-fw fa fa-unlock" aria-hidden></i></a>
                                         </td>
@@ -142,6 +135,7 @@
                 @if ($listIP->lastPage() > 1)
                     <nav aria-label="Page navigation example">
                         <ul class="pagination mt-2">
+
                             {{-- Tombol Sebelumnya --}}
                             @if ($listIP->currentPage() > 1)
                                 <li class="page-item">
@@ -241,7 +235,7 @@
     document.addEventListener('DOMContentLoaded', function () {
 
     // Tambahkan event listener ke tombol locked
-        document.querySelectorAll('.btn-locked').forEach(button => {
+        document.querySelectorAll('.btn-unlocked').forEach(button => {
             button.addEventListener('click', function(event) {
                 event.preventDefault();
                 const url = this.getAttribute('href');
@@ -249,7 +243,7 @@
                 // Tampilkan SweetAlert konfirmasi penghapusan
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
-                    text: "Ip address yang di-lock tidak dapat dihapus!",
+                    text: "Ip address yang di-unlock dapat dihapus!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',

@@ -1,5 +1,6 @@
 <?php
 
+use App\Models\IpGlobal;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\CategoryTutorialController;
 use Illuminate\Support\Facades\Route;
@@ -18,7 +19,7 @@ use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Pengurus\DashboardPengurus;
 use App\Http\Controllers\Pengurus\TutorialsPengurusController;
 use App\Http\Controllers\Admin\ChatDashboardController;
-use App\Http\Controllers\Admin\IpAddressController;
+use App\Http\Controllers\Admin\IpGlobalController;
 use App\Http\Controllers\Admin\IpLockedController;
 
 /*
@@ -119,17 +120,21 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked'])->group(function () {
 
     Route::get('/admin/aktivitas_pengguna', [AktivitasPenggunaController::class, 'index'])->name('aktivitas_pengguna.index');
 
-    Route::get('/admin/ip_address', [IpAddressController::class, 'index'])->name('ip_address.index');
+    Route::get('/admin/ip_global', [IpGlobalController::class, 'index'])->name('ip_global.index');
 
-    Route::prefix('/admin/ip_address')->group(function () {
-        Route::get('/search', [IpAddressController::class, 'search'])->name('ip_address.search');
-        Route::get('/blocked/{id}', [IpAddressController::class, 'blocked'])->name('ip_address.blocked');
+    Route::prefix('/admin/ip_global')->group(function () {
+        Route::get('/search', [IpGlobalController::class, 'search'])->name('ip_global.search');
+        Route::get('/blocked/{id}', [IpGlobalController::class, 'blocked'])->name('ip_global.blocked');
+        Route::get('/locked/{id}', [IpGlobalController::class, 'locked'])->name('ip_global.locked');
+        Route::get('/unlocked/{id}', [IpGlobalController::class, 'unlocked'])->name('ip_global.unlocked');
     });
 
     Route::get('/admin/ip_locked', [IpLockedController::class, 'index'])->name('ip_locked.index');
-    Route::get('/admin/ip_locked/save/{id}', [IpLockedController::class, 'saveLocked'])->name('ip_address.saveLocked');
-    Route::get('/admin/ip_locked/search', [IpLockedController::class, 'search'])->name('ip_locked.search');
-    Route::get('/admin/ip_locked/save-unlock/{id}', [IpLockedController::class, 'saveUnlocked'])->name('ip_locked.saveUnlocked');
+
+    Route::prefix('/admin/ip_locked')->group(function () {
+        Route::get('/search', [IpLockedController::class, 'search'])->name('ip_locked.search');
+        Route::get('/save-unlock/{id}', [IpLockedController::class, 'saveUnlocked'])->name('ip_locked.saveUnlocked');
+    });
 });
 
 

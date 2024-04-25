@@ -24,7 +24,7 @@
                         <span class="info-box-icon"><i class="fas fa-user"></i></span>
                         <div class="info-box-content">
                             <span class="info-box-text">Total IP Address</span>
-                            <span class="info-box-number">{{ $listIP->total() }}</span>
+                            <span class="info-box-number">{{ $publicIp->total() }}</span>
                         </div>
                     </div>
                 </div>
@@ -51,36 +51,60 @@
             </div>
 
             <div class="card mt-3">
-                <div class="card-header">
-                    
-                    @if (session()->has('success_locked'))
+
+                @if (session()->has('success_unlocked'))
+                    <div class="card-header">
+                        <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
+                            {{session('success_unlocked')}}
+                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                        </div>
+                    </div>
+                @endif
+
+                @if (session()->has('error_unlocked'))
+                    <div class="card-header">
+                        <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
+                            {{session('error_unlocked')}}
+                            <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                        </div>
+                    </div>
+                @endif
+
+                @if (session()->has('success_locked'))
+                    <div class="card-header">
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
                             {{session('success_locked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
-                    @endif
+                    </div>
+                @endif
 
-                    @if (session()->has('error_locked'))
+                @if (session()->has('error_locked'))
+                    <div class="card-header">
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
                             {{session('error_locked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
-                    @endif
+                    </div>
+                @endif
 
-                    @if (session()->has('success_blocked'))
+                @if (session()->has('success_blocked'))
+                    <div class="card-header">
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
                             {{session('success_blocked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
-                    @endif
+                    </div>
+                @endif
 
-                    @if (session()->has('error_blocked'))
+                @if (session()->has('error_blocked'))
+                    <div class="card-header">
                         <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-50" role="alert">
                             {{session('error_blocked')}}
                             <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
                         </div>
-                    @endif
-                </div>
+                    </div>
+                @endif
 
                 <div class="card-body p-0">
                     <div id="w0" class="gridview table-responsive">
@@ -97,7 +121,7 @@
                                     <td></td>
                                 </tr>
 
-                                <form action="{{route('ip_address.search')}}" id="searchForm" method="get">
+                                <form action="{{route('ip_global.search')}}" id="searchForm" method="get">
                                     @csrf
                                     <tr id="w0-filters" class="filters">
                                         <td></td>
@@ -131,7 +155,7 @@
                             </thead>
 
                             <tbody>
-                                @forelse ($listIP as $ip)
+                                @forelse ($publicIp as $ip)
                                     <tr>
                                         <td>{{$loop->index += 1}}</td>
                                         <td>{{$ip->network}}</td>
@@ -143,8 +167,14 @@
 
                                         @if ($ip->is_locked == 0)
                                             <td>
-                                                <a class="btn btn-info btn-sm btn-locked" href="{{route('ip_address.saveLocked', ['id' => encrypt($ip->id)])}}"><i class="fa-fw fa fa-lock" aria-hidden></i></a>
-                                                <a class="btn btn-warning btn-sm btn-delete" href="{{route('ip_address.blocked', ['id' => encrypt($ip->id)])}}"><i class="fa-fw fas fa-ban" aria-hidden></i></a>
+                                                
+                                                @if (!$ip->is_blocked)
+                                                    <a class="btn btn-warning btn-sm btn-delete" href="{{route('ip_global.blocked', ['id' => encrypt($ip->id)])}}"><i class="fa-fw fas fa-ban" aria-hidden></i></a>
+                                                    <a class="btn btn-info btn-sm btn-locked" href="{{route('ip_global.locked', ['id' => encrypt($ip->id)])}}"><i class="fa-fw fa fa-lock" aria-hidden></i></a>
+                                                @else
+                                                    <a href="{{route('ip_global.unlocked', ['id' => encrypt($ip->id)])}}" class="btn btn-success btn-sm btn-unlocked"><i class="fas fa-check"></i></a>
+                                                @endif
+
                                             </td>
                                         @else
                                             <td></td>
@@ -160,40 +190,41 @@
                     </div>
                 </div>
 
-                @if ($listIP->lastPage() > 1)
+                @if ($publicIp->lastPage() > 1)
                     <nav aria-label="Page navigation example">
                         <ul class="pagination mt-2">
+
                             {{-- Tombol Sebelumnya --}}
-                            @if ($listIP->currentPage() > 1)
+                            @if ($publicIp->currentPage() > 1)
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ $listIP->previousPageUrl() }}" aria-label="Previous">
+                                    <a class="page-link" href="{{ $publicIp->previousPageUrl() }}" aria-label="Previous">
                                         <span aria-hidden="true">&laquo;</span>
                                     </a>
                                 </li>
                             @endif
                             
                             {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
-                            @if ($listIP->currentPage() > 6)
-                                @for ($i = $listIP->currentPage() - 3; $i < $listIP->currentPage(); $i++)
+                            @if ($publicIp->currentPage() > 6)
+                                @for ($i = $publicIp->currentPage() - 3; $i < $publicIp->currentPage(); $i++)
                                     @if ($i == 1)
                                         <li class="page-item">
-                                            <a class="page-link" href="/admin/ip_address">{{ $i }}</a>
+                                            <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
                                         </li>
                                     @else
                                         <li class="page-item">
-                                            <a class="page-link" href="{{ $listIP->url($i) }}">{{ $i }}</a>
+                                            <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
                                         </li>
                                     @endif
                                 @endfor
                             @else
-                                @for ($i = 1; $i < $listIP->currentPage(); $i++)
+                                @for ($i = 1; $i < $publicIp->currentPage(); $i++)
                                     @if ($i == 1)
                                         <li class="page-item">
-                                            <a class="page-link" href="/admin/ip_address">{{ $i }}</a>
+                                            <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
                                         </li>
                                     @else
                                         <li class="page-item">
-                                            <a class="page-link" href="{{ $listIP->url($i) }}">{{ $i }}</a>
+                                            <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
                                         </li>
                                     @endif
                                 @endfor
@@ -201,40 +232,40 @@
 
                             {{-- Halaman saat ini --}}
                             <li class="page-item active">
-                                <span class="page-link">{{ $listIP->currentPage() }}</span>
+                                <span class="page-link">{{ $publicIp->currentPage() }}</span>
                             </li>
                             
                             {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
-                            @if ($listIP->currentPage() < $listIP->lastPage() - 5)
-                                @for ($i = $listIP->currentPage() + 1; $i <= $listIP->currentPage() + 3; $i++)
+                            @if ($publicIp->currentPage() < $publicIp->lastPage() - 5)
+                                @for ($i = $publicIp->currentPage() + 1; $i <= $publicIp->currentPage() + 3; $i++)
                                     @if ($i == 1)
                                         <li class="page-item">
-                                            <a class="page-link" href="/admin/ip_address">{{ $i }}</a>
+                                            <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
                                         </li>
                                     @else
                                         <li class="page-item">
-                                            <a class="page-link" href="{{ $listIP->url($i) }}">{{ $i }}</a>
+                                            <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
                                         </li>
                                     @endif
                                 @endfor
                             @else
-                                @for ($i = $listIP->currentPage() + 1; $i <= $listIP->lastPage(); $i++)
+                                @for ($i = $publicIp->currentPage() + 1; $i <= $publicIp->lastPage(); $i++)
                                     @if ($i == 1)
                                         <li class="page-item">
-                                            <a class="page-link" href="/admin/ip_address">{{ $i }}</a>
+                                            <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
                                         </li>
                                     @else
                                         <li class="page-item">
-                                            <a class="page-link" href="{{ $listIP->url($i) }}">{{ $i }}</a>
+                                            <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
                                         </li>
                                     @endif
                                 @endfor
                             @endif
                             
                             {{-- Tombol Selanjutnya --}}
-                            @if ($listIP->hasMorePages())
+                            @if ($publicIp->hasMorePages())
                                 <li class="page-item">
-                                    <a class="page-link" href="{{ $listIP->nextPageUrl() }}" aria-label="Next">
+                                    <a class="page-link" href="{{ $publicIp->nextPageUrl() }}" aria-label="Next">
                                         <span aria-hidden="true">&raquo;</span>
                                     </a>
                                 </li>
@@ -245,11 +276,11 @@
 
             </div>
 
-            @if (isset($listIP) && $listIP->count() > 0)
+            @if (isset($publicIp) && $publicIp->count() > 0)
                 <div>
-                    Showing <b>{{ $listIP->firstItem() }}</b> 
-                    to <b>{{ $listIP->lastItem() }}</b>
-                    of <b>{{ $listIP->total() }}</b> items.
+                    Showing <b>{{ $publicIp->firstItem() }}</b> 
+                    to <b>{{ $publicIp->lastItem() }}</b>
+                    of <b>{{ $publicIp->total() }}</b> items.
                 </div><br>
             @endif
         </div>
@@ -270,6 +301,29 @@
                 Swal.fire({
                     title: 'Apakah Anda yakin?',
                     text: "Ip address yang di-lock tidak dapat di-block!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#3085d6',
+                    cancelButtonColor: '#d33',
+                    confirmButtonText: 'Ya, hapus!'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        // Jika pengguna menekan tombol "Ya, hapus", arahkan ke URL penghapusan
+                        window.location.href = url;
+                    }
+                });
+            });
+        });
+
+        document.querySelectorAll('.btn-unlocked').forEach(button => {
+            button.addEventListener('click', function(event) {
+                event.preventDefault();
+                const url = this.getAttribute('href');
+                
+                // Tampilkan SweetAlert konfirmasi penghapusan
+                Swal.fire({
+                    title: 'Apakah Anda yakin?',
+                    text: "Ip address user dapat masuk ke sistem lagi!",
                     icon: 'warning',
                     showCancelButton: true,
                     confirmButtonColor: '#3085d6',

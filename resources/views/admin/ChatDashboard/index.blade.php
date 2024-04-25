@@ -7,6 +7,12 @@
         white-space: pre-wrap;
         line-height: 1.5;
     }
+    td:nth-child(6) {
+        word-wrap: break-word;
+        max-width: 500px;
+        white-space: pre-wrap;
+        line-height: 1.5;
+    }
 </style>
 
 <!-- Memuat jQuery dari CDN -->

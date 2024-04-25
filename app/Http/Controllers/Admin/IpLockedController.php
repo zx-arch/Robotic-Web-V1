@@ -3,9 +3,9 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\IpGlobal;
 use App\Models\IpLocked;
 use Illuminate\Http\Request;
-use App\Models\ListIP;
 
 class IpLockedController extends Controller
 {
@@ -22,15 +22,16 @@ class IpLockedController extends Controller
     {
         $listIP = IpLocked::select(
             'ip_locked.id',
-            'list_ip.network',
-            'list_ip.netmask',
-            'list_ip.country_name',
-            'list_ip.is_satellite_provider',
-            'list_ip.is_blocked',
-            'list_ip.created_at',
-            'list_ip.updated_at',
-        )->leftJoin('list_ip', 'list_ip.network', '=', 'ip_locked.network')
+            'ip_locked.network',
+            'ip_global.netmask',
+            'ip_global.country_name',
+            'ip_global.is_satellite_provider',
+            'ip_global.is_blocked',
+            'ip_global.created_at',
+            'ip_global.updated_at',
+        )->leftJoin('ip_global', 'ip_global.network', '=', 'ip_locked.network')
             ->latest();
+
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
@@ -47,10 +48,10 @@ class IpLockedController extends Controller
             }
         }
 
-        $ipBlocked = ListIP::where('is_blocked', 1)->get()->count();
-        $ipUnblocked = ListIP::where('is_blocked', 0)->get()->count();
+        $ipBlocked = IpGlobal::where('is_blocked', 1)->get()->count();
+        $ipUnblocked = IpGlobal::where('is_blocked', 0)->get()->count();
 
-        return view('admin.IpAddress.locked', $this->data, compact('listIP', 'ipBlocked', 'ipUnblocked'));
+        return view('admin.IpLocked.index', $this->data, compact('listIP', 'ipBlocked', 'ipUnblocked'));
     }
 
     public function search(Request $request)
@@ -68,39 +69,39 @@ class IpLockedController extends Controller
         // Misalnya ingin mencari data ip berdasarkan network, netmask, country_name, is_satellite_provider, atau is_blocked
         $listIP = IpLocked::select(
             'ip_locked.id',
-            'list_ip.network',
-            'list_ip.netmask',
-            'list_ip.country_name',
-            'list_ip.is_satellite_provider',
-            'list_ip.is_blocked',
-            'list_ip.created_at',
-            'list_ip.updated_at',
-        )->leftJoin('list_ip', 'list_ip.network', '=', 'ip_locked.network')
+            'ip_global.network',
+            'ip_global.netmask',
+            'ip_global.country_name',
+            'ip_global.is_satellite_provider',
+            'ip_global.is_blocked',
+            'ip_global.created_at',
+            'ip_global.updated_at',
+        )->leftJoin('ip_global', 'ip_global.network', '=', 'ip_locked.network')
             ->latest();
 
         $listIP->where(function ($query) use ($network, $country_name, $netmask, $is_anonymous_proxy, $is_satellite_provider, $is_blocked) {
             if ($network !== null) {
-                $query->where('list_ip.network', 'like', "$network%");
+                $query->where('ip_global.network', 'like', "$network%");
             }
 
             if ($netmask !== null) {
-                $query->where('list_ip.netmask', $netmask);
+                $query->where('ip_global.netmask', $netmask);
             }
 
             if ($country_name !== null) {
-                $query->where('list_ip.country_name', $country_name);
+                $query->where('ip_global.country_name', $country_name);
             }
 
             if ($is_anonymous_proxy !== null) {
-                $query->where('list_ip.is_anonymous_proxy', $is_anonymous_proxy);
+                $query->where('ip_global.is_anonymous_proxy', $is_anonymous_proxy);
             }
 
             if ($is_satellite_provider !== null) {
-                $query->where('list_ip.is_satellite_provider', $is_satellite_provider);
+                $query->where('ip_global.is_satellite_provider', $is_satellite_provider);
             }
 
             if ($is_blocked !== null) {
-                $query->whereDate('list_ip.is_blocked', $is_blocked);
+                $query->where('ip_global.is_blocked', $is_blocked);
             }
         });
 
@@ -124,32 +125,12 @@ class IpLockedController extends Controller
             }
         }
 
-        $ipBlocked = ListIP::where('is_blocked', 1)->get()->count();
-        $ipUnblocked = ListIP::where('is_blocked', 0)->get()->count();
+        $ipBlocked = IpGlobal::where('is_blocked', 1)->get()->count();
+        $ipUnblocked = IpGlobal::where('is_blocked', 0)->get()->count();
 
-        return view('admin.ipAddress.index', $this->data, compact('listIP', 'searchData', 'ipBlocked', 'ipUnblocked'));
-
-    }
-
-    public function saveLocked($id)
-    {
-        try {
-            $findIp = ListIP::where('id', decrypt($id))->first();
-
-            if ($findIp) {
-                IpLocked::where('id', decrypt($id))->create([
-                    'network' => $findIp->network,
-                ]);
-
-                return redirect()->back()->with('success_locked', 'IP berhasil dilock, IP tidak dapat dihapus!');
-            }
-
-        } catch (\Throwable $e) {
-            return redirect()->back()->with('error_locked', 'IP gagal dilock. ' . $e->getMessage());
-        }
+        return view('admin.IpLocked.index', $this->data, compact('listIP', 'searchData', 'ipBlocked', 'ipUnblocked'));
 
     }
-
     public function saveUnlocked($id)
     {
         try {
@@ -166,6 +147,5 @@ class IpLockedController extends Controller
         } catch (\Throwable $e) {
             return redirect()->back()->with('error_unlocked', 'IP error unlocked! ' . $e->getMessage());
         }
-
     }
 }

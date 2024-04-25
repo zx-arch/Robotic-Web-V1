@@ -89,8 +89,8 @@
                             </a>
                         </li>
                         <li class="nav-item">
-                            <a href="{{route('ip_address.index')}}" class="nav-link {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_address' ? 'active' : ''}}">
-                                <i class="nav-icon far fa-circle {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_address' ? 'text-dark' : ''}}"></i>&nbsp;<p>List IP Address</p>
+                            <a href="{{route('ip_global.index')}}" class="nav-link {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_global' ? 'active' : ''}}">
+                                <i class="nav-icon far fa-circle {{isset($currentAdminSubMenu) && $currentAdminSubMenu == 'ip_global' ? 'text-dark' : ''}}"></i>&nbsp;<p>IP Global</p>
                             </a>
                         </li>
                         <li class="nav-item">

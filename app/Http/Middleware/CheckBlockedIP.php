@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\ListIP;
+use App\Models\IpGlobal;
 use App\Models\IpLocked;
 
 class CheckBlockedIP
@@ -20,20 +20,14 @@ class CheckBlockedIP
     public function handle(Request $request, Closure $next)
     {
         try {
-            if (session()->has('myActivity.ip_address') || session('myActivity.ip_address')) {
+            $ip = session('myActivity.ip_address') ?? $_SERVER['REMOTE_ADDR'];
 
-                $ip = session('myActivity.ip_address');
-                $listIP = ListIP::where('network', session('myActivity.ip_address'))->first();
-
-            } else {
-                $ip = $_SERVER['REMOTE_ADDR'];
-                $listIP = ListIP::where('network', $_SERVER['REMOTE_ADDR'])->first();
-            }
+            $ipGlobal = ipGlobal::where('network', $ip)->first();
 
             $checkLock = IpLocked::where('network', $ip)->first();
 
             if (!$checkLock) {
-                if ($listIP && $listIP->is_blocked) {
+                if ($ipGlobal && $ipGlobal->is_blocked) {
 
                     Auth::logout();
                     session_unset();
