@@ -88,7 +88,7 @@
                                 </form>
                             </thead>
                             <tbody>
-                                @foreach ($accessPercentageByIP as $access)
+                                @forelse ($accessPercentageByIP as $access)
                                     <tr>
                                         <td>{{$loop->index += 1}}</td>
                                         <td>{{$access['ip_address']}}</td>
@@ -98,7 +98,9 @@
                                         <td>{{round($access['access_percentage'], 2) . ' %'}}</td>
                                         <td>{{$access['total_access']}}</td>
                                     </tr>
-                                @endforeach
+                                @empty
+                                    <p class="ml-2 mt-3 text-danger">Data access not found!</p>
+                                @endforelse
                             </tbody>
                         </table>
                     </div>
