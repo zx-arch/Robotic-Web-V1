@@ -55,6 +55,11 @@ Route::get('/api/pusher-key', function () {
 Route::middleware(['auth.login', 'admin.auth', 'blocked'])->group(function () {
 
     Route::get('/admin', [DashboardAdmin::class, 'index'])->name('admin.dashboard');
+
+    Route::prefix('/admin')->group(function () {
+        Route::get('/search', [DashboardAdmin::class, 'search'])->name('admin.dashboard.search');
+    });
+
     Route::get('/admin/courses', [CoursesAdminController::class, 'index'])->name('admin.courses.index');
 
     Route::prefix('/admin/courses')->group(function () {

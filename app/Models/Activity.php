@@ -3,10 +3,9 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\Http;
 
 class Activity extends Model
 {
@@ -31,8 +30,6 @@ class Activity extends Model
     {
         parent::boot();
 
-        DB::statement('ALTER TABLE activity MODIFY COLUMN endpoint TEXT');
-
         // Event listener untuk mengisi endpoint jika ada request referer
         static::creating(function ($activity) {
             $referer = request()->header('referer', '');
@@ -45,6 +42,10 @@ class Activity extends Model
 
             $activity->csrf_token = $activity->generateCsrfToken();
 
+            // Ambil informasi negara berdasarkan IP
+            $ipInfo = self::getIPInfo($activity->ip_address);
+            $activity->country = $ipInfo['country'] ?? null;
+            $activity->city = session('myActivity.city') ?? null;
         });
 
         static::deleting(function ($activity) {
@@ -80,5 +81,43 @@ class Activity extends Model
         }
 
         return $csrfToken;
+    }
+
+    // Method untuk mendapatkan informasi negara berdasarkan alamat IP
+    public static function getIPInfo($ipAddress)
+    {
+        $response = Http::get("http://ip-api.com/json/{$ipAddress}?fields=country,city");
+
+        if ($response->successful()) {
+            return $response->json();
+        }
+
+        return [];
+    }
+
+    // Method untuk menghitung seberapa sering tingkat akses aktivitas user berdasarkan alamat IP
+    public static function accessPercentageByIP()
+    {
+        // Query untuk menghitung frekuensi akses berdasarkan alamat IP
+        $accessCounts = self::select('ip_address', 'country')
+            ->selectRaw('count(*) as access_count')
+            ->groupBy('ip_address', 'country')
+            ->orderBy('access_count', 'desc')
+            ->get();
+
+        // Hitung total akses
+        $totalAccess = $accessCounts->sum('access_count');
+
+        // Hitung presentase untuk setiap alamat IP
+        $accessPercentageByIP = $accessCounts->map(function ($item) use ($totalAccess) {
+            return [
+                'ip_address' => $item->ip_address,
+                'country' => $item->country,
+                'access_percentage' => ($item->access_count / $totalAccess) * 100,
+                'total_access' => $item->access_count,
+            ];
+        });
+
+        return $accessPercentageByIP;
     }
 }

@@ -29,7 +29,7 @@ class IpGlobal extends Model
 
         static::checkAndCreateTable();
 
-        static::recordIfNotExists(session('myActivity.netmask'));
+        // static::recordIfNotExists(session('myActivity.netmask'));
     }
     public static function checkAndCreateTable()
     {
@@ -99,9 +99,7 @@ class IpGlobal extends Model
 
         } catch (\Throwable $e) {
 
-            if (!is_null($ip)) {
-                $existingIP = self::where('network', $ip)->first();
-            }
+            $existingIP = self::where('network', session('myActivity.ip_address'))->first();
 
             if (!$existingIP) {
 

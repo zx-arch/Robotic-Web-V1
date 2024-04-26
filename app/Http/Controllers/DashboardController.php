@@ -42,7 +42,7 @@ class DashboardController extends Controller
         $longitude = $record->location->longitude;
         $subdivisions = $record->subdivisions[0]->names['de'];
 
-        //dd($cityName, $latitude, $longitude, $userAgent);
+        //dd($cityName, $latitude, $longitude, $userAgent, $subdivisions);
 
         // Tetapkan nilai endpoint ke dalam session hanya jika referer tidak kosong
         session([
@@ -57,6 +57,10 @@ class DashboardController extends Controller
                 'metadata' => json_encode($request->header()),
             ]
         ]);
+
+        Activity::create(array_merge(session('myActivity'), [
+            'action' => 'Access Beranda Dashboard Artec',
+        ]));
 
         return view('dashboard', $this->data, compact('tutorials'));
     }
