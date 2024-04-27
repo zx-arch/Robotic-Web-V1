@@ -70,7 +70,6 @@
                     </div>
                 @endif
 
-
                 <div class="card-body p-0">
                     <div id="w0" class="gridview table-responsive">
                         <table class="table text-nowrap table-striped table-bordered mb-0">
@@ -234,7 +233,7 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
 
-    // Tambahkan event listener ke tombol locked
+        // Tambahkan event listener ke tombol locked
         document.querySelectorAll('.btn-unlocked').forEach(button => {
             button.addEventListener('click', function(event) {
                 event.preventDefault();
