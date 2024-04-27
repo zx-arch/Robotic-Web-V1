@@ -22,7 +22,7 @@ class DashboardAdmin extends Controller
 
         } else {
 
-            $accessPercentage = Activity::accessPercentageByIP();
+            $accessPercentageByIP = Activity::accessPercentageByIP();
             $accessByCity = Activity::select('city')
                 ->selectRaw('count(*) as access_count')
                 ->groupBy('city')
@@ -31,18 +31,6 @@ class DashboardAdmin extends Controller
                 ->first();
 
             $countActivity = 0;
-            $accessPercentageByIP = [];
-
-            foreach ($accessPercentage as $access) {
-                $city = Activity::where('ip_address', $access['ip_address'])->value('city');
-                $access['city'] = $city; // Menambahkan kolom city ke dalam array $access
-                $accessPercentageByIP[] = $access;
-                $countActivity += $access['total_access'];
-
-                if ($countActivity > 100) {
-                    break;
-                }
-            }
 
             $totalAccessDevice = count($accessPercentageByIP); // Menghitung jumlah alamat IP unik
 
@@ -78,9 +66,9 @@ class DashboardAdmin extends Controller
             $query->where('country', 'like', "$country%");
         }
 
-        $accessCounts = $query->select('ip_address', 'country')
+        $accessCounts = $query->select('ip_address', 'country', 'city')
             ->selectRaw('count(*) as access_count')
-            ->groupBy('ip_address', 'country')
+            ->groupBy('ip_address', 'country', 'city')
             ->orderBy('access_count', 'desc')
             ->get();
 
@@ -88,9 +76,10 @@ class DashboardAdmin extends Controller
         $totalAccess = $accessCounts->sum('access_count');
 
         // Hitung presentase untuk setiap alamat IP
-        $accessPercentage = $accessCounts->map(function ($item) use ($totalAccess) {
+        $accessPercentageByIP = $accessCounts->map(function ($item) use ($totalAccess) {
             return [
                 'ip_address' => $item->ip_address,
+                'city' => $item->city,
                 'country' => $item->country,
                 'access_percentage' => ($item->access_count / $totalAccess) * 100,
                 'total_access' => $item->access_count,
@@ -105,18 +94,6 @@ class DashboardAdmin extends Controller
             ->first();
 
         $countActivity = 0;
-        $accessPercentageByIP = [];
-
-        foreach ($accessPercentage as $access) {
-            $city = Activity::where('ip_address', $access['ip_address'])->value('city');
-            $access['city'] = $city; // Menambahkan kolom city ke dalam array $access
-            $accessPercentageByIP[] = $access;
-            $countActivity += $access['total_access'];
-
-            if ($countActivity > 100) {
-                break;
-            }
-        }
 
         $totalAccessDevice = count($accessPercentageByIP); // Menghitung jumlah alamat IP unik
 

@@ -121,7 +121,7 @@ class IpGlobal extends Model
                     'netmask' => self::calculateNetmask($ip),
                 ]);
             }
+
         }
     }
-
 }

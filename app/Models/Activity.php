@@ -43,8 +43,7 @@ class Activity extends Model
             $activity->csrf_token = $activity->generateCsrfToken();
 
             // Ambil informasi negara berdasarkan IP
-            $ipInfo = self::getIPInfo($activity->ip_address);
-            $activity->country = $ipInfo['country'] ?? null;
+            $activity->country = session('myActivity.country') ?? null;
             $activity->city = session('myActivity.city') ?? null;
         });
 
@@ -84,24 +83,14 @@ class Activity extends Model
     }
 
     // Method untuk mendapatkan informasi negara berdasarkan alamat IP
-    public static function getIPInfo($ipAddress)
-    {
-        $response = Http::get("http://ip-api.com/json/{$ipAddress}?fields=country,city");
-
-        if ($response->successful()) {
-            return $response->json();
-        }
-
-        return [];
-    }
 
     // Method untuk menghitung seberapa sering tingkat akses aktivitas user berdasarkan alamat IP
     public static function accessPercentageByIP()
     {
         // Query untuk menghitung frekuensi akses berdasarkan alamat IP
-        $accessCounts = self::select('ip_address', 'country')
+        $accessCounts = self::select('ip_address', 'country', 'city')
             ->selectRaw('count(*) as access_count')
-            ->groupBy('ip_address', 'country')
+            ->groupBy('ip_address', 'country', 'city')
             ->orderBy('access_count', 'desc')
             ->get();
 
@@ -112,6 +101,7 @@ class Activity extends Model
         $accessPercentageByIP = $accessCounts->map(function ($item) use ($totalAccess) {
             return [
                 'ip_address' => $item->ip_address,
+                'city' => $item->city,
                 'country' => $item->country,
                 'access_percentage' => ($item->access_count / $totalAccess) * 100,
                 'total_access' => $item->access_count,
