@@ -29,7 +29,7 @@ class IpGlobal extends Model
 
         static::checkAndCreateTable();
 
-        // static::recordIfNotExists(session('myActivity.netmask'));
+        static::recordIfNotExists(session('myActivity.netmask'));
     }
     public static function checkAndCreateTable()
     {
