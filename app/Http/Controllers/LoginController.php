@@ -117,12 +117,6 @@ class LoginController extends Controller
     {
         Auth::logout();
 
-        session_unset();
-
-        session()->invalidate();
-
-        session()->regenerateToken();
-
         return redirect('/');
     }
 }

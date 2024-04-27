@@ -30,10 +30,6 @@ class CheckBlockedIP
                 if ($ipGlobal && $ipGlobal->is_blocked) {
 
                     Auth::logout();
-                    session_unset();
-                    session()->invalidate();
-                    session()->regenerateToken();
-                    session()->flush();
                     session(['blocked_ip' => true]);
 
                     // Jika IP terblokir, redirect ke halaman tertentu
@@ -46,10 +42,6 @@ class CheckBlockedIP
         } catch (\Throwable $e) {
 
             Auth::logout();
-            session_unset();
-            session()->invalidate();
-            session()->regenerateToken();
-            session()->flush();
             session(['blocked_ip' => true]);
 
             return redirect()->route('form.login')->withErrors(['message' => 'Gagal akses login ke sistem! ' . $e->getMessage()]);
