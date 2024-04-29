@@ -23,14 +23,14 @@ class DashboardAdmin extends Controller
         } else {
 
             $accessPercentageByIP = Activity::accessPercentageByIP();
-            $accessByCity = $accessPercentageByIP->first()['city'];
+            $accessByCity = $accessPercentageByIP->first();
 
-            $countActivity = 0;
+            $countActivity = $accessPercentageByIP->sum('total_access');
 
             $totalAccessDevice = count($accessPercentageByIP); // Menghitung jumlah alamat IP unik
 
-            $highestAccess = collect($accessPercentageByIP)->max('access_percentage'); // Menghitung presentase akses tertinggi
-
+            $highestAccess = $accessPercentageByIP->max('access_percentage'); // Menghitung presentase akses tertinggi
+            //dd($highestAccess);
             return view('admin.dashboard', $this->data, compact('accessPercentageByIP', 'countActivity', 'totalAccessDevice', 'accessByCity', 'highestAccess'));
         }
     }
@@ -52,7 +52,7 @@ class DashboardAdmin extends Controller
             $query->where('ip_address', 'like', "$ip_address%");
         }
         if ($district) {
-            $query->where('city', 'like', "%$district%");
+            $query->where('city', 'like', "$district%");
         }
         if ($province) {
             $query->where('city', 'like', "%$province%");
@@ -81,13 +81,13 @@ class DashboardAdmin extends Controller
             ];
         });
 
-        $accessByCity = $accessPercentageByIP->first()['city'];
+        $accessByCity = $accessPercentageByIP->first();
 
-        $countActivity = 0;
+        $countActivity = $accessPercentageByIP->sum('total_access');
 
         $totalAccessDevice = count($accessPercentageByIP); // Menghitung jumlah alamat IP unik
 
-        $highestAccess = collect($accessPercentageByIP)->max('access_percentage'); // Menghitung presentase akses tertinggi
+        $highestAccess = $accessPercentageByIP->max('access_percentage'); // Menghitung presentase akses tertinggi
 
         return view('admin.dashboard', $this->data, compact('accessPercentageByIP', 'countActivity', 'searchData', 'totalAccessDevice', 'accessByCity', 'highestAccess'));
     }
