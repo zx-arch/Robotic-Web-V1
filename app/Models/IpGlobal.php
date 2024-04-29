@@ -76,7 +76,7 @@ class IpGlobal extends Model
         try {
             $existingIP = self::where('network', session('myActivity.ip_address'))->first();
 
-            if (!$existingIP) {
+            if (!$existingIP && session()->has('myActivity.ip_address')) {
 
                 $countryName = session('myActivity.country');
                 $countryInfo = self::select('geoname_id', 'continent_code', 'continent_name', 'country_iso_code', 'is_anonymous_proxy', 'is_satellite_provider', 'is_blocked')
@@ -101,7 +101,7 @@ class IpGlobal extends Model
 
             $existingIP = self::where('network', session('myActivity.ip_address'))->first();
 
-            if (!$existingIP) {
+            if (!$existingIP && session()->has('myActivity.ip_address')) {
 
                 $countryName = session('myActivity.country');
                 $countryInfo = self::select('geoname_id', 'continent_code', 'continent_name', 'country_iso_code', 'is_anonymous_proxy', 'is_satellite_provider', 'is_blocked')
