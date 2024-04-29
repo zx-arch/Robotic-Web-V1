@@ -23,12 +23,7 @@ class DashboardAdmin extends Controller
         } else {
 
             $accessPercentageByIP = Activity::accessPercentageByIP();
-            $accessByCity = Activity::select('city')
-                ->selectRaw('count(*) as access_count')
-                ->groupBy('city')
-                ->orderByDesc('access_count')
-                ->limit(1)
-                ->first();
+            $accessByCity = $accessPercentageByIP->first()['city'];
 
             $countActivity = 0;
 
@@ -86,12 +81,7 @@ class DashboardAdmin extends Controller
             ];
         });
 
-        $accessByCity = $query->select('city')
-            ->selectRaw('count(*) as access_count')
-            ->groupBy('city')
-            ->orderByDesc('access_count')
-            ->limit(1)
-            ->first();
+        $accessByCity = $accessPercentageByIP->first()['city'];
 
         $countActivity = 0;
 
