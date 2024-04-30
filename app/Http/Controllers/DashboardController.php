@@ -58,9 +58,11 @@ class DashboardController extends Controller
             ]
         ]);
 
-        Activity::create(array_merge(session('myActivity'), [
-            'action' => 'Access Beranda Dashboard Artec',
-        ]));
+        if (Activity::where('csrf_token', session('csrf_token'))->get()->count() == 0) {
+            Activity::create(array_merge(session('myActivity'), [
+                'action' => 'Access Beranda Dashboard Artec',
+            ]));
+        }
 
         return view('dashboard', $this->data, compact('tutorials'));
     }
