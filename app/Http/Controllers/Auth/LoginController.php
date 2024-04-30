@@ -14,7 +14,6 @@ use App\Models\ChatDashboard;
 class LoginController extends Controller
 {
     private $data;
-
     public function __construct()
     {
         $this->data['currentActive'] = 'login';
@@ -31,10 +30,10 @@ class LoginController extends Controller
             }
 
         } else {
-            if (!session()->has('myActivity')) {
-                
-                try {
 
+            if (!session()->has('myActivity')) {
+
+                try {
                     $databasePath = public_path('GeoLite2-City.mmdb');
                     $reader = new Reader($databasePath);
 
