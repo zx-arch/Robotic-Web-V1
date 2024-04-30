@@ -14,10 +14,12 @@ use App\Models\ChatDashboard;
 class LoginController extends Controller
 {
     private $data;
+
     public function __construct()
     {
         $this->data['currentActive'] = 'login';
     }
+
     public function index(Request $request)
     {
         if (Auth::check()) {
@@ -29,10 +31,10 @@ class LoginController extends Controller
             }
 
         } else {
-
             if (!session()->has('myActivity')) {
-
+                
                 try {
+
                     $databasePath = public_path('GeoLite2-City.mmdb');
                     $reader = new Reader($databasePath);
 
@@ -75,12 +77,14 @@ class LoginController extends Controller
                 }
 
             }
+
             $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
             //dd($tutorials);
             return view('login', $this->data, compact('tutorials'));
 
         }
     }
+
     public function login(Request $request)
     {
         $credentials = $request->only('username_or_email', 'password');
@@ -150,15 +154,10 @@ class LoginController extends Controller
 
         return redirect()->back()->withErrors(['username_or_email' => 'These credentials do not match our records.']);
     }
+
     public function logout()
     {
         Auth::logout();
-
-        session_unset();
-
-        session()->invalidate();
-
-        session()->regenerateToken();
 
         return redirect('/');
     }
