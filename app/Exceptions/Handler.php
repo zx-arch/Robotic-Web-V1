@@ -40,7 +40,7 @@ class Handler extends ExceptionHandler
          * Rename file downs to down in storage/framework
          * Rename file maintenances.php menjadi maintenance.php in storage/framework
          */
-
+        //dd($exception->getMessage());
         if ($this->isMaintenanceMode()) {
             return $this->renderMaintenanceMode($request);
         }
@@ -73,10 +73,15 @@ class Handler extends ExceptionHandler
             $status = 403;
             $message = $exception->getMessage() ?: 'Anda tidak memiliki izin untuk mengakses halaman ini.';
             return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+
+        } else {
+            $status = method_exists($exception, 'getStatusCode') ? $exception->getStatusCode() : 500;
+            $message = $exception->getMessage();
+            return response()->view('errors.exception_page', ['message' => $message, 'status' => $status], $status);
         }
 
         // Penanganan pengecualian lainnya
-        return parent::render($request, $exception);
+        //return parent::render($request, $exception);
     }
 
     /**
