@@ -8,6 +8,8 @@ use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
+use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
+
 use Throwable;
 
 class Handler extends ExceptionHandler
@@ -66,6 +68,11 @@ class Handler extends ExceptionHandler
             $status = 422;
             $errors = $exception->validator->errors()->all();
             return response()->view('errors.error', ['message' => $errors], $status);
+
+        } elseif ($exception instanceof AccessDeniedHttpException) {
+            $status = 403;
+            $message = $exception->getMessage() ?: 'Anda tidak memiliki izin untuk mengakses halaman ini.';
+            return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
         }
 
         // Penanganan pengecualian lainnya
