@@ -52,7 +52,7 @@ Route::get('/api/pusher-key', function () {
 });
 
 // Tambahkan rute lain untuk admin di sini
-Route::middleware(['auth.login', 'admin.auth', 'blocked'])->group(function () {
+Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->group(function () {
 
     Route::get('/admin', [DashboardAdmin::class, 'index'])->name('admin.dashboard');
 
@@ -140,11 +140,12 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked'])->group(function () {
         Route::get('/search', [IpLockedController::class, 'search'])->name('ip_locked.search');
         Route::get('/save-unlock/{id}', [IpLockedController::class, 'saveUnlocked'])->name('ip_locked.saveUnlocked');
     });
+
 });
 
 
 // Tambahkan rute lain untuk pengurus di sini
-Route::middleware(['auth.login', 'pengurus.auth', 'blocked'])->group(function () {
+Route::middleware(['auth.login', 'pengurus.auth', 'blocked', 'check.cookie'])->group(function () {
     Route::get('/pengurus', [DashboardPengurus::class, 'index'])->name('pengurus.dashboard');
     Route::get('/pengurus/tutorials', [TutorialsPengurusController::class, 'index'])->name('pengurus.tutorials.index');
     Route::get('/add', [TutorialsPengurusController::class, 'add'])->name('pengurus.tutorials.add');
@@ -157,7 +158,7 @@ Route::middleware(['auth.login', 'pengurus.auth', 'blocked'])->group(function ()
 
 
 // Tambahkan rute lain untuk user di sini
-Route::middleware(['auth.login', 'user.auth', 'blocked'])->group(function () {
+Route::middleware(['auth.login', 'user.auth', 'blocked', 'check.cookie'])->group(function () {
     Route::get('/user', [DashboardUser::class, 'index'])->name('user.dashboard');
 });
 

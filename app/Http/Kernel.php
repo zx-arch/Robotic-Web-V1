@@ -69,5 +69,6 @@ class Kernel extends HttpKernel
         'throttle' => \Illuminate\Routing\Middleware\ThrottleRequests::class,
         'verified' => \Illuminate\Auth\Middleware\EnsureEmailIsVerified::class,
         'blocked' => \App\Http\Middleware\CheckBlockedIP::class,
+        'check.cookie' => \App\Http\Middleware\CheckCookieTime::class,
     ];
 }

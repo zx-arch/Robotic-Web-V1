@@ -2,12 +2,11 @@
 
 namespace App\Http\Middleware;
 
-session_start();
-
 use Closure;
 use Illuminate\Http\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Cookie;
 
 class AuthLogin
 {
@@ -20,8 +19,8 @@ class AuthLogin
     {
         // Cek apakah pengguna terautentikasi
         if (!Auth::check()) {
-            session_unset();
-            return redirect()->route('form.login')->withErrors(['message' => 'Silakan login terlebih dahulu']);
+            Cookie::queue(Cookie::forget('user_email'));
+            return redirect()->intended(route('form.login'))->withErrors(['message' => 'Silakan login terlebih dahulu']);
         }
 
         return $next($request);
