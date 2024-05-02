@@ -2,9 +2,13 @@
 
 namespace App\Exceptions;
 
+use Closure;
+use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
+use Illuminate\Validation\ValidationException;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
+use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
-use App\Exceptions\PagesExceptions;
 
 class Handler extends ExceptionHandler
 {
@@ -19,27 +23,38 @@ class Handler extends ExceptionHandler
         'password_confirmation',
     ];
 
+    /**
+     * Render an exception into an HTTP response.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  \Throwable  $exception
+     * @return \Illuminate\Http\Response
+     */
     public function render($request, Throwable $exception)
     {
-        if ($exception instanceof \Symfony\Component\HttpKernel\Exception\NotFoundHttpException) {
+        if ($this->isMaintenanceMode()) {
+            return $this->renderMaintenanceMode($request);
+        }
+
+        if ($exception instanceof NotFoundHttpException) {
             // Pengecualian 404: Halaman tidak ditemukan
             $status = 404;
             $message = $exception->getMessage() ?: 'Halaman yang Anda cari tidak ditemukan.';
             return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
 
-        } elseif ($exception instanceof \Illuminate\Database\Eloquent\ModelNotFoundException) {
+        } elseif ($exception instanceof ModelNotFoundException) {
             // Pengecualian ketika model tidak ditemukan
             $status = 404;
             $message = $exception->getMessage() ?: 'Data yang Anda minta tidak ditemukan.';
             return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
 
-        } elseif ($exception instanceof \Illuminate\Auth\AuthenticationException) {
+        } elseif ($exception instanceof AuthenticationException) {
             // Pengecualian ketika autentikasi gagal
             $status = 401;
             $message = $exception->getMessage() ?: 'Anda harus login untuk mengakses halaman ini.';
             return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
 
-        } elseif ($exception instanceof \Illuminate\Validation\ValidationException) {
+        } elseif ($exception instanceof ValidationException) {
             // Pengecualian ketika validasi gagal
             $status = 422;
             $errors = $exception->validator->errors()->all();
@@ -50,11 +65,47 @@ class Handler extends ExceptionHandler
         return parent::render($request, $exception);
     }
 
+    /**
+     * Determine if the application is in maintenance mode.
+     *
+     * @return bool
+     */
+    protected function isMaintenanceMode(): bool
+    {
+        return file_exists(storage_path('framework/down'));
+    }
+
+    /**
+     * Render the maintenance mode page.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
+    protected function renderMaintenanceMode($request)
+    {
+        $message = 'Aplikasi sedang dalam pemeliharaan. Kami akan segera kembali.';
+        return response()->view('errors.maintenance', ['message' => $message], 503);
+    }
+
+    /**
+     * Report or log an exception.
+     *
+     * @param  \Throwable  $e
+     * @return void
+     *
+     * @throws \Exception
+     */
+    public function report(Throwable $e)
+    {
+        parent::report($e);
+    }
 
     /**
      * Register the exception handling callbacks for the application.
+     *
+     * @return void
      */
-    public function register(): void
+    public function register()
     {
         $this->reportable(function (Throwable $e) {
             //
