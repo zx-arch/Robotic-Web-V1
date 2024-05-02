@@ -37,14 +37,17 @@ class CheckBlockedIP
                 }
             }
 
+            if (session()->has('blocked_ip')) {
+                session()->forget('blocked_ip');
+            }
+
             return $next($request);
 
         } catch (\Throwable $e) {
 
             Auth::logout();
-            session(['blocked_ip' => true]);
-
             return redirect()->route('form.login')->withErrors(['message' => 'Gagal akses login ke sistem! ' . $e->getMessage()]);
+
         }
 
     }
