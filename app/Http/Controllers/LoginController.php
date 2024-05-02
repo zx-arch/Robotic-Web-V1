@@ -8,6 +8,7 @@ use App\Models\User;
 use App\Models\Tutorials;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Session;
+use Illuminate\Support\Facades\Cookie;
 use GeoIp2\Database\Reader;
 
 class LoginController extends Controller
@@ -96,27 +97,33 @@ class LoginController extends Controller
 
             // Jika autentikasi berhasil, arahkan pengguna sesuai peran
             if (Auth::user()->role == 'admin') {
-                return redirect()->route('admin.dashboard');
+
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+                return redirect()->intended('/admin');
 
             } elseif (Auth::user()->role == 'pengurus') {
-                return redirect()->route('pengurus.dashboard');
+
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+                return redirect()->intended('/pengurus');
 
             } elseif (Auth::user()->role == 'user') {
-                return redirect()->route('user.dashboard');
+
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+                return redirect()->intended('/user');
 
             } else {
-                return redirect()->route('form.login')->withErrors(['message' => 'Username atau password tidak terdaftar']);
+                return redirect()->intended('/login')->withErrors(['message' => 'Username atau password tidak terdaftar']);
             }
         }
 
         // Jika autentikasi gagal, kembalikan pengguna ke halaman login dengan pesan error
-        return redirect()->route('form.login')->withErrors(['message' => 'Username atau password salah']);
+        return redirect()->intended('/login')->withErrors(['message' => 'Username atau password salah']);
     }
 
     public function logout()
     {
         Auth::logout();
-
-        return redirect('/');
+        Cookie::queue(Cookie::forget('user_email'));
+        redirect()->intended('/');
     }
 }

@@ -10,6 +10,7 @@ use GeoIp2\Database\Reader;
 use App\Models\User;
 use App\Models\Activity;
 use App\Models\ChatDashboard;
+use Illuminate\Support\Facades\Cookie;
 
 class LoginController extends Controller
 {
@@ -112,7 +113,9 @@ class LoginController extends Controller
                     ]));
                 }
 
-                return redirect()->route('admin.dashboard');
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+
+                return redirect()->intended('/admin');
 
             } elseif ($user->role == 'pengurus') {
 
@@ -128,7 +131,9 @@ class LoginController extends Controller
                     ]));
                 }
 
-                return redirect()->route('pengurus.dashboard');
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+
+                return redirect()->intended('/pengurus');
 
             } elseif ($user->role == 'user') {
 
@@ -144,7 +149,9 @@ class LoginController extends Controller
                     ]));
                 }
 
-                return redirect()->route('user.dashboard');
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+
+                return redirect()->intended('/user');
 
             } else {
                 return redirect()->intended('/');
@@ -157,7 +164,7 @@ class LoginController extends Controller
     public function logout()
     {
         Auth::logout();
-
+        Cookie::queue(Cookie::forget('user_email'));
         return redirect('/');
     }
 }
