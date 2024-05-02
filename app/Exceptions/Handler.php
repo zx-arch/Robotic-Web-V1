@@ -32,6 +32,13 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        /**
+         * Use Maintenance System.
+         *
+         * Rename file downs to down in storage/framework
+         * Rename file maintenances.php menjadi maintenance.php in storage/framework
+         */
+
         if ($this->isMaintenanceMode()) {
             return $this->renderMaintenanceMode($request);
         }
