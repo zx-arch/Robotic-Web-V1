@@ -148,10 +148,10 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
 Route::middleware(['auth.login', 'pengurus.auth', 'blocked', 'check.cookie'])->group(function () {
     Route::get('/pengurus', [DashboardPengurus::class, 'index'])->name('pengurus.dashboard');
     Route::get('/pengurus/tutorials', [TutorialsPengurusController::class, 'index'])->name('pengurus.tutorials.index');
-    Route::get('/add', [TutorialsPengurusController::class, 'add'])->name('pengurus.tutorials.add');
-    Route::get('/search', [TutorialsPengurusController::class, 'search'])->name('pengurus.tutorials.search');
-    Route::get('/update/{video_id}', [TutorialsPengurusController::class, 'update'])->name('pengurus.tutorials.update');
-    Route::put('/save-update-tutorial/video_id/{video_id}', [TutorialsPengurusController::class, 'saveUpdate'])->name('pengurus.tutorials.save_update');
+    Route::get('/pengurus/add', [TutorialsPengurusController::class, 'add'])->name('pengurus.tutorials.add');
+    Route::get('/pengurus/search', [TutorialsPengurusController::class, 'search'])->name('pengurus.tutorials.search');
+    Route::get('/pengurus/update/{video_id}', [TutorialsPengurusController::class, 'update'])->name('pengurus.tutorials.update');
+    Route::put('/pengurus/save-update-tutorial/video_id/{video_id}', [TutorialsPengurusController::class, 'saveUpdate'])->name('pengurus.tutorials.save_update');
     Route::post('/pengurus/save-tutorial', [TutorialsPengurusController::class, 'saveTutorial'])->name('pengurus.saveTutorial');
     Route::post('/pengurus/tutorials', [TutorialsPengurusController::class, 'index']);
 });
