@@ -20,7 +20,7 @@
                     <li><a href="https://intanpariwaraedukasi.id/" target="_blank" rel="noopener">Buku Interaktif</a></li>
                     <li><a href="https://intanpariwaraedukasi.id/" target="_blank" rel="noopener">Smart Book</a></li>
                     <li><a href="https://intanpariwaraedukasi.id/" target="_blank" rel="noopener">Platform Jelajah Ilmu</a></li>
-                    <li><a href="https://siplah.intanonline.com/frontend/web/product/list/index?category=1" target="_blank" rel="noopener">Buku Teks Siplah</a></li>
+                    <li><a href="https://siplah.intanonline.com/frontend/web/product/list/index?category=22" target="_blank" rel="noopener">Buku Teks Siplah</a></li>
                     <li><a href="https://siplah.intanonline.com/frontend/web/product/list/index?category=23" target="_blank" rel="noopener">Buku Non Teks Siplah</a></li>
                 </ul>
             </div>
