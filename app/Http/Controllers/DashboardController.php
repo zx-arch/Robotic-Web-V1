@@ -21,7 +21,7 @@ class DashboardController extends Controller
     public function index(Request $request)
     {
         //dd($e->getMessage());
-        $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
+        $tutorials = Tutorials::where('tutorial_category_id', 2)->where('is_shown', true)->with('categoryTutorial')->get();
         $databasePath = public_path('GeoLite2-City.mmdb');
         $reader = new Reader($databasePath);
 
