@@ -26,7 +26,7 @@ class DashboardController extends Controller
         $reader = new Reader($databasePath);
 
         $userAgent = $request->header('User-Agent');
-
+        dd('OK!');
         if ($_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
             $_SERVER['REMOTE_ADDR'] = '103.169.39.38';
         }

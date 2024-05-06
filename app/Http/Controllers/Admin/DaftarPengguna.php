@@ -10,6 +10,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Activity;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Pagination\LengthAwarePaginator;
+
 
 class DaftarPengguna extends Controller
 {
@@ -25,6 +27,11 @@ class DaftarPengguna extends Controller
     public function index()
     {
         $users = Users::withTrashed()->latest();
+        session(['data_users' => $users->get()]);
+
+        if (session()->has('sorting')) {
+            session()->forget('sorting');
+        }
 
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
@@ -36,6 +43,8 @@ class DaftarPengguna extends Controller
             $totalPages = 15;
         }
 
+        $fullUri = route('daftar_pengguna.index', request()->query() + ['sort' => 'id']);
+        //dd($fullUri);
         if ($users->count() > 15) {
             $users = $users->paginate($itemsPerPage);
             //dd($users);
@@ -49,9 +58,10 @@ class DaftarPengguna extends Controller
         $userInActive = Users::where('status', 'inactive')->count();
         $userDeleted = Users::where('status', 'deleted')->count();
 
-        return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted', 'itemsPerPage'));
+        return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted', 'itemsPerPage', 'fullUri'));
     }
-    public function search(Request $request)
+
+    public function search(Request $request, $sort = '')
     {
         // Mendapatkan data pencarian dari request
         $searchData = $request->input('search');
@@ -64,6 +74,10 @@ class DaftarPengguna extends Controller
 
         // Misalnya, Anda ingin mencari data user berdasarkan username, email, status, created_at, atau last_login
         $users = Users::query()->withTrashed()->latest();
+
+        if ($sort != '') {
+            $users = Users::query()->withTrashed()->orderBy($sort)->latest();
+        }
 
         if ($status !== null || $last_login !== null && ($username !== null || $email !== null || $created_at !== null)) {
             // Menggunakan where untuk menambahkan kondisi pencarian tambahan
@@ -109,6 +123,9 @@ class DaftarPengguna extends Controller
             });
         }
 
+        session(['data_users' => $users->get()]);
+        session(['request_query' => $request->query()]);
+
         $totalUsers = $users->count();
 
         // Menentukan jumlah item per halaman
@@ -119,7 +136,8 @@ class DaftarPengguna extends Controller
         $users = $users->paginate($itemsPerPage);
 
         // Mendapatkan URI lengkap dari request
-        $fullUri = $request->getRequestUri();
+        $fullUri = route('daftar_pengguna.index', request()->query());
+        //dd($fullUri);
 
         if ($totalPagesAll >= 15) {
             $totalPages = 15;
@@ -134,9 +152,52 @@ class DaftarPengguna extends Controller
                 return redirect($users->url($users->lastPage()));
             }
         }
-        return view('admin.DaftarPengguna.index', $this->data, compact('users', 'searchData', 'itemsPerPage'));
+
+        $allUser = Users::count();
+        $userActive = Users::where('status', 'active')->count();
+        $userInActive = Users::where('status', 'inactive')->count();
+        $userDeleted = Users::where('status', 'deleted')->count();
+
+        return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted', 'searchData', 'itemsPerPage', 'fullUri'));
 
     }
+
+    public function sort(Request $request, $sort)
+    {
+        $users = collect(session('data_users'));
+
+        if ($sort == 'status') {
+            $sort = 'status_id';
+        }
+
+        session(['sorting' => $sort]);
+
+        // Mengurutkan data berdasarkan username
+        $users = $users->sortBy($sort);
+
+        // Menentukan jumlah item per halaman
+        $itemsPerPage = 15;
+
+        // Mengambil parameter page dari URL
+        $page = $request->input('page', 1);
+
+        // Mengambil data yang akan ditampilkan pada halaman tersebut
+        $users = new LengthAwarePaginator(
+            $users->forPage($page, $itemsPerPage),
+            $users->count(),
+            $itemsPerPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        $allUser = Users::count();
+        $userActive = Users::where('status', 'active')->count();
+        $userInActive = Users::where('status', 'inactive')->count();
+        $userDeleted = Users::where('status', 'deleted')->count();
+
+        return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted'));
+    }
+
 
     public function add()
     {

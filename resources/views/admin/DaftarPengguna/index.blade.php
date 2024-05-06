@@ -126,29 +126,31 @@
                             <thead>
                                 <tr>
                                     <th>
-                                        <a href="/dashmitra/web/user/index?UserSearch%5Bid%5D=&amp;UserSearch%5Busername%5D=&amp;UserSearch%5Bemail%5D=&amp;UserSearch%5Bstatus%5D=&amp;UserSearch%5Bcreated_at%5D=17-03-2024&amp;UserSearch%5Blogged_at%5D=&amp;sort=id" data-sort="id">Id</a>
+                                        <a href="{{route('daftar_pengguna.sort', request()->query() + ['sort' => 'id'])}}" data-sort="id">Id</a>
                                     </th>
                                     <th>
-                                        <a href="/dashmitra/web/user/index?UserSearch%5Bid%5D=&amp;UserSearch%5Busername%5D=&amp;UserSearch%5Bemail%5D=&amp;UserSearch%5Bstatus%5D=&amp;UserSearch%5Bcreated_at%5D=17-03-2024&amp;UserSearch%5Blogged_at%5D=&amp;sort=username" data-sort="username">Username</a>
+                                        <a href="{{route('daftar_pengguna.sort', request()->query() + ['sort' => 'username'])}}" data-sort="username">Username</a>
                                     </th>
                                     <th>
-                                        <a href="/dashmitra/web/user/index?UserSearch%5Bid%5D=&amp;UserSearch%5Busername%5D=&amp;UserSearch%5Bemail%5D=&amp;UserSearch%5Bstatus%5D=&amp;UserSearch%5Bcreated_at%5D=17-03-2024&amp;UserSearch%5Blogged_at%5D=&amp;sort=email" data-sort="email">E-mail</a>
+                                        <a href="{{route('daftar_pengguna.sort', request()->query() + ['sort' => 'email'])}}" data-sort="email">E-mail</a>
                                     </th>
                                     <th>
-                                        <a href="/dashmitra/web/user/index?UserSearch%5Bid%5D=&amp;UserSearch%5Busername%5D=&amp;UserSearch%5Bemail%5D=&amp;UserSearch%5Bstatus%5D=&amp;UserSearch%5Bcreated_at%5D=17-03-2024&amp;UserSearch%5Blogged_at%5D=&amp;sort=status" data-sort="status">Status</a>
+                                        <a href="{{route('daftar_pengguna.sort', request()->query() + ['sort' => 'status'])}}" data-sort="status">Status</a>
                                     </th>
                                     <th>
-                                        <a class="asc" href="/dashmitra/web/user/index?UserSearch%5Bid%5D=&amp;UserSearch%5Busername%5D=&amp;UserSearch%5Bemail%5D=&amp;UserSearch%5Bstatus%5D=&amp;UserSearch%5Bcreated_at%5D=17-03-2024&amp;UserSearch%5Blogged_at%5D=&amp;sort=-created_at" data-sort="-created_at">Created at</a>
+                                        <a class="asc" href="{{route('daftar_pengguna.sort', request()->query() + ['sort' => 'created_at'])}}" data-sort="created_at">Created at</a>
                                     </th>
                                     <th>
-                                        <a href="/dashmitra/web/user/index?UserSearch%5Bid%5D=&amp;UserSearch%5Busername%5D=&amp;UserSearch%5Bemail%5D=&amp;UserSearch%5Bstatus%5D=&amp;UserSearch%5Bcreated_at%5D=17-03-2024&amp;UserSearch%5Blogged_at%5D=&amp;sort=logged_at" data-sort="logged_at">Last login</a>
+                                        <a href="{{route('daftar_pengguna.sort', request()->query() + ['sort' => 'last_login'])}}" data-sort="last_login">Last login</a>
                                     </th>
                                     <th class="action-column">&nbsp;</th>
                                 </tr>
-                                <form action="{{route('daftar_pengguna.search')}}" id="searchForm" method="get">
+
+                                <form action="{{session()->has('sorting') ? route('daftar_pengguna.searching_sort', ['sort' => session('sorting')]) : route('daftar_pengguna.search')}}" id="searchForm" method="get">
                                     @csrf
                                     <tr id="w0-filters" class="filters">
                                         <td></td>
+                                        <input type="hidden" name="sorting" value="{{session('sorting')}}">
                                         <td><input type="text" class="form-control" name="search[username]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['username'])) ? $searchData['username'] : ''}}"></td>
                                         <td><input type="text" class="form-control" name="search[email]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['email'])) ? $searchData['email'] : ''}}"></td>
                                         <td>
@@ -171,11 +173,13 @@
                                         <td>&nbsp;</td>
                                     </tr>
                                 </form>
+
                             </thead>
+
                             <tbody>
                                 @forelse ($users as $user)
                                     <tr data-key="33542">
-                                        <td>{{$loop->index += 1;}}</td>
+                                        <td>{{$user->id}}</td>
                                         <td>{{$user->username}}</td>
                                         <td><a href="mailto:{{$user->email}}">{{$user->email}}</a></td>
                                         <td>{{$user->status}}</td>
@@ -294,49 +298,6 @@
         </div>
     </div>
 </div>
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-
-        // Inisialisasi datepicker
-        $('#usersearch-created_at').datepicker({
-            format: 'dd-mm-yyyy',
-            autoclose: true,
-            todayHighlight: true,
-            endDate: new Date() // Batasi tanggal maksimum menjadi hari ini
-        });
-
-        // Menampilkan tanggal di input teks saat tanggal dipilih
-        $('#usersearch-created_at').on('changeDate', function (e) {
-            var selectedDate = e.format('dd-mm-yyyy');
-            $('#usersearch-created_at').val(selectedDate);
-        });
-        
-        document.querySelectorAll('.btn-delete').forEach(button => {
-            button.addEventListener('click', function(event) {
-                event.preventDefault();
-                const url = this.getAttribute('href');
-                
-                // Tampilkan SweetAlert konfirmasi penghapusan
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: "Data daftar pengguna ini akan di non-active!",
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, hapus!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Jika pengguna menekan tombol "Ya, hapus", arahkan ke URL penghapusan
-                        window.location.href = url;
-                    }
-                });
-            });
-        });
-
-    });
-</script>
 
 <script>
     function showNotification(message, type) {

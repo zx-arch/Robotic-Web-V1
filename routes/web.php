@@ -89,7 +89,9 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
 
     Route::prefix('/admin/daftar_pengguna')->group(function () {
         Route::get('/add', [DaftarPengguna::class, 'add'])->name('daftar_pengguna.add');
+        Route::get('/sort/{sort}', [DaftarPengguna::class, 'sort'])->name('daftar_pengguna.sort');
         Route::get('/search', [DaftarPengguna::class, 'search'])->name('daftar_pengguna.search');
+        Route::get('/sort/{sort}/search', [DaftarPengguna::class, 'search'])->name('daftar_pengguna.searching_sort');
         Route::get('/delete/{user_id}', [DaftarPengguna::class, 'delete'])->name('daftar_pengguna.delete');
         Route::post('/save-add-user', [DaftarPengguna::class, 'save'])->name('daftar_pengguna.save_add_user');
         Route::get('/update/{user_id}', [DaftarPengguna::class, 'update'])->name('daftar_pengguna.update');
