@@ -17,6 +17,41 @@
         position: relative;
     }
 
+    @media only screen and (max-width: 320px) {
+        .container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100%;
+        }
+
+        .box {
+            padding: 30px;
+            width: 90%;
+            max-width: 400px;
+            max-height: 350px;
+        }
+
+        .animation {
+            margin-top: 20px;
+        }
+
+        .one,
+        .two,
+        .three {
+            width: 50px;
+            height: 50px;
+        }
+
+        h1 {
+            font-size: 24px;
+        }
+
+        p {
+            font-size: 14px;
+        }
+    }
+
     .box {
         width: auto;
         height: 500px;
