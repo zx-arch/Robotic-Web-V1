@@ -17,7 +17,7 @@
         position: relative;
     }
 
-    @media only screen and (max-width: 320px) {
+    @media only screen and (max-width: 840px) {
         .container {
             display: flex;
             justify-content: center;
