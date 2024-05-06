@@ -44,10 +44,10 @@ class DaftarPengguna extends Controller
             }
         }
 
-        $allUser = $users->count();
-        $userActive = $users->where('status', 'active')->count();
-        $userInActive = $users->where('status', 'inactive')->count();
-        $userDeleted = $users->where('status', 'deleted')->count();
+        $allUser = Users::count();
+        $userActive = Users::where('status', 'active')->count();
+        $userInActive = Users::where('status', 'inactive')->count();
+        $userDeleted = Users::where('status', 'deleted')->count();
 
         return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted', 'itemsPerPage'));
     }
