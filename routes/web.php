@@ -21,6 +21,7 @@ use App\Http\Controllers\Pengurus\TutorialsPengurusController;
 use App\Http\Controllers\Admin\ChatDashboardController;
 use App\Http\Controllers\Admin\IpGlobalController;
 use App\Http\Controllers\Admin\IpLockedController;
+use App\Http\Controllers\Admin\AdminSettingsController;
 
 /*
 |--------------------------------------------------------------------------
@@ -142,6 +143,9 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
         Route::get('/search', [IpLockedController::class, 'search'])->name('ip_locked.search');
         Route::get('/save-unlock/{id}', [IpLockedController::class, 'saveUnlocked'])->name('ip_locked.saveUnlocked');
     });
+
+    Route::get('/admin/settings', [AdminSettingsController::class, 'index'])->name('admin.settings.index');
+    Route::post('/admin/save-settings', [AdminSettingsController::class, 'save'])->name('admin.settings.save');
 
 });
 

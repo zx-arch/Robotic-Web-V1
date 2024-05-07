@@ -1,5 +1,5 @@
 @extends('cms_login.index_admin')
-<!-- Memuat jQuery dari CDN -->
+
 <style>
 
     #preview {
@@ -42,112 +42,130 @@
 @section('content')
 
 <div class="container-fluid">
-
     <div class="content">
         <div class="row">
-            <div class="col-lg-12">
-                <h5 class="p-2">Add Tutorials</h5>
+            <div class="col-lg-2 mb-3">
+                <h5 class="p-2">Settings</h5>
+                    
+            </div>
+        </div>
 
-                <div class="card card-default">
-                    <div class="card-body p-0">
-                        <div class="container mb-3 mt-3">
-                            <form action="{{route('tutorials.save_tutorial')}}" method="post" enctype="multipart/form-data">
+        <div class="row">
+            <div class="col-lg-6">
+                <div class="card">
+
+                    <div class="card-header">
+                        <div class="image">
+                            <img src="{{ ((isset($settings->foto_profil) ? asset('assets/foto_profil/' . $settings->foto_profil) : asset('assets/img/logo-user-image.png'))) }}" width="170" height="160" class="img-circle" alt="User Image" onclick="window.location.href=`/admin`">
+                        </div>
+
+                        @if (session()->has('success_saved'))
+                            <div id="w6" class="alert-warning alert alert-dismissible mt-3" role="alert">
+                                {{session('success_saved')}}
+                                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                            </div>
+                        @endif
+
+                        @if (session()->has('error_saved'))
+                            <div id="w6" class="alert-danger alert alert-dismissible mt-3" role="alert">
+                                {{session('error_saved')}}
+                                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                            </div>
+                        @endif
+                    </div>
+                    
+                    <div class="row">
+                        <div class="card-body d-flex">
+
+                            <form action="{{route('admin.settings.save')}}" method="post" class="d-flex">
                                 @csrf
-                                <div class="row">
-
-                                    <div class="col-lg-6">
-                                        <div class="row">
-
-                                            <div class="col-md-12">
-
-                                                <div class="form-group highlight-addon has-success">
-                                                    <label for="video_name">Video Name <span class="text-danger">*</span></label>
-                                                    <input type="text" name="video_name" id="video_name" required class="form-control" style="max-width: 90%;">
-                                                    <div class="invalid-feedback"></div>
-                                                </div>
-                                                @php
-                                                    $getCategory = \App\Models\CategoryTutorial::all();
-                                                @endphp
-                                                <div class="form-group highlight-addon has-success">
-                                                    <label for="category">Category <span class="text-danger">*</span></label>
-                                                    <select name="category" id="category" class="form-control w-50" required>
-                                                        <option value="" disabled selected>Choose Category ..</option>
-                                                        @foreach ($getCategory as $tutorial_cat)
-                                                            <option value="{{$tutorial_cat->id}}">{{$tutorial_cat->category}}</option>
-                                                        @endforeach
-                                                    </select>
-                                                    <div class="invalid-feedback"></div>
-                                                </div>
-
-                                                <div class="form-group highlight-addon has-success">
-                                                    <label for="status">Status <span class="text-danger">*</span></label>
-                                                    <select name="status" id="status" class="form-control w-25" required>
-                                                        <option value="" disabled selected>Status ..</option>
-                                                        <option value="enable">Enable</option>
-                                                        <option value="disable">Disable</option>
-                                                        <option value="draft">Draft</option>
-                                                    </select>
-                                                    <div class="invalid-feedback"></div>
-                                                </div>
-
-                                                <div class="form-group highlight-addon has-success">
-                                                    <label for="youtube">Link URL <span class="text-danger">*</span></label>
-                                                    <input type="text" name="url_link" required id="url_link" required class="form-control w-75">
-                                                    <div class="invalid-feedback"></div>
-                                                </div>
-                                                {{-- <div class="form-group highlight-addon has-success">
-                                                    <label for="youtube">Thumbnail <span class="text-danger">*</span></label>
-                                                    <input type="file" name="image" required id="url_link" required class="form-control w-75">
-                                                    <div class="invalid-feedback"></div>
-                                                </div> --}}
-                                            </div>
-
-                                        </div>
-                                    </div>
-                                    
-                                    <div class="col-lg-4">
-                                        <div class="form-group highlight-addon has-success">
-                                            <label for="youtube">Thumbnail <span class="text-danger">*</span></label>
-                                            <div class="custom-file">
-                                                <input type="file" name="image" required id="url_link" class="custom-file-input" accept="image/*">
-                                                <label class="custom-file-label" for="url_link">Pilih Gambar</label>
-                                            </div>
-                                            <div class="invalid-feedback"></div>
-                                        </div>
-
-                                        <div class="card" id="drop-area">
-                                            <div class="card-body">
-
-                                                <div class="center-content">
-                                                    <p id="drop-text">Drag & drop gambar di sini <br> <br> max upload 500 KB</p>
-                                                    <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
-                                                    <p id="filename" class="d-none"></p>
-                                                </div>
-
-                                            </div>
-                                        </div>
-                                    </div>
-                                    
+                                <div class="form-group highlight-addon mr-2" style="width: 100%;">
+                                    <label for="rename-field">Nama Pengelola</label>
+                                    <input type="text" name="nama_pengelola" value="{{isset($settings->nama_pengelola) ? $settings->nama_pengelola : ''}}" class="form-control" id="rename-field" maxlength="100" autocomplete="off" spellcheck="false">
                                 </div>
-
-                                <button type="submit" class="btn btn-primary">Submit</button>
-
+                                <button type="submit" class="btn btn-info align-self-center mt-3">Save</button>
                             </form>
-                            
-                            @if (session()->has('error_submit_save'))
-                                <div id="w6" class="alert-danger alert alert-dismissible mt-3 w-75" role="alert">
-                                    {{session('error_submit_save')}}
-                                    <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+
+                            <form action="{{route('admin.settings.save')}}" method="post" class="d-flex ml-4">
+                                @csrf
+                                <div class="form-group highlight-addon mr-2" style="width: 100%;">
+                                    <label for="rename-field">Email Pengelola</label>
+                                    <input type="email" name="email_pengelola" value="{{isset($settings->email_pengelola) ? $settings->email_pengelola : ''}}" class="form-control" id="rename-field" maxlength="100" autocomplete="off" spellcheck="false">
                                 </div>
-                            @endif
+                                <button type="submit" class="btn btn-info align-self-center mt-3">Save</button>
+                            </form>
+
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="card-body d-flex" style="margin-top:-35px;">
+                            
+                            <form action="{{route('admin.settings.save')}}" method="post" class="d-flex">
+                                @csrf
+                                <div class="form-group highlight-addon mr-2" style="width: 100%;">
+                                    <label for="rename-field">Instansi Pekerjaan</label>
+                                    <input type="text" name="instansi" class="form-control" value="{{isset($settings->instansi) ? $settings->instansi : ''}}" id="rename-field" autocomplete="off" spellcheck="false">
+                                </div>
+                                <button type="submit" class="btn btn-info align-self-center mt-3">Save</button>
+                            </form>
+
+                            <form action="{{route('admin.settings.save')}}" method="post" class="d-flex ml-4">
+                                @csrf
+                                <div class="form-group highlight-addon mr-2" style="width: 100%;">
+                                    <label for="rename-field">Jabatan</label>
+                                    <input type="text" name="jabatan" class="form-control" {{isset($settings->jabatan) ? $settings->jabatan : ''}} id="rename-field" autocomplete="off" spellcheck="false">
+                                </div>
+                                <button type="submit" class="btn btn-info align-self-center mt-3">Save</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    <div class="row">
+                        <div class="card-body d-flex" style="margin-top:-35px;">
+                            <form action="{{route('admin.settings.save')}}" method="post" class="d-flex">
+                                @csrf
+                                <div class="form-group highlight-addon mr-2" style="width: 100%;">
+                                    <label for="rename-field">Change Password</label>
+                                    <input type="password" name="change_password" class="form-control" id="rename-field" maxlength="8" autocomplete="off" spellcheck="false">
+                                </div>
+                                <button type="submit" class="btn btn-info align-self-center mt-3">Save</button>
+                            </form>
                         </div>
                     </div>
                 </div>
+
             </div>
+
+            <div class="col-lg-6">
+                <form action="{{route('admin.settings.save')}}" method="post" enctype="multipart/form-data">
+                    @csrf
+                    <div class="form-group highlight-addon has-success">
+                        <label for="youtube">Foto Profil <span class="text-danger"></span></label>
+                        <div class="custom-file">
+                            <input type="file" name="image" required id="url_link" class="custom-file-input" accept="image/*">
+                            <label class="custom-file-label" for="url_link">Pilih Gambar</label>
+                        </div>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="card" id="drop-area" style="height: 250px;">
+                        <div class="card-body">
+                            <div class="center-content">
+                                <p id="drop-text">Drag & drop gambar di sini <br> <br> max upload 500 KB</p>
+                                <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
+                                <p id="filename" class="d-none"></p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn btn-success">Save</button>
+                </form>
+            </div>
+
         </div>
     </div>
 </div>
-
 @endsection
 
 <script>
