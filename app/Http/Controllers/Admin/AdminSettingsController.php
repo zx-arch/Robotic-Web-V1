@@ -9,6 +9,7 @@ use App\Models\Settings;
 use App\Models\Activity;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 
 class AdminSettingsController extends Controller
 {
@@ -47,47 +48,51 @@ class AdminSettingsController extends Controller
                 $uniqueImageName = null; // Jika tidak ada file gambar yang dikirimkan, set imagePath menjadi null
             }
 
-            if (!$check) {
-                $check = Settings::create([
+            DB::transaction(function () use ($check, $request, $uniqueImageName) {
+
+                if (!$check) {
+                    $check = Settings::create([
+                        'user_id' => Auth::user()->id,
+                        'nama_pengelola' => $request->nama_pengelola,
+                        'email_pengelola' => $request->email_pengelola,
+                        'instansi' => $request->instansi,
+                        'jabatan' => $request->jabatan,
+                        'foto_profil' => $uniqueImageName, // Simpan path gambar ke database
+                    ]);
+
+                } else {
+                    $check->update([
+                        'nama_pengelola' => (($request->has('nama_pengelola')) ? $request->nama_pengelola : $check->nama_pengelola),
+                        'email_pengelola' => (($request->has('email_pengelola')) ? $request->email_pengelola : $check->email_pengelola),
+                        'instansi' => (($request->has('instansi')) ? $request->instansi : $check->instansi),
+                        'jabatan' => (($request->has('jabatan')) ? $request->jabatan : $check->jabatan),
+                        'foto_profil' => ((isset ($uniqueImageName)) ? $uniqueImageName : $check->foto_profil), // Simpan path gambar ke database
+                    ]);
+                }
+
+                $user = User::find(Auth::user()->id);
+
+                if ($request->has('password')) {
+                    if (Hash::needsRehash($request->password)) {
+                        $hashedPassword = Hash::make($request->password);
+                    } else {
+                        // Jika password sudah menggunakan algoritma yang sesuai, gunakan yang sudah ada
+                        $hashedPassword = $request->password;
+                    }
+
+                    $user->update([
+                        'password' => $hashedPassword,
+                    ]);
+                }
+
+                $requestData = $request->except('_token');
+                $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
+
+                Activity::create(array_merge(session('myActivity'), [
                     'user_id' => Auth::user()->id,
-                    'nama_pengelola' => $request->nama_pengelola,
-                    'email_pengelola' => $request->email_pengelola,
-                    'instansi' => $request->instansi,
-                    'jabatan' => $request->jabatan,
-                    'foto_profil' => $uniqueImageName, // Simpan path gambar ke database
-                ]);
-
-            } else {
-                $check->update([
-                    'nama_pengelola' => (($request->has('nama_pengelola')) ? $request->nama_pengelola : $check->nama_pengelola),
-                    'email_pengelola' => (($request->has('email_pengelola')) ? $request->email_pengelola : $check->email_pengelola),
-                    'instansi' => (($request->has('instansi')) ? $request->instansi : $check->instansi),
-                    'jabatan' => (($request->has('jabatan')) ? $request->jabatan : $check->jabatan),
-                    'foto_profil' => ((isset($uniqueImageName)) ? $uniqueImageName : $check->foto_profil), // Simpan path gambar ke database
-                ]);
-
-            }
-
-            $user = User::find(Auth::user()->id);
-
-            if (Hash::needsRehash($request->password)) {
-                $hashedPassword = Hash::make($request->password);
-            } else {
-                // Jika password sudah menggunakan algoritma yang sesuai, gunakan yang sudah ada
-                $hashedPassword = $request->password;
-            }
-
-            $user->update([
-                'password' => $hashedPassword,
-            ]);
-
-            $requestData = $request->except('_token');
-            $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
-
-            Activity::create(array_merge(session('myActivity'), [
-                'user_id' => Auth::user()->id,
-                'action' => Auth::user()->username . ' Update Setting Account ' . $dataString . ' ID ' . $check->id,
-            ]));
+                    'action' => Auth::user()->username . ' Update Setting Account ' . $dataString . ' ID ' . $check->id,
+                ]));
+            });
 
             return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');
 
