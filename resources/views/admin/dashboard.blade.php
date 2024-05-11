@@ -72,6 +72,8 @@
                                     <td>District</td>
                                     <td>Province</td>
                                     <td>Country</td>
+                                    <td>Latitude</td>
+                                    <td>Longitude</td>
                                     <td style="width: 45px;">Access Precentage</td>
                                     <td style="width: 15px;">Total Activity</td>
                                 </tr>
@@ -83,6 +85,8 @@
                                         <td><input type="text" class="form-control" name="search[district]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['district'])) ? $searchData['district'] : ''}}"></td>
                                         <td><input type="text" class="form-control" name="search[province]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['province'])) ? $searchData['province'] : ''}}"></td>
                                         <td><input type="text" class="form-control" name="search[country]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['country'])) ? $searchData['country'] : ''}}"></td>
+                                        <td></td>
+                                        <td></td>
                                     </tr>
                                 </form>
                             </thead>
@@ -94,6 +98,8 @@
                                         <td>{{strpos($access['city'], ',') !== false ? explode(',', $access['city'])[0] : $access['city']}}</td>
                                         <td>{{strpos($access['city'], ',') !== false ? explode(',', $access['city'])[1] : $access['city']}}</td>
                                         <td>{{$access['country']}}</td>
+                                        <td>{{$access['latitude']}}</td>
+                                        <td>{{$access['longitude']}}</td>
                                         <td>{{round($access['access_percentage'], 2) . ' %'}}</td>
                                         <td>{{$access['total_access']}}</td>
                                     </tr>

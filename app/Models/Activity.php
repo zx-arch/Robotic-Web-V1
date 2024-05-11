@@ -88,9 +88,9 @@ class Activity extends Model
     public static function accessPercentageByIP()
     {
         // Query untuk menghitung frekuensi akses berdasarkan alamat IP
-        $accessCounts = self::select('ip_address', 'country', 'city')
+        $accessCounts = self::select('ip_address', 'country', 'city', 'latitude', 'longitude')
             ->selectRaw('count(*) as access_count')
-            ->groupBy('ip_address', 'country', 'city')
+            ->groupBy('ip_address', 'country', 'city', 'latitude', 'longitude')
             ->orderBy('access_count', 'desc')
             ->get();
 
@@ -103,6 +103,8 @@ class Activity extends Model
                 'ip_address' => $item->ip_address,
                 'city' => $item->city,
                 'country' => $item->country,
+                'latitude' => $item->latitude,
+                'longitude' => $item->longitude,
                 'access_percentage' => ($item->access_count / $totalAccess) * 100,
                 'total_access' => $item->access_count,
             ];
