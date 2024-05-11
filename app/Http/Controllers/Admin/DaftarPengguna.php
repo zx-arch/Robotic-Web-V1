@@ -8,7 +8,9 @@ use App\Models\Users;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Activity;
+use App\Models\Settings;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Pagination\LengthAwarePaginator;
 
@@ -359,7 +361,6 @@ class DaftarPengguna extends Controller
             }
 
         } catch (\Throwable $e) {
-            dd($e->getMessage());
             return redirect()->back()->with('error_submit_save', 'Data gagal diupdate. ' . $e->getMessage());
         }
     }
@@ -388,5 +389,92 @@ class DaftarPengguna extends Controller
             return redirect()->route('daftar_pengguna.index')->with('error_restore', 'User id tidak ditemukan, pastikan user sudah di delete!');
         }
 
+    }
+
+    public function account_owner($user_id)
+    {
+        try {
+            $settings = Settings::where('user_id', decrypt($user_id))->first();
+            return view('admin.DaftarPengguna.account_owner', $this->data, compact('settings', 'user_id'));
+
+        } catch (\Throwable $e) {
+            return redirect()->route('daftar_pengguna.index')->with('error_submit_save', 'User ID tidak valid! ' . $e->getMessage());
+        }
+    }
+    public function saveAccountOwner(Request $request)
+    {
+        try {
+
+            $check = Settings::where('user_id', decrypt($request->user_id))->first();
+
+            if ($request->hasFile('image')) { // Periksa apakah file gambar dikirimkan
+
+                $directory = public_path('assets/foto_profil/');
+                $imageExtension = $request->file('image')->getClientOriginalExtension();
+                $uniqueImageName = time() . '_' . $request->file('image')->getClientOriginalName();
+
+                // Membuat direktori jika tidak ada
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0777, true);
+                }
+
+                // Simpan data image ke dalam file di direktori yang diinginkan
+                $request->file('image')->move(public_path('assets/foto_profil/'), $uniqueImageName);
+
+            } else {
+                $uniqueImageName = null; // Jika tidak ada file gambar yang dikirimkan, set imagePath menjadi null
+            }
+
+            DB::transaction(function () use ($check, $request, $uniqueImageName) {
+
+                if (!$check) {
+                    $check = Settings::create([
+                        'user_id' => decrypt($request->user_id),
+                        'nama_pengelola' => $request->nama_pengelola,
+                        'email_pengelola' => $request->email_pengelola,
+                        'instansi' => $request->instansi,
+                        'jabatan' => $request->jabatan,
+                        'foto_profil' => $uniqueImageName, // Simpan path gambar ke database
+                    ]);
+
+                } else {
+                    $check->update([
+                        'nama_pengelola' => (($request->has('nama_pengelola')) ? $request->nama_pengelola : $check->nama_pengelola),
+                        'email_pengelola' => (($request->has('email_pengelola')) ? $request->email_pengelola : $check->email_pengelola),
+                        'instansi' => (($request->has('instansi')) ? $request->instansi : $check->instansi),
+                        'jabatan' => (($request->has('jabatan')) ? $request->jabatan : $check->jabatan),
+                        'foto_profil' => ((isset ($uniqueImageName)) ? $uniqueImageName : $check->foto_profil), // Simpan path gambar ke database
+                    ]);
+                }
+
+                $user = User::find($request->user_id);
+
+                if ($request->has('password')) {
+                    if (Hash::needsRehash($request->password)) {
+                        $hashedPassword = Hash::make($request->password);
+                    } else {
+                        // Jika password sudah menggunakan algoritma yang sesuai, gunakan yang sudah ada
+                        $hashedPassword = $request->password;
+                    }
+
+                    $user->update([
+                        'password' => $hashedPassword,
+                    ]);
+                }
+
+                $requestData = $request->except('_token');
+                $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
+
+                Activity::create(array_merge(session('myActivity'), [
+                    'user_id' => Auth::user()->id,
+                    'action' => Auth::user()->username . ' Update Setting Account ' . ' ID ' . $check->id,
+                ]));
+            });
+
+            return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_saved', 'Data gagal disimpan. ' . $e->getMessage());
+        }
     }
 }

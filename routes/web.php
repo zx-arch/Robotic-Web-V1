@@ -100,6 +100,8 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
         Route::get('/update-password/user_id/{user_id}', [DaftarPengguna::class, 'updatePassword'])->name('daftar_pengguna.update_password');
         Route::get('/view/{user_id}', [DaftarPengguna::class, 'view'])->name('daftar_pengguna.view');
         Route::get('/restore/{user_id}', [DaftarPengguna::class, 'restore'])->name('daftar_pengguna.restore');
+        Route::get('/account_owner/{user_id}', [DaftarPengguna::class, 'account_owner'])->name('daftar_pengguna.account_owner');
+        Route::post('/save_account_owner', [DaftarPengguna::class, 'saveAccountOwner'])->name('daftar_pengguna.saveAccountOwner');
     });
 
     Route::get('/admin/chat', [ChatDashboardController::class, 'index'])->name('admin.chat_dashboard.index');

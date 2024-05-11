@@ -38,6 +38,7 @@
 
                     <button type="submit" class="btn btn-primary" id="buttonSubmit">Simpan</button>
                     <a class="btn btn-warning" href="{{ route('daftar_pengguna.update_password', ['user_id' => encrypt($user->id)]) }}" title="Update" aria-label="Update" data-pjax="0">Update Password</a>
+                    <a class="btn btn-info" href="{{ route('daftar_pengguna.account_owner', ['user_id' => encrypt($user->id)]) }}" title="Update" aria-label="Update" data-pjax="0">Account Owner</a>
 
                 </form>
             </div>
