@@ -153,7 +153,7 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
 
 
 // Tambahkan rute lain untuk pengurus di sini
-Route::middleware(['auth.login', 'pengurus.auth', 'blocked', 'check.cookie'])->group(function () {
+Route::middleware(['auth.login', 'pengurus.auth', 'blocked', 'check.cookie', 'role:pengurus'])->group(function () {
     Route::get('/pengurus', [DashboardPengurus::class, 'index'])->name('pengurus.dashboard');
     Route::get('/pengurus/tutorials', [TutorialsPengurusController::class, 'index'])->name('pengurus.tutorials.index');
     Route::get('/pengurus/add', [TutorialsPengurusController::class, 'add'])->name('pengurus.tutorials.add');
