@@ -5,7 +5,7 @@ namespace App\Http\Middleware;
 use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Roles;
+use Spatie\Permission\Traits\HasRoles;
 
 class ViewRole
 {
@@ -18,7 +18,7 @@ class ViewRole
      */
     public function handle($request, Closure $next, $role)
     {
-        if (!Auth::check() && Roles::where('name', Auth::user()->role)->first()) {
+        if (!Auth::check() && !Auth::user()->role != '') {
             abort(403, 'Unauthorized action.');
         }
 

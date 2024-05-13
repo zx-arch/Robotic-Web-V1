@@ -17,7 +17,6 @@ class AktivitasPenggunaController extends Controller
     public function index()
     {
         $activities = Activity::latest();
-
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();

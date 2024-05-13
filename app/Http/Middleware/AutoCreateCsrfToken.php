@@ -25,6 +25,9 @@ class AutoCreateCsrfToken extends Middleware
             $request->session()->put('_token', $request->session()->token());
         }
 
+        // Mengatur header Strict-Transport-Security (HSTS) untuk memaksa klien selalu menggunakan HTTPS
+        $response->headers->set('Strict-Transport-Security', 'max-age=31536000; includeSubDomains');
+
         return $response;
     }
 }
