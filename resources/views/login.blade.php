@@ -38,15 +38,28 @@
                                 <div class="mb-3">
                                     <label for="password" class="form-label">Password</label>
                                     <input type="password" name="password" class="form-control" placeholder="Password" required>
-                                    @error('password')
-                                        <span role="alert">
-                                            <strong>{{ $message }}</strong>
-                                        </span>
-                                    @enderror
+                                    @if ($errors->any())
+                                        <div>
+                                            @error('password')
+                                                <span role="alert" id="countdown-message">
+                                                    <strong id="text-error">{{ $message }}</strong>
+                                                </span>
+                                            @enderror
+
+                                            @if(session('delay'))
+                                                <span role="alert" id="countdown-message">
+                                                    <strong></strong>
+                                                </span>
+                                            @endif
+                                        </div>
+                                    @endif
                                 </div>
 
-                                <button type="submit" name="login" id="buttonLogin" class="btn btn-primary">Login</button>
-                                <button type="button" id="buttonRegister" class="btn btn-success">Register</button>
+                                <div id="buttonAction">
+                                    <button type="submit" name="login" id="buttonLogin" class="btn btn-primary">Login</button>
+                                    <button type="button" id="buttonRegister" class="btn btn-success">Register</button>
+                                </div>
+
                             </form>
 
                             <div id="formRegister" style="display: none;">
@@ -123,6 +136,26 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        @if(session('delay'))
+            var delay = {{ session('delay') }};
+            var timer = delay;
+            var loginButton = document.getElementById('buttonLogin');
+            var registerButton = document.getElementById('buttonRegister');
+            var countdownElement = document.getElementById('countdown-message');
+
+            buttonAction.style.display = 'none';
+
+            var interval = setInterval(function () {
+                countdownElement.innerHTML = 'Please wait ' + timer + ' seconds before trying again.';
+                timer--;
+
+                if (timer < 0) {
+                    clearInterval(interval);
+                    countdownElement.innerHTML = '';
+                    buttonAction.style.display = 'block';
+                }
+            }, 1000);
+        @endif
 
         document.getElementById('buttonRegister').addEventListener('click', function () {
             document.getElementById('formRegister').style.display = 'block';
