@@ -26,7 +26,7 @@
             </div>
 
             <div class="col-lg-3 col-md-6 footer-links">
-                <h4>Partnership</h4>
+                <h4>Marketplace</h4>
                 <ul>
                     <li><a href="https://jelajahilmu.com/" target="_blank" rel="noopener">Jelajah Ilmu</a></li>
                     <li><a href="https://siplah.intanonline.com/" target="_blank" rel="noopener">Siplah Intan Online</a></li>
