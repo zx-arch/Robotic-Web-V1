@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
+use App\Contracts\ActivityRepositoryInterface;
 use App\Models\ChatDashboard;
 use Illuminate\Support\Facades\Session;
 use GeoIp2\Database\Reader;
@@ -13,55 +14,21 @@ use App\Events\NotifyProcessed;
 class DashboardController extends Controller
 {
     private $data;
+    protected $activityRepository;
 
-    public function __construct()
+    public function __construct(ActivityRepositoryInterface $activityRepository)
     {
         $this->data['currentActive'] = 'dashboard';
+        $this->activityRepository = $activityRepository;
+
     }
     public function index(Request $request)
     {
         $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
-        $databasePath = public_path('GeoLite2-City.mmdb');
-        $reader = new Reader($databasePath);
 
+        $ipAddress = $_SERVER['REMOTE_ADDR'];
         $userAgent = $request->header('User-Agent');
-
-        if ($_SERVER['REMOTE_ADDR'] == '127.0.0.1') {
-            $_SERVER['REMOTE_ADDR'] = '103.169.39.38';
-        }
-
-        // Mendapatkan informasi lokasi dari IP publik
-        $record = $reader->city($_SERVER['REMOTE_ADDR']);
-        $netmask = $record->traits->network;
-
-        // Dapatkan informasi yang Anda butuhkan, seperti nama kota, negara, koordinat, dsb.
-        $cityName = $record->city->name;
-        $countryName = $record->country->name;
-        $latitude = $record->location->latitude;
-        $longitude = $record->location->longitude;
-        $subdivisions = $record->subdivisions[0]->names['de'];
-
-        //dd($cityName, $latitude, $longitude, $userAgent, $subdivisions);
-
-        // Tetapkan nilai endpoint ke dalam session hanya jika referer tidak kosong
-        session([
-            'myActivity' => [
-                'ip_address' => $_SERVER['REMOTE_ADDR'],
-                'netmask' => $netmask,
-                'user_agent' => $userAgent,
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-                'country' => $countryName,
-                'city' => $cityName . (isset($subdivisions) ? ', ' . $subdivisions : ''),
-                'metadata' => json_encode($request->header()),
-            ]
-        ]);
-
-        if (Activity::where('csrf_token', session('csrf_token'))->get()->count() == 0) {
-            Activity::create(array_merge(session('myActivity'), [
-                'action' => 'Access Beranda Dashboard Artec',
-            ]));
-        }
+        $activityInfo = $this->activityRepository->getActivityInfo($ipAddress, $userAgent);
 
         return view('dashboard', $this->data, compact('tutorials'));
     }
