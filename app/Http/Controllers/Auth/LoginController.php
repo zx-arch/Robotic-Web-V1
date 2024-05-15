@@ -8,14 +8,12 @@ use Illuminate\Support\Facades\Auth;
 use App\Models\Tutorials;
 use GeoIp2\Database\Reader;
 use App\Models\User;
-use App\Models\Users;
 use App\Models\Activity;
 use App\Models\ChatDashboard;
 use Illuminate\Support\Facades\Cookie;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
@@ -30,11 +28,11 @@ class LoginController extends Controller
         }
 
         if (!Schema::hasColumn('users', 'time_start_failed_login')) {
-            DB::statement('ALTER TABLE users ADD COLUMN time_start_failed_login TIMESTAMP DEFAULT NULL');
+            DB::statement('ALTER TABLE users ADD COLUMN time_start_failed_login TIMESTAMP NULL DEFAULT NULL');
         }
 
         if (!Schema::hasColumn('users', 'time_end_failed_login')) {
-            DB::statement('ALTER TABLE users ADD COLUMN time_end_failed_login TIMESTAMP DEFAULT NULL');
+            DB::statement('ALTER TABLE users ADD COLUMN time_end_failed_login TIMESTAMP NULL DEFAULT NULL');
         }
     }
 
@@ -137,89 +135,87 @@ class LoginController extends Controller
     {
         $credentials = $request->only('username_or_email', 'password');
 
-        if ($request->has('no_delay')) {
-            if (
-                Auth::attempt(['email' => $credentials['username_or_email'], 'password' => $credentials['password']]) ||
-                Auth::attempt(['username' => $credentials['username_or_email'], 'password' => $credentials['password']])
-            ) {
-                // Authentication passed...
-                $user = Auth::user();
-                session(['username' => Auth::user()->username]);
+        if (
+            Auth::attempt(['email' => $credentials['username_or_email'], 'password' => $credentials['password']]) ||
+            Auth::attempt(['username' => $credentials['username_or_email'], 'password' => $credentials['password']])
+        ) {
+            // Authentication passed...
+            $user = Auth::user();
+            session(['username' => Auth::user()->username]);
 
-                if ($user->role == 'admin') {
+            if ($user->role == 'admin') {
 
-                    User::where('id', Auth::user()->id)->update([
-                        'count_failed_login' => null,
-                        'last_login' => now(),
-                        'time_start_failed_login' => null,
-                        'time_end_failed_login' => null
-                    ]);
+                User::where('id', Auth::user()->id)->update([
+                    'count_failed_login' => null,
+                    'last_login' => now(),
+                    'time_start_failed_login' => null,
+                    'time_end_failed_login' => null
+                ]);
 
-                    session()->forget('failed_login');
+                session()->forget('failed_login');
 
-                    session(['countChat' => ChatDashboard::get()->count()]);
+                session(['countChat' => ChatDashboard::get()->count()]);
 
-                    // dd(session('myActivity'), Session::get('csrf_token'));
-                    if (session()->has('myActivity')) {
-                        Activity::create(array_merge(session('myActivity'), [
-                            'user_id' => Auth::user()->id,
-                            'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                        ]));
-                    }
-
-                    Cookie::queue('user_email', $credentials['username_or_email'], 1440);
-
-                    return redirect()->intended('/admin');
-
-                } elseif ($user->role == 'pengurus') {
-
-                    User::where('id', Auth::user()->id)->update([
-                        'count_failed_login' => null,
-                        'last_login' => now(),
-                        'time_start_failed_login' => null,
-                        'time_end_failed_login' => null
-                    ]);
-
-                    session()->forget('failed_login');
-
-                    // dd(session('myActivity'), Session::get('csrf_token'));
-                    if (session()->has('myActivity')) {
-                        Activity::create(array_merge(session('myActivity'), [
-                            'user_id' => Auth::user()->id,
-                            'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                        ]));
-                    }
-
-                    Cookie::queue('user_email', $credentials['username_or_email'], 1440);
-
-                    return redirect()->intended('/pengurus');
-
-                } elseif ($user->role == 'user') {
-
-                    User::where('id', Auth::user()->id)->update([
-                        'count_failed_login' => null,
-                        'last_login' => now(),
-                        'time_start_failed_login' => null,
-                        'time_end_failed_login' => null
-                    ]);
-
-                    session()->forget('failed_login');
-
-                    // dd(session('myActivity'), Session::get('csrf_token'));
-                    if (session()->has('myActivity')) {
-                        Activity::create(array_merge(session('myActivity'), [
-                            'user_id' => Auth::user()->id,
-                            'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                        ]));
-                    }
-
-                    Cookie::queue('user_email', $credentials['username_or_email'], 1440);
-
-                    return redirect()->intended('/user');
-
-                } else {
-                    return redirect()->intended('/');
+                // dd(session('myActivity'), Session::get('csrf_token'));
+                if (session()->has('myActivity')) {
+                    Activity::create(array_merge(session('myActivity'), [
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                    ]));
                 }
+
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+
+                return redirect()->intended('/admin');
+
+            } elseif ($user->role == 'pengurus') {
+
+                User::where('id', Auth::user()->id)->update([
+                    'count_failed_login' => null,
+                    'last_login' => now(),
+                    'time_start_failed_login' => null,
+                    'time_end_failed_login' => null
+                ]);
+
+                session()->forget('failed_login');
+
+                // dd(session('myActivity'), Session::get('csrf_token'));
+                if (session()->has('myActivity')) {
+                    Activity::create(array_merge(session('myActivity'), [
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                    ]));
+                }
+
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+
+                return redirect()->intended('/pengurus');
+
+            } elseif ($user->role == 'user') {
+
+                User::where('id', Auth::user()->id)->update([
+                    'count_failed_login' => null,
+                    'last_login' => now(),
+                    'time_start_failed_login' => null,
+                    'time_end_failed_login' => null
+                ]);
+
+                session()->forget('failed_login');
+
+                // dd(session('myActivity'), Session::get('csrf_token'));
+                if (session()->has('myActivity')) {
+                    Activity::create(array_merge(session('myActivity'), [
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                    ]));
+                }
+
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+
+                return redirect()->intended('/user');
+
+            } else {
+                return redirect()->intended('/');
             }
         }
 
