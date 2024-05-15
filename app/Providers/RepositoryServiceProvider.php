@@ -4,7 +4,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Contracts\ActivityRepositoryInterface;
+use App\Interfaces\ActivityRepositoryInterface;
 use App\Repositories\DbActivityRepository;
 
 class RepositoryServiceProvider extends ServiceProvider

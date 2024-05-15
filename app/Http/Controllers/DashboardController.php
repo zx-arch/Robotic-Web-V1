@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Contracts\ActivityRepositoryInterface;
+use App\Interfaces\ActivityRepositoryInterface;
 use App\Models\ChatDashboard;
 use Illuminate\Support\Facades\Session;
 use GeoIp2\Database\Reader;

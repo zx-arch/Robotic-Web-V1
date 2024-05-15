@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Contracts\ActivityRepositoryInterface;
+use App\Interfaces\ActivityRepositoryInterface;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tutorials;
@@ -15,7 +15,6 @@ use Illuminate\Support\Facades\Cookie;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Facades\DB;
-
 
 class LoginController extends Controller
 {
@@ -235,7 +234,9 @@ class LoginController extends Controller
     public function logout()
     {
         Auth::logout();
+
         session()->flush();
+
         Cookie::queue(Cookie::forget('user_email'));
 
         return redirect('/');

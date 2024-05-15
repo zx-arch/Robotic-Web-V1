@@ -3,7 +3,7 @@
 // app/Repositories/DbActivityRepository.php
 namespace App\Repositories;
 
-use App\Contracts\ActivityRepositoryInterface;
+use App\Interfaces\ActivityRepositoryInterface;
 use GeoIp2\Database\Reader;
 
 class DbActivityRepository implements ActivityRepositoryInterface
