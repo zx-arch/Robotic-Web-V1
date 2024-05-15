@@ -19,16 +19,14 @@ class Users extends Model
         'email',
         'status',
         'password',
-        'count_failed_login'
+        'count_failed_login',
+        'time_start_failed_login',
+        'time_end_failed_login',
     ];
 
     protected static function boot()
     {
         parent::boot();
-
-        if (!Schema::hasColumn('users', 'count_failed_login')) {
-            DB::statement('ALTER TABLE users ADD COLUMN count_failed_login BIGINT UNSIGNED');
-        }
 
         static::addGlobalScope(new ExcludeAdminScope);
     }

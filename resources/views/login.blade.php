@@ -38,6 +38,7 @@
                                 <div class="mb-3">
                                     <label for="password" class="form-label">Password</label>
                                     <input type="password" name="password" class="form-control" placeholder="Password" required>
+
                                     @if ($errors->any())
                                         <div>
                                             @error('password')
@@ -46,7 +47,7 @@
                                                 </span>
                                             @enderror
 
-                                            @if(session('delay'))
+                                            @if(session('failed_login.delay'))
                                                 <span role="alert" id="countdown-message">
                                                     <strong></strong>
                                                 </span>
@@ -54,6 +55,12 @@
                                         </div>
                                     @endif
                                 </div>
+
+                                @if(session('failed_login.delay'))
+                                    <span role="alert" id="countdown-message" class="mt-2">
+                                        <strong></strong>
+                                    </span>
+                                @endif
 
                                 <div id="buttonAction">
                                     <button type="submit" name="login" id="buttonLogin" class="btn btn-primary">Login</button>
@@ -136,11 +143,9 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        @if(session('delay'))
-            var delay = {{ session('delay') }};
-            var timer = delay;
-            var loginButton = document.getElementById('buttonLogin');
-            var registerButton = document.getElementById('buttonRegister');
+        @if(session('failed_login.delay'))
+            var timer = {{ session('failed_login.delay') }};
+            var buttonAction = document.getElementById('buttonAction');
             var countdownElement = document.getElementById('countdown-message');
 
             buttonAction.style.display = 'none';
