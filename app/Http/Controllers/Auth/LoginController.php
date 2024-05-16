@@ -26,18 +26,24 @@ class LoginController extends Controller
         $this->data['currentActive'] = 'login';
         $this->activityRepository = $activityRepository;
 
-        if (!Schema::hasColumn('users', 'count_failed_login')) {
+        $data = DB::table('information_schema.columns')
+            ->select('column_name')
+            ->where('table_name', 'users')
+            ->get();
+
+        $columns = $data->pluck('column_name')->toArray();
+
+        if (!in_array('count_failed_login', $columns)) {
             DB::statement('ALTER TABLE users ADD COLUMN count_failed_login BIGINT UNSIGNED');
         }
 
-        if (!Schema::hasColumn('users', 'time_start_failed_login')) {
+        if (!in_array('time_start_failed_login', $columns)) {
             DB::statement('ALTER TABLE users ADD COLUMN time_start_failed_login TIMESTAMP NULL DEFAULT NULL');
         }
 
-        if (!Schema::hasColumn('users', 'time_end_failed_login')) {
+        if (!in_array('time_end_failed_login', $columns)) {
             DB::statement('ALTER TABLE users ADD COLUMN time_end_failed_login TIMESTAMP NULL DEFAULT NULL');
         }
-
     }
 
     public function index(Request $request)
