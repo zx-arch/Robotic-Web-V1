@@ -4,5 +4,5 @@ namespace App\Interfaces;
 
 interface ActivityRepositoryInterface
 {
-    public function getActivityInfo($ipAddress, $userAgent);
+    public function create(array $data);
 }

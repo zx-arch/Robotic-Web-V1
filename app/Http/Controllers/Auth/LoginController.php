@@ -87,18 +87,11 @@ class LoginController extends Controller
             }
 
         } else {
-
-            if (!session()->has('myActivity')) {
-                $ipAddress = $_SERVER['REMOTE_ADDR'];
-                $userAgent = $request->header('User-Agent');
-                $activityInfo = $this->activityRepository->getActivityInfo($ipAddress, $userAgent);
-            }
-
             $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
             //dd($tutorials);
             return view('login', $this->data, compact('tutorials'));
-
         }
+
     }
 
     public function login(Request $request)
@@ -128,10 +121,12 @@ class LoginController extends Controller
 
                 // dd(session('myActivity'), Session::get('csrf_token'));
                 if (session()->has('myActivity')) {
-                    Activity::create(array_merge(session('myActivity'), [
+
+                    $this->activityRepository->create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                    ]));
+                    ]);
+
                 }
 
                 Cookie::queue('user_email', $credentials['username_or_email'], 1440);
@@ -151,10 +146,12 @@ class LoginController extends Controller
 
                 // dd(session('myActivity'), Session::get('csrf_token'));
                 if (session()->has('myActivity')) {
-                    Activity::create(array_merge(session('myActivity'), [
+
+                    $this->activityRepository->create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                    ]));
+                    ]);
+
                 }
 
                 Cookie::queue('user_email', $credentials['username_or_email'], 1440);
@@ -174,10 +171,10 @@ class LoginController extends Controller
 
                 // dd(session('myActivity'), Session::get('csrf_token'));
                 if (session()->has('myActivity')) {
-                    Activity::create(array_merge(session('myActivity'), [
+                    $this->activityRepository->create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
-                    ]));
+                    ]);
                 }
 
                 Cookie::queue('user_email', $credentials['username_or_email'], 1440);
@@ -207,7 +204,6 @@ class LoginController extends Controller
                 // Menambah detik berdasarkan delay
                 $futureTime = $now->copy()->addSeconds($delay);
 
-                // Update menggunakan objek Carbon langsung
                 DB::table('users')->where('username', $credentials['username_or_email'])->update([
                     'time_start_failed_login' => $now,
                     'time_end_failed_login' => $futureTime

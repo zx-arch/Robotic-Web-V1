@@ -5,42 +5,59 @@ namespace App\Repositories;
 
 use App\Interfaces\ActivityRepositoryInterface;
 use GeoIp2\Database\Reader;
+use App\Models\Activity;
+use Illuminate\Support\Facades\DB;
 
 class DbActivityRepository implements ActivityRepositoryInterface
 {
-    public function getActivityInfo($ipAddress, $userAgent)
+    protected $activityInfo;
+
+    public function __construct()
     {
-        $activityInfo = session('myActivity');
+        $this->setActivityInfo();
+    }
 
-        if (!$activityInfo) {
-            $databasePath = public_path('GeoLite2-City.mmdb');
-            $reader = new Reader($databasePath);
+    protected function setActivityInfo()
+    {
+        $ipAddress = request()->ip();
+        $userAgent = request()->header('User-Agent');
 
-            if ($ipAddress == '127.0.0.1') {
-                $ipAddress = '103.169.39.38';
-            }
+        $databasePath = public_path('GeoLite2-City.mmdb');
+        $reader = new Reader($databasePath);
 
-            $record = $reader->city($ipAddress);
-            $netmask = $record->traits->network;
-            $cityName = $record->city->name;
-            $countryName = $record->country->name;
-            $latitude = $record->location->latitude;
-            $longitude = $record->location->longitude;
-            $subdivisions = $record->subdivisions[0]->names['de'];
-
-            $activityInfo = [
-                'ip_address' => $ipAddress,
-                'netmask' => $netmask,
-                'user_agent' => $userAgent,
-                'latitude' => $latitude,
-                'longitude' => $longitude,
-                'country' => $countryName,
-                'city' => $cityName . (isset($subdivisions) ? ', ' . $subdivisions : ''),
-            ];
-
-            session(['myActivity' => $activityInfo]);
+        if ($ipAddress == '127.0.0.1') {
+            $ipAddress = '103.169.39.38';
         }
 
-        return $activityInfo;
+        $record = $reader->city($ipAddress);
+        $netmask = $record->traits->network;
+        $cityName = $record->city->name;
+        $countryName = $record->country->name;
+        $latitude = $record->location->latitude;
+        $longitude = $record->location->longitude;
+        $subdivisions = $record->subdivisions[0]->names['de'];
+
+        $this->activityInfo = [
+            'ip_address' => $ipAddress,
+            'netmask' => $netmask,
+            'user_agent' => $userAgent,
+            'latitude' => $latitude,
+            'longitude' => $longitude,
+            'country' => $countryName,
+            'city' => $cityName . (isset($subdivisions) ? ', ' . $subdivisions : ''),
+        ];
+
+        session(['myActivity' => $this->activityInfo]);
     }
+
+    public function create(array $data)
+    {
+        try {
+            return Activity::create(array_merge(session('myActivity'), $data));
+
+        } catch (\Throwable $e) {
+            return Activity::create(array_merge(session('myActivity')));
+        }
+    }
+
 }

@@ -20,15 +20,11 @@ class DashboardController extends Controller
     {
         $this->data['currentActive'] = 'dashboard';
         $this->activityRepository = $activityRepository;
-
     }
+
     public function index(Request $request)
     {
         $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
-
-        $ipAddress = $_SERVER['REMOTE_ADDR'];
-        $userAgent = $request->header('User-Agent');
-        $activityInfo = $this->activityRepository->getActivityInfo($ipAddress, $userAgent);
 
         return view('dashboard', $this->data, compact('tutorials'));
     }
@@ -92,9 +88,10 @@ class DashboardController extends Controller
 
                             event(new NotifyProcessed(['count_message' => ChatDashboard::get()->count(), 'chats' => ChatDashboard::latest()->get()]));
 
-                            Activity::create(array_merge(session('myActivity'), [
+                            $this->activityRepository->create([
                                 'action' => 'User Created a New Chat ID ' . $chat->id,
-                            ]));
+                            ]);
+
                         }
                     }
 
