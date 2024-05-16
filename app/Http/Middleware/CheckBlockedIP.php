@@ -4,25 +4,33 @@ namespace App\Http\Middleware;
 
 use Closure;
 use Illuminate\Http\Request;
+use App\Repositories\IpGlobalRepository;
 use Illuminate\Support\Facades\Auth;
 use App\Models\IpGlobal;
 use App\Models\IpLocked;
 
 class CheckBlockedIP
 {
+    protected $ipGlobalRepository;
+
+    public function __construct(IpGlobalRepository $ipGlobalRepository)
+    {
+        $this->ipGlobalRepository = $ipGlobalRepository;
+    }
+
     /**
      * Handle an incoming request.
      *
      * @param  \Illuminate\Http\Request  $request
-     * @param  \Closure(\Illuminate\Http\Request): (\Illuminate\Http\Response|\Illuminate\Http\RedirectResponse)  $next
-     * @return \Illuminate\Http\Response|\Illuminate\Http\RedirectResponse
+     * @param  \Closure  $next
+     * @return mixed
      */
     public function handle(Request $request, Closure $next)
     {
         try {
-            $ip = session('myActivity.ip_address') ?? $_SERVER['REMOTE_ADDR'];
+            $ip = session('myActivity.ip_address') ?? $request->ip();
 
-            $ipGlobal = ipGlobal::where('network', $ip)->first();
+            $ipGlobal = $this->ipGlobalRepository->findByNetwork($ip);
 
             $checkLock = IpLocked::where('network', $ip)->first();
 
@@ -49,6 +57,5 @@ class CheckBlockedIP
             return redirect()->route('form.login')->withErrors(['message' => 'Gagal akses login ke sistem! ' . $e->getMessage()]);
 
         }
-
     }
 }

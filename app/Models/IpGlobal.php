@@ -4,8 +4,9 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Schema;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Database\Schema\Blueprint;
+use App\Repositories\IpGlobalRepository;
+use App\Services\IpGlobalService;
 
 class IpGlobal extends Model
 {
@@ -23,14 +24,27 @@ class IpGlobal extends Model
         'is_satellite_provider',
         'is_blocked',
     ];
+
+    protected $ipGlobalService;
+
+    public function __construct(array $attributes = [])
+    {
+        parent::__construct($attributes);
+
+        $this->ipGlobalService = app(IpGlobalService::class);
+    }
+
     protected static function boot()
     {
         parent::boot();
 
         static::checkAndCreateTable();
 
-        static::recordIfNotExists(session('myActivity.netmask'));
+        static::created(function ($model) {
+            $model->ipGlobalService->recordIfNotExists($model->network);
+        });
     }
+
     public static function checkAndCreateTable()
     {
         if (!Schema::hasTable('ip_global')) {
@@ -48,12 +62,9 @@ class IpGlobal extends Model
                 $table->boolean('is_blocked')->default(false);
                 $table->timestamps();
             });
-
-            // if (self::doesntExist()) {
-            //     self::recordFromCSV();
-            // }
         }
     }
+
     public static function calculateNetmask($network)
     {
         try {
@@ -65,63 +76,8 @@ class IpGlobal extends Model
             }, $netmaskParts);
 
             return implode('.', $netmaskIP);
-
         } catch (\Throwable $e) {
             return null;
-        }
-    }
-
-    public static function recordIfNotExists($ip)
-    {
-        try {
-            $existingIP = self::where('network', session('myActivity.ip_address'))->first();
-
-            if (!$existingIP && session()->has('myActivity.ip_address')) {
-
-                $countryName = session('myActivity.country');
-                $countryInfo = self::select('geoname_id', 'continent_code', 'continent_name', 'country_iso_code', 'is_anonymous_proxy', 'is_satellite_provider', 'is_blocked')
-                    ->where('country_name', $countryName)
-                    ->first();
-
-                self::create([
-                    'network' => session('myActivity.ip_address'),
-                    'geoname_id' => $countryInfo->geoname_id ?? '0',
-                    'continent_code' => $countryInfo->continent_code ?? '',
-                    'continent_name' => $countryInfo->continent_name ?? '',
-                    'country_iso_code' => $countryInfo->country_iso_code ?? '',
-                    'country_name' => $countryName,
-                    'is_anonymous_proxy' => $countryInfo->is_anonymous_proxy ?? false,
-                    'is_satellite_provider' => $countryInfo->is_satellite_provider ?? false,
-                    'is_blocked' => $countryInfo->is_blocked ?? false,
-                    'netmask' => self::calculateNetmask($ip),
-                ]);
-            }
-
-        } catch (\Throwable $e) {
-
-            $existingIP = self::where('network', session('myActivity.ip_address'))->first();
-
-            if (!$existingIP && session()->has('myActivity.ip_address')) {
-
-                $countryName = session('myActivity.country');
-                $countryInfo = self::select('geoname_id', 'continent_code', 'continent_name', 'country_iso_code', 'is_anonymous_proxy', 'is_satellite_provider', 'is_blocked')
-                    ->where('country_name', $countryName)
-                    ->first();
-
-                self::create([
-                    'network' => $ip,
-                    'geoname_id' => $countryInfo->geoname_id ?? '0',
-                    'continent_code' => $countryInfo->continent_code ?? '',
-                    'continent_name' => $countryInfo->continent_name ?? '',
-                    'country_iso_code' => $countryInfo->country_iso_code ?? '',
-                    'country_name' => $countryName,
-                    'is_anonymous_proxy' => $countryInfo->is_anonymous_proxy ?? false,
-                    'is_satellite_provider' => $countryInfo->is_satellite_provider ?? false,
-                    'is_blocked' => $countryInfo->is_blocked ?? false,
-                    'netmask' => self::calculateNetmask($ip),
-                ]);
-            }
-
         }
     }
 }
