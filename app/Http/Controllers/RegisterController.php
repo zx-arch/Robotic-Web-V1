@@ -5,16 +5,19 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
+use App\Interfaces\ActivityRepositoryInterface;
 use App\Models\Activity;
 use App\Models\User;
 
 class RegisterController extends Controller
 {
     private $data;
+    protected $activityRepository;
 
-    public function __construct()
+    public function __construct(ActivityRepositoryInterface $activityRepository)
     {
         $this->data['currentActive'] = 'dashboard';
+        $this->activityRepository = $activityRepository;
     }
     public function index()
     {
@@ -54,10 +57,10 @@ class RegisterController extends Controller
                 'role' => $request->role
             ]);
 
-            Activity::create(array_merge(session('myActivity'), [
+            $this->activityRepository->create([
                 'user_id' => $newUser->id,
                 'action' => 'User Create New Account ID ' . $newUser->id,
-            ]));
+            ]);
 
             return redirect()->back()->with('success_register', 'User Berhasil Dibuat.. Tunggu Konfirmasi Email Admin');
 
