@@ -60,4 +60,63 @@ class DbActivityRepository implements ActivityRepositoryInterface
         }
     }
 
+    public function getAccessData()
+    {
+        $accessPercentageByIP = Activity::accessPercentageByIP();
+        $accessByCity = $accessPercentageByIP->first();
+        $countActivity = $accessPercentageByIP->sum('total_access');
+        $totalAccessDevice = $accessPercentageByIP->count(); // Menghitung jumlah alamat IP unik
+        $highestAccess = $accessPercentageByIP->max('access_percentage'); // Menghitung persentase akses tertinggi
+
+        return compact('accessPercentageByIP', 'countActivity', 'totalAccessDevice', 'accessByCity', 'highestAccess');
+    }
+
+    public function searchAccessData($searchData)
+    {
+        $query = Activity::query();
+
+        if (!empty($searchData['ip_address'])) {
+            $query->where('ip_address', 'like', "{$searchData['ip_address']}%");
+        }
+        if (!empty($searchData['district'])) {
+            $query->where('city', 'like', "{$searchData['district']}%");
+        }
+        if (!empty($searchData['province'])) {
+            $query->where('city', 'like', "%{$searchData['province']}%");
+        }
+        if (!empty($searchData['country'])) {
+            $query->where('country', 'like', "{$searchData['country']}%");
+        }
+
+        $accessCounts = $query->select('ip_address', 'country', 'city')
+            ->selectRaw('count(*) as access_count')
+            ->groupBy('ip_address', 'country', 'city')
+            ->orderBy('access_count', 'desc')
+            ->get();
+
+        $totalAccess = $accessCounts->sum('access_count');
+
+        $accessPercentageByIP = $accessCounts->map(function ($item) use ($totalAccess) {
+            return [
+                'ip_address' => $item->ip_address,
+                'city' => $item->city,
+                'country' => $item->country,
+                'access_percentage' => ($item->access_count / $totalAccess) * 100,
+                'total_access' => $item->access_count,
+            ];
+        });
+
+        $accessByCity = $accessPercentageByIP->first();
+        $countActivity = $accessPercentageByIP->sum('total_access');
+        $totalAccessDevice = $accessPercentageByIP->count();
+        $highestAccess = $accessPercentageByIP->max('access_percentage');
+
+        return compact(
+            'accessPercentageByIP',
+            'countActivity',
+            'totalAccessDevice',
+            'accessByCity',
+            'highestAccess'
+        );
+    }
 }
