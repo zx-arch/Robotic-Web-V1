@@ -37,8 +37,6 @@ use App\Http\Controllers\Admin\AdminSettingsController;
 Route::get('/', [DashboardController::class, 'index'])->name('home_dashboard');
 Route::get('/login', [LoginController::class, 'index'])->name('form.login');
 Route::post('/register/submit', [RegisterController::class, 'submit'])->name('register.submit');
-Route::get('/materials', [MaterialsController::class, 'index'])->name('materials');
-Route::post('/materials/find', [MaterialsController::class, 'find'])->name('materials.find');
 Route::get('/courses/{jenis_materi}', [CoursesController::class, 'index'])->name('courses');
 Route::post('/courses/submit', [CoursesController::class, 'submitBook'])->name('courses.submit');
 Route::post('/dashboard/chat/submit', [DashboardController::class, 'submitChat'])->name('dashboard.submit_chat');
