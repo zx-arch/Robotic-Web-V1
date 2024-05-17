@@ -1,13 +1,10 @@
 <?php
 
-use App\Models\IpGlobal;
-use Illuminate\Http\Request;
 use App\Http\Controllers\Admin\CategoryTutorialController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
-use App\Http\Controllers\MaterialsController;
 use App\Http\Controllers\CoursesController;
 use App\Http\Controllers\Admin\DashboardAdmin;
 use App\Http\Controllers\Admin\TutorialsAdminController;
