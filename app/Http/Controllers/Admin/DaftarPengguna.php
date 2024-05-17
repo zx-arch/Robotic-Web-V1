@@ -3,27 +3,28 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Interfaces\ActivityRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Models\Users;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\Activity;
 use App\Models\Settings;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Pagination\LengthAwarePaginator;
 
-
 class DaftarPengguna extends Controller
 {
     private $data;
+    protected $activityRepository;
 
-    public function __construct()
+    public function __construct(ActivityRepositoryInterface $activityRepository)
     {
         $this->data['currentAdminMenu'] = 'authentication';
         $this->data['currentAdminSubMenu'] = 'account';
         $this->data['currentTitle'] = 'Account | Artec Coding Indonesia';
+        $this->activityRepository = $activityRepository;
     }
 
     public function index()
@@ -218,10 +219,10 @@ class DaftarPengguna extends Controller
 
             $user->delete();
 
-            Activity::create(array_merge(session('myActivity'), [
+            $this->activityRepository->create([
                 'user_id' => Auth::user()->id,
                 'action' => Auth::user()->username . ' Deleted Account User ' . $user->username . ' ID ' . decrypt($user_id),
-            ]));
+            ]);
 
             return redirect()->route('daftar_pengguna.index')->with('success_deleted', 'Data berhasil dihapus!');
 
@@ -288,10 +289,10 @@ class DaftarPengguna extends Controller
                 'role' => $request->role
             ]);
 
-            Activity::create(array_merge(session('myActivity'), [
+            $this->activityRepository->create([
                 'user_id' => Auth::user()->id,
                 'action' => Auth::user()->username . ' Add New Account User ' . $newUser->username . ' ID ' . $newUser,
-            ]));
+            ]);
 
             return redirect()->route('daftar_pengguna.index')->with('success_submit_save', 'User Berhasil Dibuat!');
 
@@ -349,10 +350,10 @@ class DaftarPengguna extends Controller
                     'password' => $hashedPassword,
                 ]);
 
-                Activity::create(array_merge(session('myActivity'), [
+                $this->activityRepository->create([
                     'user_id' => Auth::user()->id,
                     'action' => Auth::user()->username . ' Update User ID ' . $user->id,
-                ]));
+                ]);
 
                 return redirect()->route('daftar_pengguna.index')->with('success_submit_save', 'Data berhasil diupdate!');
 
@@ -378,10 +379,10 @@ class DaftarPengguna extends Controller
             $user->restore();
             $user->update(['status' => 'active']);
 
-            Activity::create(array_merge(session('myActivity'), [
+            $this->activityRepository->create([
                 'user_id' => Auth::user()->id,
                 'action' => Auth::user()->username . ' Restore Data User Account ' . $user->username . ' ID ' . $user->id,
-            ]));
+            ]);
 
             return redirect()->route('daftar_pengguna.index')->with('success_restore', 'Data berhasil direstore!');
 
@@ -465,10 +466,11 @@ class DaftarPengguna extends Controller
                 $requestData = $request->except('_token');
                 $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
 
-                Activity::create(array_merge(session('myActivity'), [
+                $this->activityRepository->create([
                     'user_id' => Auth::user()->id,
-                    'action' => Auth::user()->username . ' Update Setting Account ' . ' ID ' . $check->id,
-                ]));
+                    'action' => Auth::user()->username . ' Update Setting Account ' . $dataString . ' ID ' . $check->id,
+                ]);
+
             });
 
             return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');

@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\HierarchyCategoryBook;
+use App\Interfaces\ActivityRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Models\BookTranslation;
 use App\Models\Translations;
@@ -11,16 +12,17 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Activity;
 
 class CoursesAdminController extends Controller
 {
     private $data;
+    protected $activityRepository;
 
-    public function __construct()
+    public function __construct(ActivityRepositoryInterface $activityRepository)
     {
         $this->data['currentAdminMenu'] = 'courses';
         $this->data['currentTitle'] = 'Courses | Artec Coding Indonesia';
+        $this->activityRepository = $activityRepository;
     }
     public function index()
     {
@@ -228,10 +230,10 @@ class CoursesAdminController extends Controller
 
                         session(['success_submit_save' => 'berhasil simpan data!']);
 
-                        Activity::create(array_merge(session('myActivity'), [
+                        $this->activityRepository->create([
                             'user_id' => Auth::user()->id,
                             'action' => Auth::user()->username . ' Add Courses ' . $request->book_title,
-                        ]));
+                        ]);
 
                         // Jika data tutorial berhasil disimpan, lanjutkan dengan menyimpan file lokal
                         if ($book) {
@@ -292,22 +294,39 @@ class CoursesAdminController extends Controller
 
     public function forceDelete($id)
     {
-        //dd(decrypt($id));
         try {
-            $detailCourses = BookTranslation::where('id', decrypt($id))->first();
+            // Decrypt ID
+            $decryptedId = decrypt($id);
+
+            // Ambil detail kursus dan hierarki berdasarkan ID
+            $detailCourses = BookTranslation::where('id', $decryptedId)->first();
             $findHierarchy = HierarchyCategoryBook::where('id', $detailCourses->hierarchy_id)->first();
 
+            // Jika data ditemukan
             if (isset($detailCourses) && isset($findHierarchy)) {
 
                 DB::transaction(function () use ($detailCourses, $findHierarchy) {
+                    // Catat ID sebelum penghapusan
+                    $this->activityRepository->create([
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . " Delete Book Course '" . $detailCourses->book_title . "'",
+                    ]);
+
+                    // Hapus hierarki dan detail kursus
                     $findHierarchy->forceDelete();
                     $detailCourses->forceDelete();
 
-                    // Hapus file-file dari penyimpanan
+                    // Hapus file dari penyimpanan
                     $path = public_path('book/' . $detailCourses->language_name . '/' . $detailCourses->file);
                     if (file_exists($path)) {
                         unlink($path);
                     }
+
+                    // Catat aktivitas penghapusan
+                    $this->activityRepository->create([
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Deleted Course ' . $detailCourses->book_title,
+                    ]);
                 });
 
             } else {
@@ -320,4 +339,5 @@ class CoursesAdminController extends Controller
             return redirect()->route('admin.courses.index')->with('error_submit_save', 'Data gagal di delete! ' . $e->getMessage());
         }
     }
+
 }

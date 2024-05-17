@@ -3,23 +3,24 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Interfaces\ActivityRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Models\CategoryTutorial;
 use App\Models\Tutorials;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use App\Models\Activity;
 
 class CategoryTutorialController extends Controller
 {
     private $data;
+    protected $activityRepository;
 
-    public function __construct()
+    public function __construct(ActivityRepositoryInterface $activityRepository)
     {
         $this->data['currentAdminMenu'] = 'tutorials';
         $this->data['currentAdminSubMenu'] = 'category_tutorial';
         $this->data['currentTitle'] = 'Category Tutorials | Artec Coding Indonesia';
-
+        $this->activityRepository = $activityRepository;
     }
 
     public function index()
@@ -135,10 +136,11 @@ class CategoryTutorialController extends Controller
                         'delete_html_code' => '<a class="btn btn-danger btn-sm btn-delete" href="' . route("category_tutorial.delete", ["id_cat" => encrypt($catTutorial->id)]) . '"><i class="fa-fw fas fa-trash" aria-hidden></i></a>',
                     ]);
 
-                    Activity::create(array_merge(session('myActivity'), [
+                    $this->activityRepository->create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Add Categories ' . $request->category_name,
-                    ]));
+                    ]);
+
                 });
 
                 return redirect()->route('category_tutorial.index')->with('success_submit_save', 'Category berhasil ditambah!');
@@ -228,10 +230,10 @@ class CategoryTutorialController extends Controller
 
                 CategoryTutorial::where('id', $id_cat)->update($arryUpdate);
 
-                Activity::create(array_merge(session('myActivity'), [
+                $this->activityRepository->create([
                     'user_id' => Auth::user()->id,
                     'action' => Auth::user()->username . ' Update Categories ' . $findCat->category,
-                ]));
+                ]);
 
                 return redirect()->route('category_tutorial.index')->with('success_submit_save', 'Category berhasil diupdate!');
 

@@ -3,10 +3,10 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Interfaces\ActivityRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Settings;
-use App\Models\Activity;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -14,11 +14,15 @@ use Illuminate\Support\Facades\DB;
 class AdminSettingsController extends Controller
 {
     private $data;
-    public function __construct()
+    protected $activityRepository;
+
+    public function __construct(ActivityRepositoryInterface $activityRepository)
     {
         $this->data['currentAdminMenu'] = 'settings';
         $this->data['currentTitle'] = 'Settings | Artec Coding Indonesia';
+        $this->activityRepository = $activityRepository;
     }
+
     public function index()
     {
         $settings = Settings::where('user_id', Auth::user()->id)->first();
@@ -48,7 +52,10 @@ class AdminSettingsController extends Controller
                 $uniqueImageName = null; // Jika tidak ada file gambar yang dikirimkan, set imagePath menjadi null
             }
 
-            DB::transaction(function () use ($check, $request, $uniqueImageName) {
+            $crud_str = '';
+            $checks = null;
+
+            DB::transaction(function () use ($check, $request, $uniqueImageName, &$crud_str, &$checks) {
 
                 if (!$check) {
                     $check = Settings::create([
@@ -60,6 +67,9 @@ class AdminSettingsController extends Controller
                         'foto_profil' => $uniqueImageName, // Simpan path gambar ke database
                     ]);
 
+                    $checks = $check;
+                    $crud_str = 'create';
+
                 } else {
                     $check->update([
                         'nama_pengelola' => (($request->has('nama_pengelola')) ? $request->nama_pengelola : $check->nama_pengelola),
@@ -68,6 +78,10 @@ class AdminSettingsController extends Controller
                         'jabatan' => (($request->has('jabatan')) ? $request->jabatan : $check->jabatan),
                         'foto_profil' => ((isset ($uniqueImageName)) ? $uniqueImageName : $check->foto_profil), // Simpan path gambar ke database
                     ]);
+
+                    $checks = $check;
+                    $crud_str = 'update';
+
                 }
 
                 $user = User::find(Auth::user()->id);
@@ -83,16 +97,19 @@ class AdminSettingsController extends Controller
                     $user->update([
                         'password' => $hashedPassword,
                     ]);
+
+                    $crud_str = 'update';
                 }
 
-                $requestData = $request->except('_token');
-                $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
-
-                Activity::create(array_merge(session('myActivity'), [
-                    'user_id' => Auth::user()->id,
-                    'action' => Auth::user()->username . ' Update Setting Account ' . $dataString . ' ID ' . $check->id,
-                ]));
             });
+
+            $requestData = $request->except('_token');
+            $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
+
+            $this->activityRepository->create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . (($crud_str == 'create' ? ' Create Setting Account ' : ' Update Setting Account ')) . $dataString . ' ID ' . $check->id,
+            ]);
 
             return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');
 

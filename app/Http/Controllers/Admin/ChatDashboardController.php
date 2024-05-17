@@ -3,19 +3,21 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Interfaces\ActivityRepositoryInterface;
 use Illuminate\Http\Request;
 use App\Models\ChatDashboard;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Activity;
 
 class ChatDashboardController extends Controller
 {
     private $data;
+    protected $activityRepository;
 
-    public function __construct()
+    public function __construct(ActivityRepositoryInterface $activityRepository)
     {
         $this->data['currentAdminMenu'] = 'chat_dashboard';
         $this->data['currentTitle'] = 'Chat Dashboard | Artec Coding Indonesia';
+        $this->activityRepository = $activityRepository;
     }
 
     public function index()
@@ -63,10 +65,10 @@ class ChatDashboardController extends Controller
                 // dd($request->all(), explode(',', $request->delete_ids));
                 ChatDashboard::whereIn('id', $idsArray)->forceDelete();
 
-                Activity::create(array_merge(session('myActivity'), [
+                $this->activityRepository->create([
                     'user_id' => Auth::user()->id,
                     'action' => Auth::user()->username . ' Deleted Chat ID ' . $idsString,
-                ]));
+                ]);
 
                 return redirect()->back()->with('success_deleted', 'Chat berhasil dihapus!');
 

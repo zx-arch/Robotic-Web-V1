@@ -2,28 +2,27 @@
 
 namespace App\Http\Controllers\Admin;
 
-session_start();
-
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Tutorials;
-use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Models\Activity;
+use App\Interfaces\ActivityRepositoryInterface;
 use App\Models\CategoryTutorial;
 
 class TutorialsAdminController extends Controller
 {
     private $data;
+    protected $activityRepository;
 
-    public function __construct()
+    public function __construct(ActivityRepositoryInterface $activityRepository)
     {
         $this->data['currentAdminMenu'] = 'tutorials';
         $this->data['currentAdminSubMenu'] = 'preview';
         $this->data['currentTitle'] = 'Preview Tutorials | Artec Coding Indonesia';
+        $this->activityRepository = $activityRepository;
     }
 
     public function index()
@@ -191,10 +190,10 @@ class TutorialsAdminController extends Controller
                         'delete_html_code' => '',
                     ]);
 
-                    Activity::create(array_merge(session('myActivity'), [
+                    $this->activityRepository->create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Created Tutorial ID ' . $tutorial->id,
-                    ]));
+                    ]);
 
                     return redirect()->route('tutorials.index')->with('success_submit_save', 'Data tutorial berhasil ditambah!');
 
@@ -240,10 +239,11 @@ class TutorialsAdminController extends Controller
 
                     Tutorials::where('id', $video->id)->delete();
 
-                    Activity::create(array_merge(session('myActivity'), [
+                    $this->activityRepository->create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Delete Tutorial Video ID ' . $video->id,
-                    ]));
+                    ]);
+
                 });
                 $deletedTutorialsCount = Tutorials::where('tutorial_category_id', $video->tutorial_category_id)->onlyTrashed()->count();
                 $totalTutorialsCount = Tutorials::where('tutorial_category_id', $video->tutorial_category_id)->withTrashed()->count();
@@ -287,10 +287,10 @@ class TutorialsAdminController extends Controller
                 $data->restore();
                 $data->update(['status_id' => 4]);
 
-                Activity::create(array_merge(session('myActivity'), [
+                $this->activityRepository->create([
                     'user_id' => Auth::user()->id,
                     'action' => Auth::user()->username . ' Restore Tutorial Video ID ' . $data->id,
-                ]));
+                ]);
 
                 CategoryTutorial::where('id', Tutorials::where('tutorial_category_id', $data->tutorial_category_id)->first()->tutorial_category_id)->update([
                     'valid_deleted' => false,
@@ -357,10 +357,11 @@ class TutorialsAdminController extends Controller
                             'url' => $request->url_link,
                         ]);
 
-                        Activity::create(array_merge(session('myActivity'), [
+                        $this->activityRepository->create([
                             'user_id' => Auth::user()->id,
                             'action' => Auth::user()->username . ' Update Tutorial Video ID ' . $video->id,
-                        ]));
+                        ]);
+
                     });
 
                     return redirect()->route('tutorials.index')->with('success_submit_save', 'Data berhasil diupdate!');
