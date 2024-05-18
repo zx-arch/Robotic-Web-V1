@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Interfaces\ActivityRepositoryInterface;
+use App\Repositories\ActivityRepository;
 use Illuminate\Http\Request;
 use App\Models\Translations;
 use Illuminate\Support\Facades\Auth;
@@ -11,13 +11,11 @@ use Illuminate\Support\Facades\Auth;
 class LanguageController extends Controller
 {
     private $data;
-    protected $activityRepository;
 
-    public function __construct(ActivityRepositoryInterface $activityRepository)
+    public function __construct()
     {
         $this->data['currentAdminMenu'] = 'language';
         $this->data['currentTitle'] = 'Language | Artec Coding Indonesia';
-        $this->activityRepository = $activityRepository;
     }
 
     public function index()
@@ -105,7 +103,7 @@ class LanguageController extends Controller
                     'language_name' => $request->language_name,
                 ]);
 
-                $this->activityRepository->create([
+                ActivityRepository::create([
                     'user_id' => Auth::user()->id,
                     'action' => 'Admin Created a New Translation Language ' . $request->language_name,
                 ]);

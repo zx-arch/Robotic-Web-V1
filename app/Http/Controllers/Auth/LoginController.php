@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Auth;
 
 use App\Http\Controllers\Controller;
-use App\Interfaces\ActivityRepositoryInterface;
+use App\Repositories\ActivityRepository;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Tutorials;
@@ -19,12 +19,10 @@ use Illuminate\Support\Facades\DB;
 class LoginController extends Controller
 {
     private $data;
-    protected $activityRepository;
 
-    public function __construct(ActivityRepositoryInterface $activityRepository)
+    public function __construct()
     {
         $this->data['currentActive'] = 'login';
-        $this->activityRepository = $activityRepository;
 
         $data = DB::table('information_schema.columns')
             ->select('column_name')
@@ -122,7 +120,7 @@ class LoginController extends Controller
                 // dd(session('myActivity'), Session::get('csrf_token'));
                 if (session()->has('myActivity')) {
 
-                    $this->activityRepository->create([
+                    ActivityRepository::create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
                     ]);
@@ -147,7 +145,7 @@ class LoginController extends Controller
                 // dd(session('myActivity'), Session::get('csrf_token'));
                 if (session()->has('myActivity')) {
 
-                    $this->activityRepository->create([
+                    ActivityRepository::create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
                     ]);
@@ -171,7 +169,7 @@ class LoginController extends Controller
 
                 // dd(session('myActivity'), Session::get('csrf_token'));
                 if (session()->has('myActivity')) {
-                    $this->activityRepository->create([
+                    ActivityRepository::create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
                     ]);

@@ -4,9 +4,7 @@
 namespace App\Providers;
 
 use Illuminate\Support\ServiceProvider;
-use App\Interfaces\ActivityRepositoryInterface;
-use App\Interfaces\IpGlobalRepositoryInterface;
-use App\Repositories\DbActivityRepository;
+use App\Repositories\ActivityRepository;
 use App\Repositories\IpGlobalRepository;
 
 class RepositoryServiceProvider extends ServiceProvider
@@ -16,17 +14,13 @@ class RepositoryServiceProvider extends ServiceProvider
         /**
          * Tambahkan binding di RepositoryServiceProvider ketika menambah class 
          * repository atau interface
+
+         * Note: Add
+         * IpGlobalRepository::class,
+         * Jika tidak menggunakan interface
          */
 
-        $repositories = [
-            ActivityRepositoryInterface::class => DbActivityRepository::class,
-            IpGlobalRepositoryInterface::class => IpGlobalRepository::class,
-            /**
-             * Note: Add
-             * IpGlobalRepository::class,
-             * Jika tidak menggunakan interface
-             */
-        ];
+        $repositories = [ActivityRepository::class, IpGlobalRepository::class];
 
         foreach ($repositories as $interface => $repository) {
             $this->app->bind($interface, $repository);

@@ -9,20 +9,18 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
-use App\Interfaces\ActivityRepositoryInterface;
+use App\Repositories\ActivityRepository;
 use App\Models\CategoryTutorial;
 
 class TutorialsAdminController extends Controller
 {
     private $data;
-    protected $activityRepository;
 
-    public function __construct(ActivityRepositoryInterface $activityRepository)
+    public function __construct()
     {
         $this->data['currentAdminMenu'] = 'tutorials';
         $this->data['currentAdminSubMenu'] = 'preview';
         $this->data['currentTitle'] = 'Preview Tutorials | Artec Coding Indonesia';
-        $this->activityRepository = $activityRepository;
     }
 
     public function index()
@@ -190,7 +188,7 @@ class TutorialsAdminController extends Controller
                         'delete_html_code' => '',
                     ]);
 
-                    $this->activityRepository->create([
+                    ActivityRepository::create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Created Tutorial ID ' . $tutorial->id,
                     ]);
@@ -239,7 +237,7 @@ class TutorialsAdminController extends Controller
 
                     Tutorials::where('id', $video->id)->delete();
 
-                    $this->activityRepository->create([
+                    ActivityRepository::create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Delete Tutorial Video ID ' . $video->id,
                     ]);
@@ -287,7 +285,7 @@ class TutorialsAdminController extends Controller
                 $data->restore();
                 $data->update(['status_id' => 4]);
 
-                $this->activityRepository->create([
+                ActivityRepository::create([
                     'user_id' => Auth::user()->id,
                     'action' => Auth::user()->username . ' Restore Tutorial Video ID ' . $data->id,
                 ]);
@@ -357,7 +355,7 @@ class TutorialsAdminController extends Controller
                             'url' => $request->url_link,
                         ]);
 
-                        $this->activityRepository->create([
+                        ActivityRepository::create([
                             'user_id' => Auth::user()->id,
                             'action' => Auth::user()->username . ' Update Tutorial Video ID ' . $video->id,
                         ]);

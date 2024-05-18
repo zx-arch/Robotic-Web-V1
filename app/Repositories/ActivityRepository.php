@@ -3,15 +3,13 @@
 // app/Repositories/DbActivityRepository.php
 namespace App\Repositories;
 
-use App\Interfaces\ActivityRepositoryInterface;
+use App\Abstracts\ActivityAbstract;
 use GeoIp2\Database\Reader;
 use App\Models\Activity;
 use Illuminate\Support\Facades\DB;
 
-class DbActivityRepository implements ActivityRepositoryInterface
+class ActivityRepository extends ActivityAbstract
 {
-    protected $activityInfo;
-
     public function __construct()
     {
         $this->setActivityInfo();
@@ -37,7 +35,7 @@ class DbActivityRepository implements ActivityRepositoryInterface
         $longitude = $record->location->longitude;
         $subdivisions = $record->subdivisions[0]->names['de'];
 
-        $this->activityInfo = [
+        $activityInfo = [
             'ip_address' => $ipAddress,
             'netmask' => $netmask,
             'user_agent' => $userAgent,
@@ -47,10 +45,10 @@ class DbActivityRepository implements ActivityRepositoryInterface
             'city' => $cityName . (isset($subdivisions) ? ', ' . $subdivisions : ''),
         ];
 
-        session(['myActivity' => $this->activityInfo]);
+        session(['myActivity' => $activityInfo]);
     }
 
-    public function create(array $data)
+    public static function create(array $data)
     {
         try {
             return Activity::create(array_merge(session('myActivity'), $data));
@@ -60,7 +58,7 @@ class DbActivityRepository implements ActivityRepositoryInterface
         }
     }
 
-    public function getAccessData()
+    public static function getAccessData()
     {
         $accessPercentageByIP = Activity::accessPercentageByIP();
         $accessByCity = $accessPercentageByIP->first();
@@ -71,7 +69,7 @@ class DbActivityRepository implements ActivityRepositoryInterface
         return compact('accessPercentageByIP', 'countActivity', 'totalAccessDevice', 'accessByCity', 'highestAccess');
     }
 
-    public function searchAccessData($searchData)
+    public static function searchAccessData($searchData)
     {
         $query = Activity::query();
 
@@ -88,9 +86,9 @@ class DbActivityRepository implements ActivityRepositoryInterface
             $query->where('country', 'like', "{$searchData['country']}%");
         }
 
-        $accessCounts = $query->select('ip_address', 'country', 'city')
+        $accessCounts = $query->select('ip_address', 'country', 'city', 'latitude', 'longitude')
             ->selectRaw('count(*) as access_count')
-            ->groupBy('ip_address', 'country', 'city')
+            ->groupBy('ip_address', 'country', 'city', 'latitude', 'longitude')
             ->orderBy('access_count', 'desc')
             ->get();
 
@@ -102,6 +100,8 @@ class DbActivityRepository implements ActivityRepositoryInterface
                 'city' => $item->city,
                 'country' => $item->country,
                 'access_percentage' => ($item->access_count / $totalAccess) * 100,
+                'latitude' => $item->latitude,
+                'longitude' => $item->longitude,
                 'total_access' => $item->access_count,
             ];
         });

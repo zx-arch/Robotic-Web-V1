@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Interfaces\ActivityRepositoryInterface;
+use App\Repositories\ActivityRepository;
 use Illuminate\Http\Request;
 use App\Models\Users;
 use App\Models\User;
@@ -17,14 +17,12 @@ use Illuminate\Pagination\LengthAwarePaginator;
 class DaftarPengguna extends Controller
 {
     private $data;
-    protected $activityRepository;
 
-    public function __construct(ActivityRepositoryInterface $activityRepository)
+    public function __construct()
     {
         $this->data['currentAdminMenu'] = 'authentication';
         $this->data['currentAdminSubMenu'] = 'account';
         $this->data['currentTitle'] = 'Account | Artec Coding Indonesia';
-        $this->activityRepository = $activityRepository;
     }
 
     public function index()
@@ -219,7 +217,7 @@ class DaftarPengguna extends Controller
 
             $user->delete();
 
-            $this->activityRepository->create([
+            ActivityRepository::create([
                 'user_id' => Auth::user()->id,
                 'action' => Auth::user()->username . ' Deleted Account User ' . $user->username . ' ID ' . decrypt($user_id),
             ]);
@@ -289,7 +287,7 @@ class DaftarPengguna extends Controller
                 'role' => $request->role
             ]);
 
-            $this->activityRepository->create([
+            ActivityRepository::create([
                 'user_id' => Auth::user()->id,
                 'action' => Auth::user()->username . ' Add New Account User ' . $newUser->username . ' ID ' . $newUser,
             ]);
@@ -350,7 +348,7 @@ class DaftarPengguna extends Controller
                     'password' => $hashedPassword,
                 ]);
 
-                $this->activityRepository->create([
+                ActivityRepository::create([
                     'user_id' => Auth::user()->id,
                     'action' => Auth::user()->username . ' Update User ID ' . $user->id,
                 ]);
@@ -379,7 +377,7 @@ class DaftarPengguna extends Controller
             $user->restore();
             $user->update(['status' => 'active']);
 
-            $this->activityRepository->create([
+            ActivityRepository::create([
                 'user_id' => Auth::user()->id,
                 'action' => Auth::user()->username . ' Restore Data User Account ' . $user->username . ' ID ' . $user->id,
             ]);
@@ -466,7 +464,7 @@ class DaftarPengguna extends Controller
                 $requestData = $request->except('_token');
                 $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
 
-                $this->activityRepository->create([
+                ActivityRepository::create([
                     'user_id' => Auth::user()->id,
                     'action' => Auth::user()->username . ' Update Setting Account ' . $dataString . ' ID ' . $check->id,
                 ]);

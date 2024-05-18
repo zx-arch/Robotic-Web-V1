@@ -4,7 +4,7 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\HierarchyCategoryBook;
-use App\Interfaces\ActivityRepositoryInterface;
+use App\Repositories\ActivityRepository;
 use Illuminate\Http\Request;
 use App\Models\BookTranslation;
 use App\Models\Translations;
@@ -16,13 +16,11 @@ use Illuminate\Support\Facades\Auth;
 class CoursesAdminController extends Controller
 {
     private $data;
-    protected $activityRepository;
 
-    public function __construct(ActivityRepositoryInterface $activityRepository)
+    public function __construct()
     {
         $this->data['currentAdminMenu'] = 'courses';
         $this->data['currentTitle'] = 'Courses | Artec Coding Indonesia';
-        $this->activityRepository = $activityRepository;
     }
     public function index()
     {
@@ -230,7 +228,7 @@ class CoursesAdminController extends Controller
 
                         session(['success_submit_save' => 'berhasil simpan data!']);
 
-                        $this->activityRepository->create([
+                        ActivityRepository::create([
                             'user_id' => Auth::user()->id,
                             'action' => Auth::user()->username . ' Add Courses ' . $request->book_title,
                         ]);
@@ -307,7 +305,7 @@ class CoursesAdminController extends Controller
 
                 DB::transaction(function () use ($detailCourses, $findHierarchy) {
                     // Catat ID sebelum penghapusan
-                    $this->activityRepository->create([
+                    ActivityRepository::create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . " Delete Book Course '" . $detailCourses->book_title . "'",
                     ]);
@@ -323,7 +321,7 @@ class CoursesAdminController extends Controller
                     }
 
                     // Catat aktivitas penghapusan
-                    $this->activityRepository->create([
+                    ActivityRepository::create([
                         'user_id' => Auth::user()->id,
                         'action' => Auth::user()->username . ' Deleted Course ' . $detailCourses->book_title,
                     ]);

@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use App\Interfaces\ActivityRepositoryInterface;
+use App\Repositories\ActivityRepository;
 use App\Models\ChatDashboard;
 use Illuminate\Support\Facades\Session;
 use GeoIp2\Database\Reader;
@@ -14,12 +14,10 @@ use App\Events\NotifyProcessed;
 class DashboardController extends Controller
 {
     private $data;
-    protected $activityRepository;
 
-    public function __construct(ActivityRepositoryInterface $activityRepository)
+    public function __construct()
     {
         $this->data['currentActive'] = 'dashboard';
-        $this->activityRepository = $activityRepository;
     }
 
     public function index(Request $request)
@@ -88,7 +86,7 @@ class DashboardController extends Controller
 
                             event(new NotifyProcessed(['count_message' => ChatDashboard::get()->count(), 'chats' => ChatDashboard::latest()->get()]));
 
-                            $this->activityRepository->create([
+                            ActivityRepository::create([
                                 'action' => 'User Created a New Chat ID ' . $chat->id,
                             ]);
 

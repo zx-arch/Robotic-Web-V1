@@ -2,10 +2,10 @@
 
 namespace App\Repositories;
 
-use App\Interfaces\IpGlobalRepositoryInterface;
+use App\Abstracts\IpGlobalAbstract;
 use App\Models\IpGlobal;
 
-class IpGlobalRepository implements IpGlobalRepositoryInterface
+class IpGlobalRepository extends IpGlobalAbstract
 {
     public function findByNetwork($network)
     {

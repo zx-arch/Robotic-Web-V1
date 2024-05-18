@@ -3,7 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
-use App\Interfaces\ActivityRepositoryInterface;
+use App\Repositories\ActivityRepository;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Settings;
@@ -14,13 +14,11 @@ use Illuminate\Support\Facades\DB;
 class AdminSettingsController extends Controller
 {
     private $data;
-    protected $activityRepository;
 
-    public function __construct(ActivityRepositoryInterface $activityRepository)
+    public function __construct()
     {
         $this->data['currentAdminMenu'] = 'settings';
         $this->data['currentTitle'] = 'Settings | Artec Coding Indonesia';
-        $this->activityRepository = $activityRepository;
     }
 
     public function index()
@@ -106,7 +104,7 @@ class AdminSettingsController extends Controller
             $requestData = $request->except('_token');
             $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
 
-            $this->activityRepository->create([
+            ActivityRepository::create([
                 'user_id' => Auth::user()->id,
                 'action' => Auth::user()->username . (($crud_str == 'create' ? ' Create Setting Account ' : ' Update Setting Account ')) . $dataString . ' ID ' . $check->id,
             ]);
