@@ -7,9 +7,12 @@ use App\Abstracts\ActivityAbstract;
 use GeoIp2\Database\Reader;
 use App\Models\Activity;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Database\Eloquent\Builder;
+
 
 class ActivityRepository extends ActivityAbstract
 {
+    protected static $query;
     public function __construct()
     {
         $this->setActivityInfo();
@@ -118,5 +121,38 @@ class ActivityRepository extends ActivityAbstract
             'accessByCity',
             'highestAccess'
         );
+    }
+
+    public static function customQuery(Builder $query): self
+    {
+        self::$query = $query;
+        return new self;
+    }
+
+    public static function setPaginate(int $perPage = 15)
+    {
+        if (!self::$query) {
+            self::$query = Activity::latest();
+        }
+        // Menentukan jumlah item per halaman
+        $itemsPerPage = $perPage;
+        //print_r();
+        // Menentukan jumlah halaman maksimum untuk semua data
+        $totalPagesAll = $itemsPerPage;
+        $activities = self::$query->paginate($itemsPerPage);
+
+        if ($totalPagesAll >= $perPage) {
+            $totalPages = $perPage;
+        }
+
+        if ($activities->count() > $perPage) {
+            $activities = self::$query->paginate($itemsPerPage);
+            //dd($activities);
+            if ($activities->currentPage() > $activities->lastPage()) {
+                return redirect($activities->url($activities->lastPage()));
+            }
+        }
+
+        return $activities;
     }
 }

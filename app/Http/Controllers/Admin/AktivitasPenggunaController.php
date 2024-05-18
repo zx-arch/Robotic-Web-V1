@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Repositories\ActivityRepository;
 use Illuminate\Http\Request;
 use App\Models\Activity;
 
@@ -16,25 +17,7 @@ class AktivitasPenggunaController extends Controller
     }
     public function index()
     {
-        $activities = Activity::latest();
-        // Menentukan jumlah item per halaman
-        $itemsPerPage = 15;
-        //print_r();
-        // Menentukan jumlah halaman maksimum untuk semua data
-        $totalPagesAll = $itemsPerPage;
-        $activities = $activities->paginate($itemsPerPage);
-
-        if ($totalPagesAll >= 15) {
-            $totalPages = 15;
-        }
-
-        if ($activities->count() > 15) {
-            $activities = $activities->paginate($itemsPerPage);
-            //dd($activities);
-            if ($activities->currentPage() > $activities->lastPage()) {
-                return redirect($activities->url($activities->lastPage()));
-            }
-        }
+        $activities = ActivityRepository::setPaginate();
 
         return view('admin.AktivitasPengguna.index', $this->data, compact('activities'));
     }
