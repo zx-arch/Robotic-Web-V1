@@ -2,18 +2,20 @@
 
 namespace App\Exceptions;
 
-use Closure;
+use App\Repositories\IpGlobalRepository;
+use App\Models\IpLocked;
 use Illuminate\Auth\AuthenticationException;
 use Illuminate\Foundation\Exceptions\Handler as ExceptionHandler;
 use Illuminate\Validation\ValidationException;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Symfony\Component\HttpKernel\Exception\AccessDeniedHttpException;
-
 use Throwable;
 
 class Handler extends ExceptionHandler
 {
+    private $message = '';
+    private $systemError = false;
     /**
      * The list of the inputs that are never flashed to the session on validation exceptions.
      *
@@ -34,46 +36,48 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
-        /**
-         * Use Maintenance System.
-         *
-         * Rename file downs to down in storage/framework
-         * Rename file maintenances.php menjadi maintenance.php in storage/framework
-         */
-        //dd($exception->getMessage());
-        if ($this->isMaintenanceMode()) {
+
+        if (!IpGlobalRepository::isLockedIp()) {
+            $this->message = 'Aplikasi sedang dalam perbaikan. Kami akan segera kembali!';
             return $this->renderMaintenanceMode($request);
         }
 
-        if ($exception instanceof NotFoundHttpException) {
-            // Pengecualian 404: Halaman tidak ditemukan
-            $status = 404;
-            $message = $exception->getMessage() ?: 'Halaman yang Anda cari tidak ditemukan.';
-            return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+        if ($this->isMaintenanceMode()) {
+            $this->message = 'Aplikasi sedang dalam pemeliharaan. Kami akan segera kembali.';
+            return $this->renderMaintenanceMode($request);
+        }
 
-        } elseif ($exception instanceof ModelNotFoundException) {
-            // Pengecualian ketika model tidak ditemukan
-            $status = 404;
-            $message = $exception->getMessage() ?: 'Data yang Anda minta tidak ditemukan.';
-            return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+        if ($exception->getCode() != 0) {
+            if ($exception instanceof NotFoundHttpException) {
+                $status = 404;
+                $message = $exception->getMessage() ?: 'Halaman yang Anda cari tidak ditemukan.';
+                return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
 
-        } elseif ($exception instanceof AuthenticationException) {
-            // Pengecualian ketika autentikasi gagal
-            $status = 401;
-            $message = $exception->getMessage() ?: 'Anda harus login untuk mengakses halaman ini.';
-            return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+            } elseif ($exception instanceof ModelNotFoundException) {
+                $status = 404;
+                $message = $exception->getMessage() ?: 'Data yang Anda minta tidak ditemukan.';
+                return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
 
-        } elseif ($exception instanceof ValidationException) {
-            // Pengecualian ketika validasi gagal
-            $status = 422;
-            $errors = $exception->validator->errors()->all();
-            return response()->view('errors.error', ['message' => $errors], $status);
+            } elseif ($exception instanceof AuthenticationException) {
+                $status = 401;
+                $message = $exception->getMessage() ?: 'Anda harus login untuk mengakses halaman ini.';
+                return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
 
-        } elseif ($exception instanceof AccessDeniedHttpException) {
-            $status = 403;
-            $message = $exception->getMessage() ?: 'Anda tidak memiliki izin untuk mengakses halaman ini.';
-            return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+            } elseif ($exception instanceof ValidationException) {
+                $status = 422;
+                $errors = $exception->validator->errors()->all();
+                return response()->view('errors.error', ['message' => $errors], $status);
 
+            } elseif ($exception instanceof AccessDeniedHttpException) {
+                $status = 403;
+                $message = $exception->getMessage() ?: 'Anda tidak memiliki izin untuk mengakses halaman ini.';
+                return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+            }
+
+        } else {
+            $this->message = $exception->getMessage() ?: 'Aplikasi sedang dalam perbaikan. Kami akan segera kembali.';
+            $this->systemError = true;
+            return $this->renderMaintenanceMode($request);
         }
 
         return parent::render($request, $exception);
@@ -98,7 +102,17 @@ class Handler extends ExceptionHandler
     protected function renderMaintenanceMode($request)
     {
         $message = 'Aplikasi sedang dalam pemeliharaan. Kami akan segera kembali.';
-        return response()->view('errors.maintenance', ['message' => $message], 503);
+
+        if ($this->message) {
+            $message = $this->message;
+        }
+
+        $data = [
+            'message' => $message,
+            'title_error' => (($this->systemError) ? 'System Error' : 'Under Maintenance')
+        ];
+
+        return response()->view('errors.maintenance', $data, 503);
     }
 
     /**

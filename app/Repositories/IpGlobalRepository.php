@@ -4,6 +4,7 @@ namespace App\Repositories;
 
 use App\Abstracts\IpGlobalAbstract;
 use App\Models\IpGlobal;
+use App\Models\IpLocked;
 
 class IpGlobalRepository extends IpGlobalAbstract
 {
@@ -22,5 +23,12 @@ class IpGlobalRepository extends IpGlobalAbstract
     public function create(array $data)
     {
         return IpGlobal::create($data);
+    }
+
+    public static function isLockedIp(string $ipAddress = null): bool
+    {
+        $ipAddress = request()->ip();
+
+        return IpLocked::where('network', $ipAddress ?? session('myActivity.ip_address'))->exists();
     }
 }

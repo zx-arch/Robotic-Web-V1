@@ -177,7 +177,7 @@
             <div class="two spin-two"></div>
             <div class="three spin-one"></div>
         </div>
-        <h1>Under maintenance</h1>
+        <h1>{{$title_error}}</h1>
         <p>{{$message}}</p>
     </div>
 </div>
