@@ -62,53 +62,54 @@
                             <canvas id="accessPercentageChart"></canvas>
                         </div>
                     </div>
+
                     <div class="row mt-4">
                         <div id="w0" class="gridview table-responsive" style="overflow-y: auto;max-height:525px;">
-                        <table class="table text-nowrap table-striped table-bordered mb-0">
-                            <thead>
-                                <tr>
-                                    <td></td>
-                                    <td style="max-width: 5%;">IP Address</td>
-                                    <td>District</td>
-                                    <td>Province</td>
-                                    <td>Country</td>
-                                    <td>Latitude</td>
-                                    <td>Longitude</td>
-                                    <td style="width: 45px;">Access Precentage</td>
-                                    <td style="width: 15px;">Total Activity</td>
-                                </tr>
-                                <form action="{{route('admin.dashboard.search')}}" id="searchForm" method="get">
-                                    @csrf
-                                    <tr id="w0-filters" class="filters">
-                                        <td></td>
-                                        <td><input type="text" class="form-control" name="search[ip_address]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['ip_address'])) ? $searchData['ip_address'] : ''}}"></td>
-                                        <td><input type="text" class="form-control" name="search[district]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['district'])) ? $searchData['district'] : ''}}"></td>
-                                        <td><input type="text" class="form-control" name="search[province]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['province'])) ? $searchData['province'] : ''}}"></td>
-                                        <td><input type="text" class="form-control" name="search[country]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['country'])) ? $searchData['country'] : ''}}"></td>
-                                        <td></td>
-                                        <td></td>
-                                    </tr>
-                                </form>
-                            </thead>
-                            <tbody>
-                                @forelse ($accessPercentageByIP as $access)
+                            <table class="table text-nowrap table-striped table-bordered mb-0">
+                                <thead>
                                     <tr>
-                                        <td>{{$loop->index += 1}}</td>
-                                        <td>{{$access['ip_address']}}</td>
-                                        <td>{{strpos($access['city'], ',') !== false ? explode(',', $access['city'])[0] : $access['city']}}</td>
-                                        <td>{{strpos($access['city'], ',') !== false ? explode(',', $access['city'])[1] : $access['city']}}</td>
-                                        <td>{{$access['country']}}</td>
-                                        <td>{{$access['latitude']}}</td>
-                                        <td>{{$access['longitude']}}</td>
-                                        <td>{{round($access['access_percentage'], 2) . ' %'}}</td>
-                                        <td>{{$access['total_access']}}</td>
+                                        <td></td>
+                                        <td style="max-width: 5%;">IP Address</td>
+                                        <td>District</td>
+                                        <td>Province</td>
+                                        <td>Country</td>
+                                        <td>Latitude</td>
+                                        <td>Longitude</td>
+                                        <td style="width: 45px;">Access Precentage</td>
+                                        <td style="width: 15px;">Total Activity</td>
                                     </tr>
-                                @empty
-                                    <p class="ml-2 mt-3 text-danger">Data access not found!</p>
-                                @endforelse
-                            </tbody>
-                        </table>
-                    </div>
+                                    <form action="{{route('admin.dashboard.search')}}" id="searchForm" method="get">
+                                        @csrf
+                                        <tr id="w0-filters" class="filters">
+                                            <td></td>
+                                            <td><input type="text" class="form-control" name="search[ip_address]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['ip_address'])) ? $searchData['ip_address'] : ''}}"></td>
+                                            <td><input type="text" class="form-control" name="search[district]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['district'])) ? $searchData['district'] : ''}}"></td>
+                                            <td><input type="text" class="form-control" name="search[province]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['province'])) ? $searchData['province'] : ''}}"></td>
+                                            <td><input type="text" class="form-control" name="search[country]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['country'])) ? $searchData['country'] : ''}}"></td>
+                                            <td></td>
+                                            <td></td>
+                                        </tr>
+                                    </form>
+                                </thead>
+                                <tbody>
+                                    @forelse ($accessPercentageByIP as $access)
+                                        <tr>
+                                            <td>{{$loop->index += 1}}</td>
+                                            <td>{{$access['ip_address']}}</td>
+                                            <td>{{strpos($access['city'], ',') !== false ? explode(',', $access['city'])[0] : $access['city']}}</td>
+                                            <td>{{strpos($access['city'], ',') !== false ? explode(',', $access['city'])[1] : $access['city']}}</td>
+                                            <td>{{$access['country']}}</td>
+                                            <td>{{$access['latitude']}}</td>
+                                            <td>{{$access['longitude']}}</td>
+                                            <td>{{round($access['access_percentage'], 2) . ' %'}}</td>
+                                            <td>{{$access['total_access']}}</td>
+                                        </tr>
+                                    @empty
+                                        <p class="ml-2 mt-3 text-danger">Data access not found!</p>
+                                    @endforelse
+                                </tbody>
+                            </table>
+                        </div>
                     </div>
                 </div>
                 
