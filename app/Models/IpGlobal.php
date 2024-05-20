@@ -45,7 +45,7 @@ class IpGlobal extends Model
         });
     }
 
-    public static function checkAndCreateTable()
+    private static function checkAndCreateTable()
     {
         if (!Schema::hasTable('ip_global')) {
             Schema::create('ip_global', function (Blueprint $table) {
