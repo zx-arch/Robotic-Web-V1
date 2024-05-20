@@ -207,9 +207,8 @@
                     </div>
                 </div>
 
-                                @for ($i = $users->currentPage() - 3; $i < $users->currentPage(); $i++)
                 @if (count($users) > 15)
-                
+
                     @if ($users->lastPage() > 1)
                         <nav aria-label="Page navigation example">
                             <ul class="pagination mt-2">
@@ -221,7 +220,8 @@
                                         </a>
                                     </li>
                                 @endif
-                                            {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
+                                
+                                {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
                                 @if ($users->currentPage() > 6)
                                     @for ($i = $users->currentPage() - 3; $i < $users->currentPage(); $i++)
                                         @if ($i == 1)
@@ -247,11 +247,13 @@
                                         @endif
                                     @endfor
                                 @endif
-                                            {{-- Halaman saat ini --}}
+                                
+                                {{-- Halaman saat ini --}}
                                 <li class="page-item active">
                                     <span class="page-link">{{ $users->currentPage() }}</span>
                                 </li>
-                                            {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
+                                
+                                {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
                                 @if ($users->currentPage() < $users->lastPage() - 5)
                                     @for ($i = $users->currentPage() + 1; $i <= $users->currentPage() + 3; $i++)
                                         @if ($i == 1)
@@ -277,7 +279,8 @@
                                         @endif
                                     @endfor
                                 @endif
-                                            {{-- Tombol Selanjutnya --}}
+                                
+                                {{-- Tombol Selanjutnya --}}
                                 @if ($users->hasMorePages())
                                     <li class="page-item">
                                         <a class="page-link" href="{{ $users->nextPageUrl() }}" aria-label="Next">
