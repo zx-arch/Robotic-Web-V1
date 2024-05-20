@@ -207,92 +207,101 @@
                     </div>
                 </div>
 
-                @if ($users->lastPage() > 1)
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination mt-2">
-                            {{-- Tombol Sebelumnya --}}
-                            @if ($users->currentPage() > 1)
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $users->previousPageUrl() }}" aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
-                                </li>
-                            @endif
-                                        {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
-                            @if ($users->currentPage() > 6)
                                 @for ($i = $users->currentPage() - 3; $i < $users->currentPage(); $i++)
-                                    @if ($i == 1)
-                                        <li class="page-item">
-                                            <a class="page-link" href="/admin/daftar_pengguna">{{ $i }}</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $users->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-                            @else
-                                @for ($i = 1; $i < $users->currentPage(); $i++)
-                                    @if ($i == 1)
-                                        <li class="page-item">
-                                            <a class="page-link" href="/admin/daftar_pengguna">{{ $i }}</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $users->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-                            @endif
-                                        {{-- Halaman saat ini --}}
-                            <li class="page-item active">
-                                <span class="page-link">{{ $users->currentPage() }}</span>
-                            </li>
-                                        {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
-                            @if ($users->currentPage() < $users->lastPage() - 5)
-                                @for ($i = $users->currentPage() + 1; $i <= $users->currentPage() + 3; $i++)
-                                    @if ($i == 1)
-                                        <li class="page-item">
-                                            <a class="page-link" href="/admin/daftar_pengguna">{{ $i }}</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $users->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-                            @else
-                                @for ($i = $users->currentPage() + 1; $i <= $users->lastPage(); $i++)
-                                    @if ($i == 1)
-                                        <li class="page-item">
-                                            <a class="page-link" href="/admin/daftar_pengguna">{{ $i }}</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $users->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-                            @endif
-                                        {{-- Tombol Selanjutnya --}}
-                            @if ($users->hasMorePages())
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $users->nextPageUrl() }}" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
+                @if (count($users) > 15)
+                
+                    @if ($users->lastPage() > 1)
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination mt-2">
+                                {{-- Tombol Sebelumnya --}}
+                                @if ($users->currentPage() > 1)
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $users->previousPageUrl() }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                @endif
+                                            {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
+                                @if ($users->currentPage() > 6)
+                                    @for ($i = $users->currentPage() - 3; $i < $users->currentPage(); $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/daftar_pengguna">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $users->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @else
+                                    @for ($i = 1; $i < $users->currentPage(); $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/daftar_pengguna">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $users->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @endif
+                                            {{-- Halaman saat ini --}}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ $users->currentPage() }}</span>
                                 </li>
-                            @endif
-                        </ul>
-                    </nav>
+                                            {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
+                                @if ($users->currentPage() < $users->lastPage() - 5)
+                                    @for ($i = $users->currentPage() + 1; $i <= $users->currentPage() + 3; $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/daftar_pengguna">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $users->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @else
+                                    @for ($i = $users->currentPage() + 1; $i <= $users->lastPage(); $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/daftar_pengguna">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $users->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @endif
+                                            {{-- Tombol Selanjutnya --}}
+                                @if ($users->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $users->nextPageUrl() }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    @endif
+
                 @endif
 
             </div>
             
-            @if (isset($users) && $users->count() > 0)
+            @if (isset($users) && $users->count() > 15)
                 <div>
                     Showing <b>{{ $users->firstItem() }}</b> 
                     to <b>{{ $users->lastItem() }}</b>
                     of <b>{{ $users->total() }}</b> items.
+                </div>
+            @else
+                <div>
+                    Showing of <b>{{ count($users) }}</b> items.
                 </div>
             @endif
         </div>

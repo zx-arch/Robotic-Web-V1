@@ -27,8 +27,19 @@ class DaftarPengguna extends Controller
 
     public function index()
     {
-        $users = Users::withTrashed()->latest();
-        session(['data_users' => $users->get()]);
+        //dd(Users::active()->get());
+        session()->forget('data_users');
+
+        if (session()->has('data_users_serch')) {
+            session()->forget('data_users_serch');
+        }
+
+        $users = session('data_users');
+
+        if (!$users) {
+            $users = Users::withTrashed()->latest(); // Ambil data dan konversi ke array
+            session(['data_users' => $users->get()]); // Simpan array dalam sesi
+        }
 
         if (session()->has('sorting')) {
             session()->forget('sorting');
@@ -38,11 +49,12 @@ class DaftarPengguna extends Controller
         $itemsPerPage = 15;
         //print_r();
         // Menentukan jumlah halaman maksimum untuk semua data
-        $users = $users->paginate($itemsPerPage);
 
         if ($itemsPerPage >= 15) {
             $totalPages = 15;
         }
+
+        $users = session('data_users');
 
         $fullUri = route('daftar_pengguna.index', request()->query() + ['sort' => 'id']);
         //dd($fullUri);
@@ -53,11 +65,21 @@ class DaftarPengguna extends Controller
                 return redirect($users->url($users->lastPage()));
             }
         }
+        $userss = session('data_users')->toArray(); // Mengonversi hasil menjadi array
 
-        $allUser = Users::count();
-        $userActive = Users::where('status', 'active')->count();
-        $userInActive = Users::where('status', 'inactive')->count();
-        $userDeleted = Users::where('status', 'deleted')->count();
+        $allUser = session('data_users')->count();
+
+        $userActive = count(array_filter($userss, function ($user) {
+            return $user['status'] === 'active';
+        }));
+
+        $userInActive = count(array_filter($userss, function ($user) {
+            return $user['status'] === 'inactive';
+        }));
+
+        $userDeleted = count(array_filter($userss, function ($user) {
+            return $user['status'] === 'deleted';
+        }));
 
         return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted', 'itemsPerPage', 'fullUri'));
     }
@@ -80,84 +102,70 @@ class DaftarPengguna extends Controller
             $users = Users::query()->withTrashed()->orderBy($sort)->latest();
         }
 
-        if ($status !== null || $last_login !== null && ($username !== null || $email !== null || $created_at !== null)) {
-            // Menggunakan where untuk menambahkan kondisi pencarian tambahan
+        if ($status != '') {
             $users->where('status', $status);
-
-            if ($username !== null) {
-                $users->where('username', 'like', "$username%");
-            }
-
-            if ($email !== null) {
-                $users->where('email', 'like', "$email%");
-            }
-
-            if ($created_at !== null) {
-                $users->where('created_at', 'like', "$created_at%");
-            }
-
-            if ($last_login !== null) {
-                $users->where('last_login', 'like', "$last_login%");
-            }
-
-        } elseif ($username !== null || $status !== null || $email !== null || $created_at !== null || $last_login !== null) {
-            $users->where(function ($query) use ($username, $status, $email, $created_at, $last_login) {
-                if ($username !== null) {
-                    $query->where('username', 'like', "$username%");
-                }
-
-                if ($status !== null) {
-                    $query->orWhere('status', $status);
-                }
-
-                if ($email !== null) {
-                    $query->orWhere('email', 'like', "$email%");
-                }
-
-                if ($created_at !== null) {
-                    $query->orWhere('created_at', 'like', "$created_at%");
-                }
-
-                if ($last_login !== null) {
-                    $query->orWhere('last_login', 'like', "$last_login%");
-                }
-            });
         }
 
-        session(['data_users' => $users->get()]);
-        session(['request_query' => $request->query()]);
+        if ($username !== null) {
+            $users->where('username', 'like', "$username%");
+        }
 
-        $totalUsers = $users->count();
+        if ($email !== null) {
+            $users->where('email', 'like', "$email%");
+        }
+
+        if ($created_at !== null) {
+            $users->where('created_at', 'like', "$created_at%");
+        }
+
+        if ($last_login !== null) {
+            $users->where('last_login', 'like', "$last_login%");
+        }
+
+        session(['data_users_serch' => $users->get()]);
 
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
-
+        //print_r();
         // Menentukan jumlah halaman maksimum untuk semua data
-        $totalPagesAll = ceil($totalUsers / $itemsPerPage);
-        $users = $users->paginate($itemsPerPage);
 
-        // Mendapatkan URI lengkap dari request
-        $fullUri = route('daftar_pengguna.index', request()->query());
-        //dd($fullUri);
-
-        if ($totalPagesAll >= 15) {
+        if ($itemsPerPage >= 15) {
             $totalPages = 15;
         }
 
-        $users->setPath($fullUri);
+        $users = session('data_users_serch');
+
+        $fullUri = route('daftar_pengguna.index', request()->query() + ['sort' => 'id']);
 
         if ($users->count() > 15) {
+
             $users = $users->paginate($itemsPerPage);
+
+            $fullUri = route('daftar_pengguna.index', request()->query() + ['sort' => 'id']);
+
+            $users->setPath($fullUri);
+
             //dd($users);
             if ($users->currentPage() > $users->lastPage()) {
                 return redirect($users->url($users->lastPage()));
             }
         }
 
-        $allUser = Users::count();
-        $userActive = Users::where('status', 'active')->count();
-        $userInActive = Users::where('status', 'inactive')->count();
-        $userDeleted = Users::where('status', 'deleted')->count();
+        $userss = session('data_users')->toArray(); // Mengonversi hasil menjadi array
+
+        $allUser = session('data_users')->count();
+
+        $userActive = count(array_filter($userss, function ($user) {
+            return $user['status'] === 'active';
+        }));
+
+        $userInActive = count(array_filter($userss, function ($user) {
+            return $user['status'] === 'inactive';
+        }));
+
+        $userDeleted = count(array_filter($userss, function ($user) {
+            return $user['status'] === 'deleted';
+        }));
 
         return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted', 'searchData', 'itemsPerPage', 'fullUri'));
 
