@@ -22,6 +22,8 @@ class DashboardController extends Controller
 
     public function index(Request $request)
     {
+        ActivityRepository::getActivityInfo();
+
         $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
 
         return view('dashboard', $this->data, compact('tutorials'));

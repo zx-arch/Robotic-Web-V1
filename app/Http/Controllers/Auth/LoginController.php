@@ -46,6 +46,10 @@ class LoginController extends Controller
 
     public function index(Request $request)
     {
+        if (!session()->has('myActivity')) {
+            ActivityRepository::getActivityInfo();
+        }
+
         if (session()->has('failed_login')) {
             // Ambil waktu sekarang
             $dateTime1 = Carbon::now();
@@ -85,6 +89,7 @@ class LoginController extends Controller
             }
 
         } else {
+
             $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
             //dd($tutorials);
             return view('login', $this->data, compact('tutorials'));

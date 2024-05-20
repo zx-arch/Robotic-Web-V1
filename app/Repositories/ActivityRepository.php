@@ -15,10 +15,10 @@ class ActivityRepository extends ActivityAbstract
     protected static $query;
     public function __construct()
     {
-        $this->setActivityInfo();
+        self::setActivityInfo();
     }
 
-    protected function setActivityInfo()
+    public static function setActivityInfo()
     {
         $ipAddress = request()->ip();
         $userAgent = request()->header('User-Agent');
@@ -50,6 +50,19 @@ class ActivityRepository extends ActivityAbstract
 
         session(['myActivity' => $activityInfo]);
     }
+
+    public static function getActivityInfo($session = null)
+    {
+        $session = session('myActivity');
+
+        if ($session === null) {
+            self::setActivityInfo();
+            $session = session('myActivity');
+        }
+
+        return $session;
+    }
+
 
     public static function create(array $data)
     {
