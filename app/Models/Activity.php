@@ -87,18 +87,12 @@ class Activity extends Model
     // Method untuk menghitung seberapa sering tingkat akses aktivitas user berdasarkan alamat IP
     public static function accessPercentageByIP()
     {
-        $accessCounts = session('accessCounts');
-
-        if (!$accessCounts) {
-            // Query untuk menghitung frekuensi akses berdasarkan alamat IP
-            $accessCounts = self::select('ip_address', 'country', 'city', 'latitude', 'longitude')
-                ->selectRaw('count(*) as access_count')
-                ->groupBy('ip_address', 'country', 'city', 'latitude', 'longitude')
-                ->orderBy('access_count', 'desc')
-                ->get();
-
-            session(['accessCounts' => $accessCounts]);
-        }
+        // Query untuk menghitung frekuensi akses berdasarkan alamat IP
+        $accessCounts = self::select('ip_address', 'country', 'city', 'latitude', 'longitude')
+            ->selectRaw('count(*) as access_count')
+            ->groupBy('ip_address', 'country', 'city', 'latitude', 'longitude')
+            ->orderBy('access_count', 'desc')
+            ->get();
 
         // Hitung total akses
         $totalAccess = $accessCounts->sum('access_count');

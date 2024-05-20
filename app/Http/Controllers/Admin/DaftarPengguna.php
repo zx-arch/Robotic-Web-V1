@@ -34,12 +34,8 @@ class DaftarPengguna extends Controller
             session()->forget('data_users_serch');
         }
 
-        $users = session('data_users');
-
-        if (!$users) {
-            $users = Users::withTrashed()->latest(); // Ambil data dan konversi ke array
-            session(['data_users' => $users->get()]); // Simpan array dalam sesi
-        }
+        $users = Users::withTrashed()->latest(); // Ambil data dan konversi ke array
+        session(['data_users' => $users->get()]); // Simpan array dalam sesi
 
         if (session()->has('sorting')) {
             session()->forget('sorting');
