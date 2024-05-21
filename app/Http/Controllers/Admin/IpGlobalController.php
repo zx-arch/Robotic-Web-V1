@@ -25,24 +25,36 @@ class IpGlobalController extends Controller
             ->select('ip_global.*')
             ->selectRaw('IF(ip_locked.network IS NULL, false, true) as is_locked')
             ->latest();
+
+        session(['publicIp' => $publicIp->get()]); // Simpan array dalam sesi
+
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
         // Menentukan jumlah halaman maksimum untuk semua data
-        $publicIp = $publicIp->paginate($itemsPerPage);
 
         if ($itemsPerPage >= 15) {
             $totalPages = 15;
         }
+        $publicIp = $publicIp->paginate($itemsPerPage);
 
         if ($publicIp->count() > 15) {
+            $publicIp = $publicIp->paginate($itemsPerPage);
+
             if ($publicIp->currentPage() > $publicIp->lastPage()) {
                 return redirect($publicIp->url($publicIp->lastPage()));
             }
         }
 
-        $ipBlocked = IpGlobal::where('is_blocked', 1)->get()->count();
-        $ipUnblocked = IpGlobal::where('is_blocked', 0)->get()->count();
+        $ips = session('publicIp')->toArray();
+
+        $ipBlocked = count(array_filter($ips, function ($ip) {
+            return $ip['is_blocked'] === '1';
+        }));
+
+        $ipUnblocked = count(array_filter($ips, function ($ip) {
+            return $ip['is_blocked'] === '0';
+        }));
 
         return view('admin.IpGlobal.index', $this->data, compact('publicIp', 'ipBlocked', 'ipUnblocked'));
     }

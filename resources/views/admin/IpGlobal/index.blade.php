@@ -189,8 +189,8 @@
                         </table>
                     </div>
                 </div>
-
-                @if ($publicIp->lastPage() > 1)
+                @if (count($publicIp) > 15)
+                                    @if ($publicIp->lastPage() > 1)
                     <nav aria-label="Page navigation example">
                         <ul class="pagination mt-2">
 
@@ -274,13 +274,19 @@
                     </nav>
                 @endif
 
+                @endif
+
             </div>
 
-            @if (isset($publicIp) && $publicIp->count() > 0)
+            @if (isset($publicIp) && $publicIp->count() > 15)
                 <div>
                     Showing <b>{{ $publicIp->firstItem() }}</b> 
                     to <b>{{ $publicIp->lastItem() }}</b>
                     of <b>{{ $publicIp->total() }}</b> items.
+                </div><br>
+            @else
+                <div>
+                    Showing to <b>{{ count($publicIp) }}</b> items.
                 </div><br>
             @endif
         </div>

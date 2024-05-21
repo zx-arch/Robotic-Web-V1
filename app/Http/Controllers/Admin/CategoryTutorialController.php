@@ -27,18 +27,11 @@ class CategoryTutorialController extends Controller
             ->leftJoin('master_status', 'master_status.id', '=', 'category_tutorial.status_id')
             ->with('masterStatus')->latest();
 
-        $totalCatTutorials = $categoryTutorial->count();
-
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
         //print_r();
         // Menentukan jumlah halaman maksimum untuk semua data
-        $totalPagesAll = ceil($totalCatTutorials / $itemsPerPage);
         $categoryTutorial = $categoryTutorial->paginate($itemsPerPage);
-
-        if ($totalPagesAll >= 15) {
-            $totalPages = 15;
-        }
 
         $getCategory = $categoryTutorial->all();
 
@@ -47,6 +40,10 @@ class CategoryTutorialController extends Controller
             //dd($categoryTutorial);
             if ($categoryTutorial->currentPage() > $categoryTutorial->lastPage()) {
                 return redirect($categoryTutorial->url($categoryTutorial->lastPage()));
+            }
+        } else {
+            if ($categoryTutorial->count() == 0) {
+                $this->generateData();
             }
         }
 
@@ -242,5 +239,25 @@ class CategoryTutorialController extends Controller
         } else {
             return redirect()->route('category_tutorial.index')->with('error_find_cat', 'Category not found.');
         }
+    }
+
+    private function generateData()
+    {
+        $data = [
+            ['name' => 'Enable Materi', 'description' => 'Status publikasi materi'],
+            ['name' => 'Disable Materi', 'description' => 'Menonaktifkan materi yang ditampilkan untuk user'],
+            ['name' => 'Draft', 'description' => 'Menyimpan sementara materi yang diupload'],
+            ['name' => 'Active Tutorial', 'description' => 'Enable publikasi video tutorial'],
+            ['name' => 'Disable Tutorial', 'description' => 'Disabled tutorial'],
+            ['name' => 'Draft', 'description' => 'Draft'],
+            ['name' => 'Enable Static Pages', 'description' => 'Khusus memperbarui komponen web'],
+        ];
+
+        DB::table('master_status')->insert($data);
+
+        DB::table('master_status')->update([
+            'created_at' => now(),
+            'updated_at' => now(),
+        ]);
     }
 }

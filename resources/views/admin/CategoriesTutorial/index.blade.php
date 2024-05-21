@@ -177,7 +177,7 @@
 
                     @if ($categoryTutorial->lastPage() > 1)
                         <nav aria-label="Page navigation example">
-                            <ul class="pagination mt-2">
+                            <ul class="pagination mt-2 p-2">
                                 {{-- Tombol Sebelumnya --}}
                                 @if ($categoryTutorial->currentPage() > 1)
                                     <li class="page-item">

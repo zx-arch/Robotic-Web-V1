@@ -52,23 +52,6 @@ class MasterStatus extends Model
                 'updated_at' => now(),
             ]);
 
-        } elseif (MasterStatus::count() == 0) {
-            $data = [
-                ['name' => 'Enable Materi', 'description' => 'Status publikasi materi'],
-                ['name' => 'Disable Materi', 'description' => 'Menonaktifkan materi yang ditampilkan untuk user'],
-                ['name' => 'Draft', 'description' => 'Menyimpan sementara materi yang diupload'],
-                ['name' => 'Active Tutorial', 'description' => 'Enable publikasi video tutorial'],
-                ['name' => 'Disable Tutorial', 'description' => 'Disabled tutorial'],
-                ['name' => 'Draft', 'description' => 'Draft'],
-                ['name' => 'Enable Static Pages', 'description' => 'Khusus memperbarui komponen web'],
-            ];
-
-            DB::table('master_status')->insert($data);
-
-            DB::table('master_status')->update([
-                'created_at' => now(),
-                'updated_at' => now(),
-            ]);
         }
     }
 }
