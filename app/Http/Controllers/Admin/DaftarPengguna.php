@@ -147,9 +147,9 @@ class DaftarPengguna extends Controller
             }
         }
 
-        $userss = session('data_users')->toArray(); // Mengonversi hasil menjadi array
+        $userss = session('data_users_serch')->toArray(); // Mengonversi hasil menjadi array
 
-        $allUser = session('data_users')->count();
+        $allUser = session('data_users_serch')->count();
 
         $userActive = count(array_filter($userss, function ($user) {
             return $user['status'] === 'active';
@@ -195,10 +195,21 @@ class DaftarPengguna extends Controller
             ['path' => $request->url(), 'query' => $request->query()]
         );
 
-        $allUser = Users::count();
-        $userActive = Users::where('status', 'active')->count();
-        $userInActive = Users::where('status', 'inactive')->count();
-        $userDeleted = Users::where('status', 'deleted')->count();
+        $userss = session('data_users')->toArray(); // Mengonversi hasil menjadi array
+
+        $allUser = session('data_users')->count();
+
+        $userActive = count(array_filter($userss, function ($user) {
+            return $user['status'] === 'active';
+        }));
+
+        $userInActive = count(array_filter($userss, function ($user) {
+            return $user['status'] === 'inactive';
+        }));
+
+        $userDeleted = count(array_filter($userss, function ($user) {
+            return $user['status'] === 'deleted';
+        }));
 
         return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted'));
     }
