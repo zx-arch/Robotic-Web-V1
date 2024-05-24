@@ -111,6 +111,11 @@
                         <i class="nav-icon fas fa-history {{isset($currentAdminMenu) && $currentAdminMenu == 'aktivitas_pengguna' ? 'text-white' : ''}}"></i>&nbsp;<p>Aktivitas Pengguna</p>
                     </a>
                 </li>
+                <li class="nav-item">
+                    <a href="{{route('admin.events.index')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'events' ? 'active' : ''}}">
+                        <i class="nav-icon bx bxs-calendar-event {{isset($currentAdminMenu) && $currentAdminMenu == 'events' ? 'text-white' : ''}}"></i>&nbsp;<p>Events</p>
+                    </a>
+                </li>
                 <li class="nav-item mt-4">
                     <a href="{{route('admin.settings.index')}}" class="nav-link {{isset($currentAdminMenu) && $currentAdminMenu == 'settings' ? 'active' : ''}}">
                         <i class="nav-icon fa fa-cog {{isset($currentAdminMenu) && $currentAdminMenu == 'settings' ? 'text-white' : ''}}"></i>&nbsp;<p>Settings</p>

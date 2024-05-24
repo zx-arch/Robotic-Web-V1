@@ -19,6 +19,7 @@ use App\Http\Controllers\Admin\ChatDashboardController;
 use App\Http\Controllers\Admin\IpGlobalController;
 use App\Http\Controllers\Admin\IpLockedController;
 use App\Http\Controllers\Admin\AdminSettingsController;
+use App\Http\Controllers\Admin\EventsAdminController;
 
 /*
 |--------------------------------------------------------------------------
@@ -124,6 +125,14 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
     });
 
     Route::get('/admin/aktivitas_pengguna', [AktivitasPenggunaController::class, 'index'])->name('aktivitas_pengguna.index');
+
+    Route::get('/admin/events', [EventsAdminController::class, 'index'])->name('admin.events.index');
+
+    Route::prefix('/admin/events')->group(function () {
+        Route::get('/add', [EventsAdminController::class, 'add'])->name('admin.events.add');
+        Route::post('/save-add', [EventsAdminController::class, 'saveAdd'])->name('admin.events.saveAdd');
+        Route::get('/update/{code}', [EventsAdminController::class, 'update'])->name('admin.events.update');
+    });
 
     Route::get('/admin/ip_global', [IpGlobalController::class, 'index'])->name('ip_global.index');
 
