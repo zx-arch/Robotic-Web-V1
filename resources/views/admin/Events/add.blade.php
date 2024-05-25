@@ -164,7 +164,7 @@
                                                 <div class="form-group highlight-addon has-success">
                                                     <label for="poster">Upload Poster Event</label>
                                                     <div class="custom-file">
-                                                        <input type="file" name="poster_event" id="url_link" class="custom-file-input" accept=".pdf" maxlength="52428800">
+                                                        <input type="file" name="poster_event" id="url_link" class="custom-file-input" accept=".png, .jpg, .jpeg" maxlength="52428800">
                                                         <label class="custom-file-label" for="url_link">Pilih Poster</label>
                                                     </div>
                                                     <div class="invalid-feedback"></div>

@@ -131,7 +131,12 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
     Route::prefix('/admin/events')->group(function () {
         Route::get('/add', [EventsAdminController::class, 'add'])->name('admin.events.add');
         Route::post('/save-add', [EventsAdminController::class, 'saveAdd'])->name('admin.events.saveAdd');
-        Route::get('/update/{code}', [EventsAdminController::class, 'update'])->name('admin.events.update');
+        Route::get('/{code}', [EventsAdminController::class, 'update'])->name('admin.events.update');
+        Route::get('/delete/{code}', [EventsAdminController::class, 'delete'])->name('admin.events.delete');
+        Route::post('/submit-pengurus/{code}', [EventsAdminController::class, 'submitPengurus'])->name('admin.events.submitPengurus');
+        Route::post('/submit-peserta/{code}', [EventsAdminController::class, 'submitPeserta'])->name('admin.events.submitPeserta');
+        Route::get('/delete-manager/{id}', [EventsAdminController::class, 'deleteManager'])->name('admin.events.deleteManager');
+        Route::get('/delete-participant/{id}', [EventsAdminController::class, 'deleteParticipant'])->name('admin.events.deleteParticipant');
     });
 
     Route::get('/admin/ip_global', [IpGlobalController::class, 'index'])->name('ip_global.index');

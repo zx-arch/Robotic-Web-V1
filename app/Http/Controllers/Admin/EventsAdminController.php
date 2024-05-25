@@ -60,22 +60,46 @@ class EventsAdminController extends Controller
     public function saveAdd(Request $request)
     {
         try {
-            //dd($request->all());
-
             // Konversi tanggal dan waktu menjadi timestamp
             $event_date_datetime = Carbon::parse($request->event_date)->format('Y-m-d H:i:s');
 
-            // Simpan data ke dalam database
-            $new = Events::create([
-                'nama_event' => $request->event_name,
-                'location' => $request->location,
-                'organizer_name' => $request->organizer_name,
-                'event_section' => $request->event_section,
-                'event_date' => $event_date_datetime,
-            ]);
-
             if ($request->has('poster_event')) {
+                $file = $request->file('poster_event');
 
+                // Dapatkan ekstensi file
+                $imageExtension = $file->getClientOriginalExtension();
+                // Buat nama unik untuk file gambar
+                $uniqueImageName = $file->getClientOriginalName() . '_' . time() . '.' . $imageExtension;
+
+                $directory = public_path('events');
+
+                // Membuat direktori jika tidak ada
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0777, true);
+                }
+
+                // Simpan data image ke dalam file di direktori yang diinginkan
+                $request->file('poster_event')->move(public_path('events'), $uniqueImageName);
+
+                // Simpan data ke dalam database
+                $new = Events::create([
+                    'nama_event' => $request->event_name,
+                    'location' => $request->location,
+                    'organizer_name' => $request->organizer_name,
+                    'event_section' => $request->event_section,
+                    'event_date' => $event_date_datetime,
+                    'poster' => url('events/' . $uniqueImageName)
+                ]);
+
+            } else {
+                // Simpan data ke dalam database
+                $new = Events::create([
+                    'nama_event' => $request->event_name,
+                    'location' => $request->location,
+                    'organizer_name' => $request->organizer_name,
+                    'event_section' => $request->event_section,
+                    'event_date' => $event_date_datetime,
+                ]);
             }
 
             if ($request->has('organizer')) {
@@ -92,12 +116,11 @@ class EventsAdminController extends Controller
 
             if ($request->has('participant')) {
                 foreach ($request->participant as $participant) {
-                    EventManager::create([
+                    EventParticipant::create([
                         'event_code' => $new->code,
                         'name' => $participant['nama'],
                         'email' => $participant['email'],
                         'phone_number' => $participant['phone_number'],
-                        'section' => $participant['section'],
                     ]);
                 }
             }
@@ -112,10 +135,83 @@ class EventsAdminController extends Controller
 
     public function update($code)
     {
-        $events = Events::where('code', $code)->first();
+        $event = Events::where('code', $code)->first();
         $eventManager = EventManager::where('event_code', $code)->get();
         $eventParticipant = EventParticipant::where('event_code', $code)->get();
+        $eventCode = $code;
 
-        return view('admin.Events.update', $this->data, compact('events', 'eventManager', 'eventParticipant'));
+        return view('admin.Events.update', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode'));
+    }
+
+    public function delete($code)
+    {
+        try {
+            Events::where('code', $code)->delete();
+            EventManager::where('event_code', $code)->delete();
+            EventParticipant::where('event_code', $code)->delete();
+
+            return redirect()->intended('/admin/events')->with('delete_successfull', 'Data event berhasil dihapus!');
+
+        } catch (\Throwable $e) {
+            return redirect()->intended('/admin/events')->with('delete_successfull', 'Data event gagal dihapus: ' . $e->getMessage());
+        }
+    }
+
+    public function submitPengurus(Request $request, $code)
+    {
+        try {
+            EventManager::create([
+                'event_code' => $code,
+                'name' => $request->nama,
+                'email' => $request->email,
+                'section' => $request->section,
+                'phone_number' => $request->phone_number,
+            ]);
+
+            return redirect()->back()->with('success_saved', 'Data berhasil ditambah!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_saved', 'Data gagal ditambah: ' . $e->getMessage());
+        }
+    }
+
+    public function submitPeserta(Request $request, $code)
+    {
+        try {
+            EventParticipant::create([
+                'event_code' => $code,
+                'name' => $request->nama,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+            ]);
+
+            return redirect()->back()->with('success_saved', 'Data berhasil ditambah!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_saved', 'Data gagal ditambah: ' . $e->getMessage());
+        }
+    }
+    public function deleteManager($id)
+    {
+        try {
+            EventManager::where('id', decrypt($id))->forceDelete();
+
+            return redirect()->back()->with('delete_successfull_manager', 'Data manager berhasil dihapus!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_delete_manager', 'Data manager gagal dihapus: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteParticipant($id)
+    {
+        try {
+            EventParticipant::where('id', decrypt($id))->forceDelete();
+
+            return redirect()->back()->with('delete_successfull_participant', 'Data participant berhasil dihapus!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_delete_participant', 'Data participant gagal dihapus: ' . $e->getMessage());
+        }
     }
 }
