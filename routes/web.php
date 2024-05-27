@@ -132,6 +132,10 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
         Route::get('/add', [EventsAdminController::class, 'add'])->name('admin.events.add');
         Route::post('/save-add', [EventsAdminController::class, 'saveAdd'])->name('admin.events.saveAdd');
         Route::get('/{code}', [EventsAdminController::class, 'update'])->name('admin.events.update');
+        Route::get('/{code}/update-manager/{id}', [EventsAdminController::class, 'updateManager'])->name('admin.events.updateManager');
+        Route::post('/{code}/save-manager/{id}', [EventsAdminController::class, 'saveManager'])->name('admin.events.saveManager');
+        Route::get('/{code}/update-participant/{id}', [EventsAdminController::class, 'updateParticipant'])->name('admin.events.updateParticipant');
+        Route::post('/{code}/save-participant/{id}', [EventsAdminController::class, 'saveParticipant'])->name('admin.events.saveParticipant');
         Route::get('/delete/{code}', [EventsAdminController::class, 'delete'])->name('admin.events.delete');
         Route::post('/submit-pengurus/{code}', [EventsAdminController::class, 'submitPengurus'])->name('admin.events.submitPengurus');
         Route::post('/submit-peserta/{code}', [EventsAdminController::class, 'submitPeserta'])->name('admin.events.submitPeserta');

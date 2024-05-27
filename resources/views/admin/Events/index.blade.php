@@ -245,7 +245,7 @@
                                     <thead>
                                         <tr>
                                             <td>#</td>
-                                            <td>Code event_date</td>
+                                            <td>Code Event</td>
                                             <td>Nama Event</td>
                                             <td>Tanggal Event</td>
                                             <td>Location</td>

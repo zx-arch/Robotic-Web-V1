@@ -143,6 +143,60 @@ class EventsAdminController extends Controller
         return view('admin.Events.update', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode'));
     }
 
+    public function updateParticipant($code, $id)
+    {
+        $event = Events::where('code', $code)->first();
+        $eventManager = EventManager::where('event_code', $code)->get();
+        $eventParticipant = EventParticipant::where('event_code', $code)->get();
+        $eventCode = $code;
+        $myEventParticipant = EventParticipant::where('event_code', $code)->where('id', decrypt($id))->first();
+
+        return view('admin.Events.updateParticipant', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'myEventParticipant'));
+    }
+
+    public function saveParticipant(Request $request, $code, $id)
+    {
+        try {
+
+            EventParticipant::where('event_code', $code)->where('id', decrypt($id))->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+            ]);
+
+            return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_saved', 'Data gagal disimpan: ' . $e->getMessage());
+        }
+    }
+    public function updateManager($code, $id)
+    {
+        $event = Events::where('code', $code)->first();
+        $eventManager = EventManager::where('event_code', $code)->get();
+        $eventParticipant = EventParticipant::where('event_code', $code)->get();
+        $eventCode = $code;
+        $myEventManager = EventManager::where('event_code', $code)->where('id', decrypt($id))->first();
+
+        return view('admin.Events.updateManager', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'myEventManager'));
+    }
+
+    public function saveManager(Request $request, $code, $id)
+    {
+        try {
+
+            EventManager::where('event_code', $code)->where('id', decrypt($id))->update([
+                'name' => $request->name,
+                'email' => $request->email,
+                'phone_number' => $request->phone_number,
+            ]);
+
+            return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_saved', 'Data gagal disimpan: ' . $e->getMessage());
+        }
+    }
     public function delete($code)
     {
         try {
