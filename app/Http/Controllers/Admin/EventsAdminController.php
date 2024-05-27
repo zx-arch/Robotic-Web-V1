@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers\Admin;
 
+use App\Repositories\ActivityRepository;
+use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
@@ -82,7 +84,7 @@ class EventsAdminController extends Controller
                 $request->file('poster_event')->move(public_path('events'), $uniqueImageName);
 
                 // Simpan data ke dalam database
-                $new = Events::create([
+                $newEvent = Events::create([
                     'nama_event' => $request->event_name,
                     'location' => $request->location,
                     'organizer_name' => $request->organizer_name,
@@ -93,7 +95,7 @@ class EventsAdminController extends Controller
 
             } else {
                 // Simpan data ke dalam database
-                $new = Events::create([
+                $newEvent = Events::create([
                     'nama_event' => $request->event_name,
                     'location' => $request->location,
                     'organizer_name' => $request->organizer_name,
@@ -105,7 +107,7 @@ class EventsAdminController extends Controller
             if ($request->has('organizer')) {
                 foreach ($request->organizer as $organizer) {
                     EventManager::create([
-                        'event_code' => $new->code,
+                        'event_code' => $newEvent->code,
                         'name' => $organizer['nama'],
                         'email' => $organizer['email'],
                         'phone_number' => $organizer['phone_number'],
@@ -117,13 +119,18 @@ class EventsAdminController extends Controller
             if ($request->has('participant')) {
                 foreach ($request->participant as $participant) {
                     EventParticipant::create([
-                        'event_code' => $new->code,
+                        'event_code' => $newEvent->code,
                         'name' => $participant['nama'],
                         'email' => $participant['email'],
                         'phone_number' => $participant['phone_number'],
                     ]);
                 }
             }
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Create New Event ID ' . $newEvent->id,
+            ]);
 
             return redirect()->intended('/admin/events')->with('success_saved', 'Data event berhasil disimpan!');
 
@@ -140,6 +147,8 @@ class EventsAdminController extends Controller
         $eventParticipant = EventParticipant::where('event_code', $code)->get();
         $eventCode = $code;
 
+        session(['event_code' => $code]);
+
         return view('admin.Events.update', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode'));
     }
 
@@ -150,6 +159,8 @@ class EventsAdminController extends Controller
         $eventParticipant = EventParticipant::where('event_code', $code)->get();
         $eventCode = $code;
         $myEventParticipant = EventParticipant::where('event_code', $code)->where('id', decrypt($id))->first();
+
+        session(['event_code' => $code]);
 
         return view('admin.Events.updateParticipant', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'myEventParticipant'));
     }
@@ -164,12 +175,21 @@ class EventsAdminController extends Controller
                 'phone_number' => $request->phone_number,
             ]);
 
+            $requestData = $request->except('_token');
+            $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Update Participant ' . $dataString . 'ID Event: ' . decrypt($id),
+            ]);
+
             return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');
 
         } catch (\Throwable $e) {
             return redirect()->back()->with('error_saved', 'Data gagal disimpan: ' . $e->getMessage());
         }
     }
+
     public function updateManager($code, $id)
     {
         $event = Events::where('code', $code)->first();
@@ -177,6 +197,8 @@ class EventsAdminController extends Controller
         $eventParticipant = EventParticipant::where('event_code', $code)->get();
         $eventCode = $code;
         $myEventManager = EventManager::where('event_code', $code)->where('id', decrypt($id))->first();
+
+        session(['event_code' => $code]);
 
         return view('admin.Events.updateManager', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'myEventManager'));
     }
@@ -191,6 +213,14 @@ class EventsAdminController extends Controller
                 'phone_number' => $request->phone_number,
             ]);
 
+            $requestData = $request->except('_token');
+            $dataString = implode(', ', array_keys($requestData)) . ': ' . implode(', ', array_values($requestData));
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Update Pengurus ' . $dataString . 'ID Event: ' . decrypt($id),
+            ]);
+
             return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');
 
         } catch (\Throwable $e) {
@@ -203,6 +233,11 @@ class EventsAdminController extends Controller
             Events::where('code', $code)->delete();
             EventManager::where('event_code', $code)->delete();
             EventParticipant::where('event_code', $code)->delete();
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Delete Event Code ' . $code,
+            ]);
 
             return redirect()->intended('/admin/events')->with('delete_successfull', 'Data event berhasil dihapus!');
 
@@ -222,6 +257,11 @@ class EventsAdminController extends Controller
                 'phone_number' => $request->phone_number,
             ]);
 
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Create New Pengurus Event Code ' . $code,
+            ]);
+
             return redirect()->back()->with('success_saved', 'Data berhasil ditambah!');
 
         } catch (\Throwable $e) {
@@ -239,6 +279,11 @@ class EventsAdminController extends Controller
                 'phone_number' => $request->phone_number,
             ]);
 
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Create New Peserta Event Code ' . $code,
+            ]);
+
             return redirect()->back()->with('success_saved', 'Data berhasil ditambah!');
 
         } catch (\Throwable $e) {
@@ -248,6 +293,15 @@ class EventsAdminController extends Controller
     public function deleteManager($id)
     {
         try {
+            $data = EventManager::where('id', decrypt($id))->first();
+
+            $eventCode = session('eventCode');
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . 'Delete Pengurus ' . $data->name . "Event Code $eventCode",
+            ]);
+
             EventManager::where('id', decrypt($id))->forceDelete();
 
             return redirect()->back()->with('delete_successfull_manager', 'Data manager berhasil dihapus!');
@@ -260,6 +314,15 @@ class EventsAdminController extends Controller
     public function deleteParticipant($id)
     {
         try {
+            $data = EventParticipant::where('id', decrypt($id))->first();
+
+            $eventCode = session('eventCode');
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . 'Delete Peserta ' . $data->name . "Event Code $eventCode",
+            ]);
+
             EventParticipant::where('id', decrypt($id))->forceDelete();
 
             return redirect()->back()->with('delete_successfull_participant', 'Data participant berhasil dihapus!');
