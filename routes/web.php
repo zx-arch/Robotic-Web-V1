@@ -141,6 +141,7 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
         Route::post('/submit-peserta/{code}', [EventsAdminController::class, 'submitPeserta'])->name('admin.events.submitPeserta');
         Route::get('/delete-manager/{id}', [EventsAdminController::class, 'deleteManager'])->name('admin.events.deleteManager');
         Route::get('/delete-participant/{id}', [EventsAdminController::class, 'deleteParticipant'])->name('admin.events.deleteParticipant');
+        Route::post('/create-attendance', [EventsAdminController::class, 'createAttendance'])->name('admin.events.createAttendance');
     });
 
     Route::get('/admin/ip_global', [IpGlobalController::class, 'index'])->name('ip_global.index');

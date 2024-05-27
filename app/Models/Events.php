@@ -52,6 +52,7 @@ class Events extends Model
                 $table->softDeletes();
             });
         }
+
         if (!Schema::hasTable('event_manager')) {
             Schema::create('event_manager', function (Blueprint $table) {
                 $table->bigIncrements('id');
@@ -73,6 +74,7 @@ class Events extends Model
                     ->onDelete('cascade');
             });
         }
+
         if (!Schema::hasTable('event_participant')) {
             Schema::create('event_participant', function (Blueprint $table) {
                 $table->bigIncrements('id');
@@ -91,6 +93,20 @@ class Events extends Model
                     ->references('code')
                     ->on('events')
                     ->onDelete('cascade');
+            });
+        }
+
+        if (!Schema::hasTable('attendances')) {
+            Schema::create('attendances', function (Blueprint $table) {
+                $table->bigIncrements('id');
+                $table->uuid('event_code');
+                $table->string('event_name');
+                $table->enum('status', ['Enable', 'Disable'])->nullable();
+                $table->timestamp('opening_date')->nullable();
+                $table->timestamp('closing_date')->nullable();
+                $table->char('access_code', 15);
+                $table->timestamps();
+                $table->softDeletes();
             });
         }
     }

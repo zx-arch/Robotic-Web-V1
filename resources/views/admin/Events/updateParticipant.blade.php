@@ -42,6 +42,16 @@
                                         <div class="invalid-feedback"></div>
                                     </div>
 
+                                    <div class="form-group highlight-addon has-success">
+                                        <label for="status">Status Kehadiran <span class="text-danger">*</span></label>
+                                        <select name="status" id="status" class="form-control" style="width: 150px;">
+                                            <option value="" selected disabled></option>
+                                            <option value="hadir">Hadir</option>
+                                            <option value="tidak_hadir">Tidak Hadir</option>
+                                        </select>
+                                        <div class="invalid-feedback"></div>
+                                    </div>
+
                                     <div class="button">
                                         <button type="submit" class="btn btn-primary">Submit</button>
                                         <a href="/admin/events/{{$eventCode}}" class="btn btn-success">Kembali</a>
@@ -74,6 +84,7 @@
                                                     <td>Nama</td>
                                                     <td>No Handphone</td>
                                                     <td>Email</td>
+                                                    <td style="width: 10%"></td>
                                                     <td></td>
                                                 </tr>
                                             </thead>
@@ -84,6 +95,7 @@
                                                         <td>{{$participant->name}}</td>
                                                         <td>{{$participant->email}}</td>
                                                         <td>{{$participant->phone_number}}</td>
+                                                        <td><i class="fas fa-times-circle" style="color: green;"></i>&nbsp; Hadir</td>
                                                         <td>
                                                             <a class="btn btn-warning btn-sm" href="{{route('admin.events.updateParticipant', ['code' => $eventCode, 'role' => 'participant', 'id' => encrypt($participant->id)])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
                                                             <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.events.deleteParticipant', ['id' => encrypt($participant->id)])}}" title="Delete" aria-label="Delete" data-role="participant"><i class="fa-fw fas fa-trash" aria-hidden></i></a>

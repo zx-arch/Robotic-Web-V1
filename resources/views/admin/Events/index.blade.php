@@ -208,7 +208,61 @@
                     
                     <div class="card-header">
                         <a href="{{route('admin.events.add')}}" class="btn btn-success">Add Events</a>
-                        
+                        <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#createPresensiModal">Create Presensi</a>
+
+                        <!-- Modal Bootstrap -->
+                        <div class="modal fade" id="createPresensiModal" tabindex="-1" role="dialog" aria-labelledby="createPresensiModalLabel" aria-hidden="true">
+                            <div class="modal-dialog" role="document">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                        <h5 class="modal-title" id="createPresensiModalLabel">Create Presensi</h5>
+                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                    </div>
+
+                                    <div class="modal-body">
+
+                                        <form id="presensiForm" action="{{route('admin.events.createAttendance')}}" method="post">
+                                            @csrf
+                                            <div class="form-group">
+                                                <label for="event">Event <span class="text-danger fw-bold">*</span></label>
+                                                <select class="form-control" id="event" name="event_name" required>
+                                                    <option value="" disabled selected>Choose Event</option>
+                                                    @forelse ($events as $ev)
+                                                        <option value="{{$ev->nama_event}}" data-code="{{\Illuminate\Support\Str::random(15)}}" event-code="{{$ev->code_event}}">{{$ev->nama_event}}</option>
+                                                    @endforeach
+                                                    <!-- Tambahkan opsi event lain di sini -->
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="status">Status Presensi <span class="text-danger fw-bold">*</span></label>
+                                                <select class="form-control" id="status" name="status" required>
+                                                    <option value="" disabled selected>Choose Status</option>
+                                                    <option value="Enable">Enable</option>
+                                                    <option value="Disable">Disable</option>
+                                                </select>
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="opening_date">Tanggal Buka Presensi <span class="text-danger fw-bold">*</span></label>
+                                                <input type="datetime-local" id="opening_date" name="opening_date" required class="form-control w-50" min="{{ date('Y-m-d\TH:i') }}">
+                                            </div>
+                                            <div class="form-group">
+                                                <label for="closing_date">Tanggal Tutup Presensi</label>
+                                                <input type="datetime-local" id="closing_date" name="closing_date" class="form-control w-50" min="{{ date('Y-m-d\TH:i') }}"><br>
+                                            </div>
+                                            <!-- Tempat untuk menampilkan link yang dihasilkan -->
+                                            <div id="generatedLink" class="form-group"></div>
+                                            <p class="text-danger fw-bold"></p>
+
+                                            <button type="submit" class="btn btn-primary mt-3">Submit</button>
+                                        </form>
+                                    </div>
+
+                                </div>
+                            </div>
+                        </div>
+
                         @if (session()->has('success_saved'))
                             <div id="w6" class="alert-primary alert alert-dismissible mt-3 w-75" role="alert">
                                 {{session('success_saved')}}
@@ -350,6 +404,46 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        
+        // Event listener untuk select event
+        document.getElementById('event').addEventListener('change', function() {
+            // Ambil nilai dan data-code dari option yang dipilih
+            const selectedOption = this.options[this.selectedIndex];
+            const selectedEvent = this.value;
+            const eventCode = selectedOption.getAttribute('event-code');
+            const accessCode = selectedOption.getAttribute('data-code');
+
+            if (selectedEvent) {
+                const eventSlug = selectedEvent.toLowerCase().replace(/\s+/g, '-');
+                // Buat URL link
+                const generatedUrl = `{{ env('APP_URL') }}/event/${eventSlug}`;
+                // Tampilkan link yang dihasilkan dengan border dan ikon copy
+                const generatedLink = `
+                    <div style="border: 1px solid rgba(0, 0, 0, 0.1); padding: 5px; border-radius: 5px;">
+                        <a href="${generatedUrl}" target="_blank" style="word-wrap: break-word;">${generatedUrl}</a>
+                        <i class="far fa-copy ml-2" style="cursor: pointer;" onclick="copyToClipboard('${generatedUrl}')"></i>
+                        <div class="mt-2">Code Access: ${accessCode}</div>
+                    </div>
+                    <input type="hidden" value="${accessCode}" name="access_code">
+                    <input type="hidden" value="${eventCode}" name="event_code">`;
+
+                document.getElementById('generatedLink').innerHTML = generatedLink;
+
+            } else {
+                document.getElementById('generatedLink').innerHTML = ''; // Kosongkan jika tidak ada event yang dipilih
+            }
+        });
+
+        // Fungsi untuk menyalin teks ke clipboard
+        function copyToClipboard(text) {
+            const input = document.createElement('textarea');
+            input.value = text;
+            document.body.appendChild(input);
+            input.select();
+            document.execCommand('copy');
+            document.body.removeChild(input);
+            alert('Link copied to clipboard!');
+        }
 
         document.querySelectorAll('.btn-delete').forEach(button => {
             button.addEventListener('click', function(event) {

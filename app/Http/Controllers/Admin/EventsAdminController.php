@@ -7,6 +7,7 @@ use Illuminate\Support\Facades\Auth;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
+use App\Models\Attendances;
 use App\Models\Events;
 use App\Models\EventManager;
 use App\Models\EventParticipant;
@@ -329,6 +330,34 @@ class EventsAdminController extends Controller
 
         } catch (\Throwable $e) {
             return redirect()->back()->with('error_delete_participant', 'Data participant gagal dihapus: ' . $e->getMessage());
+        }
+    }
+
+    public function createAttendance(Request $request)
+    {
+        try {
+            $opening_date = Carbon::parse($request->opening_date)->format('Y-m-d H:i:s');
+            $closing_date = Carbon::parse($request->closing_date)->format('Y-m-d H:i:s');
+
+            //dd($opening_date, $closing_date, $request->all());
+            Attendances::create([
+                'event_code' => $request->event_code,
+                'event_name' => $request->event_name,
+                'status' => $request->status ?? null,
+                'opening_date' => $opening_date,
+                'closing_date' => $closing_date,
+                'access_code' => $request->access_code,
+            ]);
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Create Presensi Event Code ' . $request->access_code,
+            ]);
+
+            return redirect()->intended('/admin/events')->with('success_saved', 'Data presensi berhasil dibuat!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_saved', 'Data presensi gagal disimpan: ' . $e->getMessage());
         }
     }
 }
