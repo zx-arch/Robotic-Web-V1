@@ -72,7 +72,7 @@
                                             </div>
                                         @endif
 
-                                        @if (isset($eventManager))
+                                        @if (isset($eventManager) && $eventManager->count() > 0 || isset($searchDataManager))
                                             <div id="w0" class="gridview table-responsive mx-auto">
                                                 <table class="table text-nowrap table-striped table-bordered mb-0 mt-2 w-75">
                                                     <thead>
@@ -85,53 +85,55 @@
                                                             <td></td>
                                                         </tr>
 
-                                                        <form action="{{route('admin.events.searchUpdate', ['code' => $eventCode, 'role' => 'manager'])}}" method="get" id="searchForm">
+                                                        <form action="{{ route('admin.events.searchUpdate', ['code' => $eventCode, 'role' => 'manager']) }}" method="get" id="searchFormManager">
                                                             @csrf
-                                                            <tr>
-                                                                <td></td>
-                                                                <td>
-                                                                    <input type="text" id="name" class="form-control" name="search[name]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['name'])) ? $searchData['name'] : ''}}">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="email" id="email" class="form-control" name="search[email]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['email'])) ? $searchData['email'] : ''}}">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="tel" id="phone_number" class="form-control" name="search[phone_number]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['phone_number'])) ? $searchData['phone_number'] : ''}}">
-                                                                </td>
-                                                                <td>
-                                                                    <input type="text" id=section" class="form-control" name="search[section]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['section'])) ? $searchData['section'] : ''}}">
-                                                                </td>
-                                                                <td></td>
-                                                            </tr>
+                                                                <tr>
+                                                                    <td></td>
+                                                                    <td>
+                                                                        <input type="text" id="name_manager" class="form-control" name="search[name]" onkeypress="handleKeyPressManager(event)" value="{{ $searchDataManager['name'] ?? '' }}">
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="email" id="email_manager" class="form-control" name="search[email]" onkeypress="handleKeyPressManager(event)" value="{{ $searchDataManager['email'] ?? '' }}">
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="tel" id="phone_number_manager" class="form-control" name="search[phone_number]" onkeypress="handleKeyPressManager(event)" value="{{ $searchDataManager['phone_number'] ?? '' }}">
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="text" id="section_manager" class="form-control" name="search[section]" onkeypress="handleKeyPressManager(event)" value="{{ $searchDataManager['section'] ?? '' }}">
+                                                                    </td>
+                                                                    <td></td>
+                                                                </tr>
                                                         </form>
+
                                                     </thead>
 
                                                     <tbody>
-
                                                         @forelse ($eventManager as $manager)
                                                             <tr>
-                                                                <td>{{$loop->index += 1}}</td>
-                                                                <td>{{$manager->name}}</td>
-                                                                <td>{{$manager->email}}</td>
-                                                                <td>{{$manager->phone_number}}</td>
-                                                                <td>{{$manager->section}}</td>
+                                                                <td>{{ $loop->iteration }}</td>
+                                                                <td>{{ $manager->name }}</td>
+                                                                <td>{{ $manager->email }}</td>
+                                                                <td>{{ $manager->phone_number }}</td>
+                                                                <td>{{ $manager->section }}</td>
                                                                 <td>
-                                                                    <a class="btn btn-warning btn-sm" href="{{route('admin.events.updateManager', ['code' => $eventCode, 'id' => encrypt($manager->id)])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
-                                                                    <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.events.deleteManager', ['id' => encrypt($manager->id)])}}" title="Delete" aria-label="Delete" data-role="manager"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
+                                                                    <a class="btn btn-warning btn-sm" href="{{ route('admin.events.updateManager', ['code' => $eventCode, 'id' => encrypt($manager->id)]) }}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
+                                                                    <a class="btn btn-danger btn-sm btn-delete" href="{{ route('admin.events.deleteManager', ['id' => encrypt($manager->id)]) }}" title="Delete" aria-label="Delete" data-role="manager"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
                                                                 </td>
                                                             </tr>
                                                         @empty
-                                                            <p class="ml-2 mt-3 text-danger">Data panitia tidak ditemukan!</p>
+                                                            <tr>
+                                                                <td colspan="6" class="text-center text-danger">Data panitia tidak ditemukan!</td>
+                                                            </tr>
                                                         @endforelse
-
                                                     </tbody>
+
                                                 </table>
 
-                                                @if (isset($searchData))
-                                                    <a href="{{route('admin.events.update', ['code' => $eventCode])}}" class="btn btn-success mt-3">Kembali</a>
+                                                @if (isset($searchDataManager))
+                                                    <a href="{{ route('admin.events.update', ['code' => $eventCode]) }}" class="btn btn-success mt-3">Kembali</a>
                                                 @endif
 
-                                                @if ($eventManager && $eventManager->lastPage() > 1)
+                                                @if ($eventManager->lastPage() > 1)
                                                     <nav aria-label="Page navigation example">
                                                         <ul class="pagination mt-3">
                                                             {{-- Previous Page Link --}}
@@ -142,7 +144,7 @@
                                                                     </a>
                                                                 </li>
                                                             @endif
-                                                            
+
                                                             {{-- Pagination Elements --}}
                                                             @for ($i = 1; $i <= $eventManager->lastPage(); $i++)
                                                                 @if ($i == $eventManager->currentPage())
@@ -172,9 +174,9 @@
 
                                             </div>
 
-                                            @if (isset($eventManager) && $eventManager->count() >= 15)
+                                            @if ($eventManager->count() >= 15)
                                                 <div>
-                                                    Showing <b>{{ $eventManager->firstItem() }}</b> 
+                                                    Showing <b>{{ $eventManager->firstItem() }}</b>
                                                     to <b>{{ $eventManager->lastItem() }}</b>
                                                     of <b>{{ $eventManager->total() }}</b> items.
                                                 </div>
@@ -239,7 +241,7 @@
                                             </div>
                                         @endif
 
-                                        @if (isset($eventParticipant))
+                                        @if (isset($eventParticipant) && $eventParticipant->count() > 0 || isset($searchDataParticipant))
                                             <div id="w0" class="gridview table-responsive mx-auto">
                                                 <table class="table text-nowrap table-striped table-bordered mb-0 mt-3 w-75">
                                                     <thead>
@@ -250,6 +252,24 @@
                                                             <td>No Handphone</td>
                                                             <td></td>
                                                         </tr>
+
+                                                        <form action="{{ route('admin.events.searchUpdate', ['code' => $eventCode, 'role' => 'participant']) }}" method="get" id="searchFormParticipant">
+                                                            @csrf
+                                                                <tr>
+                                                                    <td></td>
+                                                                    <td>
+                                                                        <input type="text" id="name_participant" class="form-control" name="search[name]" onkeypress="handleKeyPressParticipant(event)" value="{{ $searchDataParticipant['name'] ?? '' }}">
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="email" id="email_participant" class="form-control" name="search[email]" onkeypress="handleKeyPressParticipant(event)" value="{{ $searchDataParticipant['email'] ?? '' }}">
+                                                                    </td>
+                                                                    <td>
+                                                                        <input type="tel" id="phone_number_participant" class="form-control" name="search[phone_number]" onkeypress="handleKeyPressParticipant(event)" value="{{ $searchDataParticipant['phone_number'] ?? '' }}">
+                                                                    </td>
+                                                                    <td></td>
+                                                                </tr>
+                                                        </form>
+
                                                     </thead>
 
                                                     <tbody>
@@ -266,13 +286,15 @@
                                                                 </td>
                                                             </tr>
                                                         @empty
-                                                            <p class="ml-2 mt-3 text-danger">Data peserta tidak ditemukan!</p>
+                                                            <tr>
+                                                                <td colspan="6" class="text-center text-danger">Data peserta tidak ditemukan!</td>
+                                                            </tr>
                                                         @endforelse
 
                                                     </tbody>
                                                 </table>
 
-                                                @if (isset($searchData))
+                                                @if (isset($searchDataParticipant))
                                                     <a href="{{route('admin.events.update', ['code' => $eventCode])}}" class="btn btn-success mt-3">Kembali</a>
                                                 @endif
 
@@ -287,7 +309,7 @@
                                                                     </a>
                                                                 </li>
                                                             @endif
-                                                            
+
                                                             {{-- Pagination Elements --}}
                                                             @for ($i = 1; $i <= $eventParticipant->lastPage(); $i++)
                                                                 @if ($i == $eventParticipant->currentPage())
@@ -467,13 +489,23 @@
 </script>
 
 <script>
-    function handleKeyPress(event) {
+    function handleKeyPressManager(event) {
         // Periksa apakah tombol yang ditekan adalah tombol "Enter" (kode 13)
         if (event.keyCode === 13) {
             // Hentikan perilaku bawaan dari tombol "Enter" (yang akan mengirimkan formulir)
             event.preventDefault();
             // Submit formulir secara manual
-            document.getElementById('searchForm').submit();
+            document.getElementById('searchFormManager').submit();
+        }
+    }
+
+    function handleKeyPressParticipant(event) {
+        // Periksa apakah tombol yang ditekan adalah tombol "Enter" (kode 13)
+        if (event.keyCode === 13) {
+            // Hentikan perilaku bawaan dari tombol "Enter" (yang akan mengirimkan formulir)
+            event.preventDefault();
+            // Submit formulir secara manual
+            document.getElementById('searchFormParticipant').submit();
         }
     }
 </script>

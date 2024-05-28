@@ -144,6 +144,11 @@ class EventsAdminController extends Controller
     public function update($code)
     {
         $event = Events::where('code', $code)->first();
+
+        if (!$event) {
+            return redirect()->route('admin.events.index');
+        }
+
         $eventManager = EventManager::where('event_code', $code)->latest();
         $eventParticipant = EventParticipant::where('event_code', $code)->latest();
         $eventCode = $code;
@@ -183,92 +188,107 @@ class EventsAdminController extends Controller
 
     public function searchUpdate($code, $role, Request $request)
     {
-        $searchData = $request->input('search');
-        $name = $searchData['name'] ?? null;
-        $email = $searchData['email'] ?? null;
-        $phone_number = $searchData['phone_number'] ?? null;
-        $section = $searchData['section'] ?? null;
+        try {
+            $event = Events::where('code', $code)->first();
+            $eventCode = $code;
 
-        $event = Events::where('code', $code)->first();
-        $eventCode = $code;
+            // Initialize the variables
+            $eventManager = collect();
+            $eventParticipant = collect();
 
-        // Initialize the variables
-        $eventManager = collect();
-        $eventParticipant = collect();
+            if (strtolower($role) == 'manager') {
 
-        if (strtolower($role) == 'manager') {
-            $eventManagerQuery = EventManager::where('event_code', $code)->latest();
+                $searchDataManager = $request->input('search');
+                $name = $searchDataManager['name'] ?? null;
+                $email = $searchDataManager['email'] ?? null;
+                $phone_number = $searchDataManager['phone_number'] ?? null;
+                $section = $searchDataManager['section'] ?? null;
 
-            if ($name) {
-                $eventManagerQuery->where('name', 'like', "$name%");
-            }
-            if ($email) {
-                $eventManagerQuery->where('email', 'like', "$email%");
-            }
-            if ($phone_number) {
-                $eventManagerQuery->where('phone_number', 'like', "$phone_number%");
-            }
-            if ($section) {
-                $eventManagerQuery->where('section', 'like', "$section%");
-            }
+                $eventManagerQuery = EventManager::where('event_code', $code)->latest();
 
-            $itemsPerPage = 15;
-            $eventManager = $eventManagerQuery->paginate($itemsPerPage);
+                if ($name) {
+                    $eventManagerQuery->where('name', 'like', "$name%");
+                }
+                if ($email) {
+                    $eventManagerQuery->where('email', 'like', "$email%");
+                }
+                if ($phone_number) {
+                    $eventManagerQuery->where('phone_number', 'like', "$phone_number%");
+                }
+                if ($section) {
+                    $eventManagerQuery->where('section', 'like', "$section%");
+                }
 
-            $fullUri = $request->getRequestUri();
-            $eventManager->setPath($fullUri);
+                $itemsPerPage = 15;
+                $eventManager = $eventManagerQuery->paginate($itemsPerPage);
 
-            $eventParticipant = EventParticipant::where('event_code', $code)->latest();
+                $fullUri = $request->getRequestUri();
+                $eventManager->setPath($fullUri);
 
-            $eventParticipant = $eventParticipant->paginate($itemsPerPage);
+                $eventParticipant = EventParticipant::where('event_code', $code)->latest();
 
-            if ($eventParticipant->count() > $itemsPerPage) {
                 $eventParticipant = $eventParticipant->paginate($itemsPerPage);
-                //dd($eventParticipant);
-                if ($eventParticipant->currentPage() > $eventParticipant->lastPage()) {
-                    return redirect($eventParticipant->url($eventParticipant->lastPage()));
+
+                if ($eventParticipant->count() > $itemsPerPage) {
+                    $eventParticipant = $eventParticipant->paginate($itemsPerPage);
+                    //dd($eventParticipant);
+                    if ($eventParticipant->currentPage() > $eventParticipant->lastPage()) {
+                        return redirect($eventParticipant->url($eventParticipant->lastPage()));
+                    }
                 }
-            }
-        }
 
-        if (strtolower($role) == 'participant') {
-            $eventParticipantQuery = EventParticipant::where('event_code', $code)->latest();
+                return view('admin.Events.update', compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'searchDataManager'));
 
-            if ($name) {
-                $eventParticipantQuery->where('name', 'like', "$name%");
-            }
-            if ($email) {
-                $eventParticipantQuery->where('email', 'like', "$email%");
-            }
-            if ($phone_number) {
-                $eventParticipantQuery->where('phone_number', 'like', "$phone_number%");
             }
 
-            $eventParticipant = $eventParticipantQuery->paginate($itemsPerPage);
+            if (strtolower($role) == 'participant') {
 
-            $fullUri = $request->getRequestUri();
-            $eventParticipant->setPath($fullUri);
+                $searchDataParticipant = $request->input('search');
+                $name = $searchDataParticipant['name'] ?? null;
+                $email = $searchDataParticipant['email'] ?? null;
+                $phone_number = $searchDataParticipant['phone_number'] ?? null;
+                $section = $searchDataParticipant['section'] ?? null;
 
-            $itemsPerPage = 15;
+                $eventParticipantQuery = EventParticipant::where('event_code', $code)->latest();
 
-            $eventManager = EventManager::where('event_code', $code)->latest();
+                if ($name) {
+                    $eventParticipantQuery->where('name', 'like', "$name%");
+                }
+                if ($email) {
+                    $eventParticipantQuery->where('email', 'like', "$email%");
+                }
+                if ($phone_number) {
+                    $eventParticipantQuery->where('phone_number', 'like', "$phone_number%");
+                }
 
-            $eventManager = $eventManager->paginate($itemsPerPage);
+                $itemsPerPage = 15;
+                $eventParticipant = $eventParticipantQuery->paginate($itemsPerPage);
 
-            if ($eventManager->count() > $itemsPerPage) {
+                $fullUri = $request->getRequestUri();
+                $eventParticipant->setPath($fullUri);
+
+                $eventManager = EventManager::where('event_code', $code)->latest();
+
                 $eventManager = $eventManager->paginate($itemsPerPage);
-                //dd($eventManager);
-                if ($eventManager->currentPage() > $eventManager->lastPage()) {
-                    return redirect($eventManager->url($eventManager->lastPage()));
+
+                if ($eventManager->count() > $itemsPerPage) {
+                    $eventManager = $eventManager->paginate($itemsPerPage);
+                    //dd($eventManager);
+                    if ($eventManager->currentPage() > $eventManager->lastPage()) {
+                        return redirect($eventManager->url($eventManager->lastPage()));
+                    }
                 }
+                return view('admin.Events.update', compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'searchDataParticipant'));
+
             }
+
+            return redirect()->route('admin.events.update', ['code' => $code]);
+
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.events.update', ['code' => $code]);
         }
 
-        return view('admin.Events.update', compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'searchData'));
     }
-
-
-
 
     public function updateParticipant($code, $id)
     {
@@ -278,6 +298,10 @@ class EventsAdminController extends Controller
         $eventCode = $code;
         $myEventParticipant = EventParticipant::where('event_code', $code)->where('id', decrypt($id))->first();
 
+        if (!$myEventParticipant) {
+            return redirect()->route('admin.events.update', ['code' => $code]);
+        }
+
         session(['event_code' => $code]);
 
         return view('admin.Events.updateParticipant', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'myEventParticipant'));
@@ -286,7 +310,6 @@ class EventsAdminController extends Controller
     public function saveParticipant(Request $request, $code, $id)
     {
         try {
-
             EventParticipant::where('event_code', $code)->where('id', decrypt($id))->update([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -316,6 +339,10 @@ class EventsAdminController extends Controller
         $eventCode = $code;
         $myEventManager = EventManager::where('event_code', $code)->where('id', decrypt($id))->first();
 
+        if (!$myEventManager) {
+            return redirect()->route('admin.events.update', ['code' => $code]);
+        }
+
         session(['event_code' => $code]);
 
         return view('admin.Events.updateManager', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'myEventManager'));
@@ -324,7 +351,6 @@ class EventsAdminController extends Controller
     public function saveManager(Request $request, $code, $id)
     {
         try {
-
             EventManager::where('event_code', $code)->where('id', decrypt($id))->update([
                 'name' => $request->name,
                 'email' => $request->email,
@@ -345,6 +371,7 @@ class EventsAdminController extends Controller
             return redirect()->back()->with('error_saved', 'Data gagal disimpan: ' . $e->getMessage());
         }
     }
+
     public function delete($code)
     {
         try {
