@@ -238,7 +238,6 @@ class EventsAdminController extends Controller
                 }
 
                 return view('admin.Events.update', compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'searchDataManager'));
-
             }
 
             if (strtolower($role) == 'participant') {
@@ -278,6 +277,7 @@ class EventsAdminController extends Controller
                         return redirect($eventManager->url($eventManager->lastPage()));
                     }
                 }
+
                 return view('admin.Events.update', compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'searchDataParticipant'));
 
             }
@@ -292,19 +292,10 @@ class EventsAdminController extends Controller
 
     public function updateParticipant($code, $id)
     {
-        $event = Events::where('code', $code)->first();
-        $eventManager = EventManager::where('event_code', $code)->get();
-        $eventParticipant = EventParticipant::where('event_code', $code)->get();
         $eventCode = $code;
         $myEventParticipant = EventParticipant::where('event_code', $code)->where('id', decrypt($id))->first();
 
-        if (!$myEventParticipant) {
-            return redirect()->route('admin.events.update', ['code' => $code]);
-        }
-
-        session(['event_code' => $code]);
-
-        return view('admin.Events.updateParticipant', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'myEventParticipant'));
+        return view('admin.Events.updateParticipant', $this->data, compact('eventCode', 'myEventParticipant'));
     }
 
     public function saveParticipant(Request $request, $code, $id)
@@ -324,28 +315,19 @@ class EventsAdminController extends Controller
                 'action' => Auth::user()->username . ' Update Participant ' . $dataString . 'ID Event: ' . decrypt($id),
             ]);
 
-            return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');
+            return redirect()->route('admin.events.update', ['code' => $code])->with('success_saved', 'Data berhasil disimpan!');
 
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error_saved', 'Data gagal disimpan: ' . $e->getMessage());
+            return redirect()->route('admin.events.update', ['code' => $code])->with('error_saved', 'Data gagal diupdate: ' . $e->getMessage());
         }
     }
 
     public function updateManager($code, $id)
     {
-        $event = Events::where('code', $code)->first();
-        $eventManager = EventManager::where('event_code', $code)->get();
-        $eventParticipant = EventParticipant::where('event_code', $code)->get();
         $eventCode = $code;
         $myEventManager = EventManager::where('event_code', $code)->where('id', decrypt($id))->first();
 
-        if (!$myEventManager) {
-            return redirect()->route('admin.events.update', ['code' => $code]);
-        }
-
-        session(['event_code' => $code]);
-
-        return view('admin.Events.updateManager', $this->data, compact('event', 'eventManager', 'eventParticipant', 'eventCode', 'myEventManager'));
+        return view('admin.Events.updateManager', $this->data, compact('eventCode', 'myEventManager'));
     }
 
     public function saveManager(Request $request, $code, $id)
@@ -365,10 +347,10 @@ class EventsAdminController extends Controller
                 'action' => Auth::user()->username . ' Update Pengurus ' . $dataString . 'ID Event: ' . decrypt($id),
             ]);
 
-            return redirect()->back()->with('success_saved', 'Data berhasil disimpan!');
+            return redirect()->route('admin.events.update', ['code' => $code])->with('success_saved', 'Data berhasil diupdate!');
 
         } catch (\Throwable $e) {
-            return redirect()->back()->with('error_saved', 'Data gagal disimpan: ' . $e->getMessage());
+            return redirect()->route('admin.events.update', ['code' => $code])->with('error_saved', 'Data gagal diupdate: ' . $e->getMessage());
         }
     }
 

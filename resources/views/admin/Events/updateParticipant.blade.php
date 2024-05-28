@@ -59,55 +59,6 @@
                                 </form>
                             </div>
 
-                            <div class="card-body" style="margin-top: -35px;">
-
-                                @if (session()->has('success_saved'))
-                                    <div id="w6" class="alert-primary alert alert-dismissible mt-3 w-75" role="alert">
-                                        {{session('success_saved')}}
-                                        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
-                                    </div>
-                                @endif
-
-                                @if (session()->has('error_saved'))
-                                    <div id="w6" class="alert-danger alert alert-dismissible mt-3 w-75" role="alert">
-                                        {{session('error_saved')}}
-                                        <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
-                                    </div>
-                                @endif
-
-                                @if ($eventParticipant->count() > 0)
-                                    <div id="w0" class="gridview table-responsive mx-auto">
-                                        <table class="table text-nowrap table-striped table-bordered mb-0 mt-3">
-                                            <thead>
-                                                <tr>
-                                                    <td>#</td>
-                                                    <td>Nama</td>
-                                                    <td>No Handphone</td>
-                                                    <td>Email</td>
-                                                    <td style="width: 10%"></td>
-                                                    <td></td>
-                                                </tr>
-                                            </thead>
-                                            <tbody>
-                                                @foreach ($eventParticipant as $participant)
-                                                    <tr>
-                                                        <td>{{$loop->index += 1}}</td>
-                                                        <td>{{$participant->name}}</td>
-                                                        <td>{{$participant->email}}</td>
-                                                        <td>{{$participant->phone_number}}</td>
-                                                        <td><i class="fas fa-times-circle" style="color: green;"></i>&nbsp; Hadir</td>
-                                                        <td>
-                                                            <a class="btn btn-warning btn-sm" href="{{route('admin.events.updateParticipant', ['code' => $eventCode, 'role' => 'participant', 'id' => encrypt($participant->id)])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
-                                                            <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.events.deleteParticipant', ['id' => encrypt($participant->id)])}}" title="Delete" aria-label="Delete" data-role="participant"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
-                                                        </td>
-                                                    </tr>
-                                                @endforeach
-                                            </tbody>
-                                        </table>
-                                    </div>
-                                @endif
-
-                            </div>
                         </div>
                     </div>
                 </div>
@@ -116,34 +67,3 @@
     </div>
 
 @endsection
-
-<script>
-
-    document.addEventListener("DOMContentLoaded", function() {
-
-        document.querySelectorAll('.btn-delete').forEach(button => {
-            button.addEventListener('click', function(event) {
-                event.preventDefault();
-                const url = this.getAttribute('href');
-                
-                // Tampilkan SweetAlert konfirmasi penghapusan
-                Swal.fire({
-                    title: 'Apakah Anda yakin?',
-                    text: `Data ${this.getAttribute('data-role')} yang dihapus tidak dapat dipulihkan!`,
-                    icon: 'warning',
-                    showCancelButton: true,
-                    confirmButtonColor: '#3085d6',
-                    cancelButtonColor: '#d33',
-                    confirmButtonText: 'Ya, hapus!'
-                }).then((result) => {
-                    if (result.isConfirmed) {
-                        // Jika pengguna menekan tombol "Ya, hapus", arahkan ke URL penghapusan
-                        window.location.href = url;
-                    }
-                });
-            });
-        });
-
-    });
-
-</script>
