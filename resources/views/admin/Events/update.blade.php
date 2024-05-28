@@ -72,21 +72,43 @@
                                             </div>
                                         @endif
 
-                                        @if ($eventManager->count() > 0)
+                                        @if (isset($eventManager))
                                             <div id="w0" class="gridview table-responsive mx-auto">
                                                 <table class="table text-nowrap table-striped table-bordered mb-0 mt-2 w-75">
                                                     <thead>
                                                         <tr>
                                                             <td>#</td>
                                                             <td>Nama</td>
-                                                            <td>No Handphone</td>
                                                             <td>Email</td>
+                                                            <td>No Handphone</td>
                                                             <td>Bagian</td>
                                                             <td></td>
                                                         </tr>
+
+                                                        <form action="{{route('admin.events.searchUpdate', ['code' => $eventCode, 'role' => 'manager'])}}" method="get" id="searchForm">
+                                                            @csrf
+                                                            <tr>
+                                                                <td></td>
+                                                                <td>
+                                                                    <input type="text" id="name" class="form-control" name="search[name]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['name'])) ? $searchData['name'] : ''}}">
+                                                                </td>
+                                                                <td>
+                                                                    <input type="email" id="email" class="form-control" name="search[email]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['email'])) ? $searchData['email'] : ''}}">
+                                                                </td>
+                                                                <td>
+                                                                    <input type="tel" id="phone_number" class="form-control" name="search[phone_number]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['phone_number'])) ? $searchData['phone_number'] : ''}}">
+                                                                </td>
+                                                                <td>
+                                                                    <input type="text" id=section" class="form-control" name="search[section]" onkeypress="handleKeyPress(event)" value="{{(isset($searchData['section'])) ? $searchData['section'] : ''}}">
+                                                                </td>
+                                                                <td></td>
+                                                            </tr>
+                                                        </form>
                                                     </thead>
+
                                                     <tbody>
-                                                        @foreach ($eventManager as $manager)
+
+                                                        @forelse ($eventManager as $manager)
                                                             <tr>
                                                                 <td>{{$loop->index += 1}}</td>
                                                                 <td>{{$manager->name}}</td>
@@ -98,10 +120,66 @@
                                                                     <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.events.deleteManager', ['id' => encrypt($manager->id)])}}" title="Delete" aria-label="Delete" data-role="manager"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
                                                                 </td>
                                                             </tr>
-                                                        @endforeach
+                                                        @empty
+                                                            <p class="ml-2 mt-3 text-danger">Data panitia tidak ditemukan!</p>
+                                                        @endforelse
+
                                                     </tbody>
                                                 </table>
+
+                                                @if (isset($searchData))
+                                                    <a href="{{route('admin.events.update', ['code' => $eventCode])}}" class="btn btn-success mt-3">Kembali</a>
+                                                @endif
+
+                                                @if ($eventManager && $eventManager->lastPage() > 1)
+                                                    <nav aria-label="Page navigation example">
+                                                        <ul class="pagination mt-3">
+                                                            {{-- Previous Page Link --}}
+                                                            @if ($eventManager->currentPage() > 1)
+                                                                <li class="page-item">
+                                                                    <a class="page-link" href="{{ $eventManager->previousPageUrl() }}" aria-label="Previous">
+                                                                        <span aria-hidden="true">&laquo;</span>
+                                                                    </a>
+                                                                </li>
+                                                            @endif
+                                                            
+                                                            {{-- Pagination Elements --}}
+                                                            @for ($i = 1; $i <= $eventManager->lastPage(); $i++)
+                                                                @if ($i == $eventManager->currentPage())
+                                                                    {{-- Current Page --}}
+                                                                    <li class="page-item active">
+                                                                        <span class="page-link">{{ $i }}</span>
+                                                                    </li>
+                                                                @else
+                                                                    {{-- Pages Link --}}
+                                                                    <li class="page-item">
+                                                                        <a class="page-link" href="{{ $eventManager->url($i) }}">{{ $i }}</a>
+                                                                    </li>
+                                                                @endif
+                                                            @endfor
+
+                                                            {{-- Next Page Link --}}
+                                                            @if ($eventManager->hasMorePages())
+                                                                <li class="page-item">
+                                                                    <a class="page-link" href="{{ $eventManager->nextPageUrl() }}" aria-label="Next">
+                                                                        <span aria-hidden="true">&raquo;</span>
+                                                                    </a>
+                                                                </li>
+                                                            @endif
+                                                        </ul>
+                                                    </nav>
+                                                @endif
+
                                             </div>
+
+                                            @if (isset($eventManager) && $eventManager->count() >= 15)
+                                                <div>
+                                                    Showing <b>{{ $eventManager->firstItem() }}</b> 
+                                                    to <b>{{ $eventManager->lastItem() }}</b>
+                                                    of <b>{{ $eventManager->total() }}</b> items.
+                                                </div>
+                                            @endif
+
                                         @else
                                             <p class="mt-3 ms-2 text-danger">Pengurus belum tersedia</p>
                                         @endif
@@ -161,20 +239,22 @@
                                             </div>
                                         @endif
 
-                                        @if ($eventParticipant->count() > 0)
+                                        @if (isset($eventParticipant))
                                             <div id="w0" class="gridview table-responsive mx-auto">
                                                 <table class="table text-nowrap table-striped table-bordered mb-0 mt-3 w-75">
                                                     <thead>
                                                         <tr>
                                                             <td>#</td>
                                                             <td>Nama</td>
-                                                            <td>No Handphone</td>
                                                             <td>Email</td>
+                                                            <td>No Handphone</td>
                                                             <td></td>
                                                         </tr>
                                                     </thead>
+
                                                     <tbody>
-                                                        @foreach ($eventParticipant as $participant)
+
+                                                        @forelse ($eventParticipant as $participant)
                                                             <tr>
                                                                 <td>{{$loop->index += 1}}</td>
                                                                 <td>{{$participant->name}}</td>
@@ -185,18 +265,67 @@
                                                                     <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.events.deleteParticipant', ['id' => encrypt($participant->id)])}}" title="Delete" aria-label="Delete" data-role="participant"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
                                                                 </td>
                                                             </tr>
-                                                        @endforeach
+                                                        @empty
+                                                            <p class="ml-2 mt-3 text-danger">Data peserta tidak ditemukan!</p>
+                                                        @endforelse
+
                                                     </tbody>
                                                 </table>
+
+                                                @if (isset($searchData))
+                                                    <a href="{{route('admin.events.update', ['code' => $eventCode])}}" class="btn btn-success mt-3">Kembali</a>
+                                                @endif
+
+                                                @if ($eventParticipant && $eventParticipant->lastPage() > 1)
+                                                    <nav aria-label="Page navigation example">
+                                                        <ul class="pagination mt-3">
+                                                            {{-- Previous Page Link --}}
+                                                            @if ($eventParticipant->currentPage() > 1)
+                                                                <li class="page-item">
+                                                                    <a class="page-link" href="{{ $eventParticipant->previousPageUrl() }}" aria-label="Previous">
+                                                                        <span aria-hidden="true">&laquo;</span>
+                                                                    </a>
+                                                                </li>
+                                                            @endif
+                                                            
+                                                            {{-- Pagination Elements --}}
+                                                            @for ($i = 1; $i <= $eventParticipant->lastPage(); $i++)
+                                                                @if ($i == $eventParticipant->currentPage())
+                                                                    {{-- Current Page --}}
+                                                                    <li class="page-item active">
+                                                                        <span class="page-link">{{ $i }}</span>
+                                                                    </li>
+                                                                @else
+                                                                    {{-- Pages Link --}}
+                                                                    <li class="page-item">
+                                                                        <a class="page-link" href="{{ $eventParticipant->url($i) }}">{{ $i }}</a>
+                                                                    </li>
+                                                                @endif
+                                                            @endfor
+
+                                                            {{-- Next Page Link --}}
+                                                            @if ($eventParticipant->hasMorePages())
+                                                                <li class="page-item">
+                                                                    <a class="page-link" href="{{ $eventParticipant->nextPageUrl() }}" aria-label="Next">
+                                                                        <span aria-hidden="true">&raquo;</span>
+                                                                    </a>
+                                                                </li>
+                                                            @endif
+                                                        </ul>
+                                                    </nav>
+                                                @endif
+
                                             </div>
+                                            
                                         @else
                                             <p class="mt-3 ms-2 text-danger">Pengguna belum tersedia</p>
                                         @endif
                                     </div>
+
                                 </div>
                             </div>
 
-                            <div class="card-body">
+                            <div class="card-body" style="margin-top: -15px;">
                                 <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
                                     <li class="nav-item">
                                         <a class="nav-link" id="event-tab" data-toggle="tab" href="#event" role="tab" aria-controls="home" aria-selected="true">Event</a>
@@ -335,4 +464,16 @@
 
     });
 
+</script>
+
+<script>
+    function handleKeyPress(event) {
+        // Periksa apakah tombol yang ditekan adalah tombol "Enter" (kode 13)
+        if (event.keyCode === 13) {
+            // Hentikan perilaku bawaan dari tombol "Enter" (yang akan mengirimkan formulir)
+            event.preventDefault();
+            // Submit formulir secara manual
+            document.getElementById('searchForm').submit();
+        }
+    }
 </script>

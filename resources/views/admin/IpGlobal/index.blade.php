@@ -189,91 +189,91 @@
                         </table>
                     </div>
                 </div>
+                
                 @if (count($publicIp) > 15)
-                                    @if ($publicIp->lastPage() > 1)
-                    <nav aria-label="Page navigation example">
-                        <ul class="pagination mt-2">
+                    @if ($publicIp->lastPage() > 1)
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination mt-2">
 
-                            {{-- Tombol Sebelumnya --}}
-                            @if ($publicIp->currentPage() > 1)
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $publicIp->previousPageUrl() }}" aria-label="Previous">
-                                        <span aria-hidden="true">&laquo;</span>
-                                    </a>
+                                {{-- Tombol Sebelumnya --}}
+                                @if ($publicIp->currentPage() > 1)
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $publicIp->previousPageUrl() }}" aria-label="Previous">
+                                            <span aria-hidden="true">&laquo;</span>
+                                        </a>
+                                    </li>
+                                @endif
+                                
+                                {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
+                                @if ($publicIp->currentPage() > 6)
+                                    @for ($i = $publicIp->currentPage() - 3; $i < $publicIp->currentPage(); $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @else
+                                    @for ($i = 1; $i < $publicIp->currentPage(); $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @endif
+
+                                {{-- Halaman saat ini --}}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ $publicIp->currentPage() }}</span>
                                 </li>
-                            @endif
-                            
-                            {{-- Tampilkan 4 halaman sebelumnya jika halaman saat ini tidak terlalu dekat dengan halaman pertama --}}
-                            @if ($publicIp->currentPage() > 6)
-                                @for ($i = $publicIp->currentPage() - 3; $i < $publicIp->currentPage(); $i++)
-                                    @if ($i == 1)
-                                        <li class="page-item">
-                                            <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-                            @else
-                                @for ($i = 1; $i < $publicIp->currentPage(); $i++)
-                                    @if ($i == 1)
-                                        <li class="page-item">
-                                            <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-                            @endif
-
-                            {{-- Halaman saat ini --}}
-                            <li class="page-item active">
-                                <span class="page-link">{{ $publicIp->currentPage() }}</span>
-                            </li>
-                            
-                            {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
-                            @if ($publicIp->currentPage() < $publicIp->lastPage() - 5)
-                                @for ($i = $publicIp->currentPage() + 1; $i <= $publicIp->currentPage() + 3; $i++)
-                                    @if ($i == 1)
-                                        <li class="page-item">
-                                            <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-                            @else
-                                @for ($i = $publicIp->currentPage() + 1; $i <= $publicIp->lastPage(); $i++)
-                                    @if ($i == 1)
-                                        <li class="page-item">
-                                            <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
-                                        </li>
-                                    @else
-                                        <li class="page-item">
-                                            <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
-                                        </li>
-                                    @endif
-                                @endfor
-                            @endif
-                            
-                            {{-- Tombol Selanjutnya --}}
-                            @if ($publicIp->hasMorePages())
-                                <li class="page-item">
-                                    <a class="page-link" href="{{ $publicIp->nextPageUrl() }}" aria-label="Next">
-                                        <span aria-hidden="true">&raquo;</span>
-                                    </a>
-                                </li>
-                            @endif
-                        </ul>
-                    </nav>
-                @endif
-
+                                
+                                {{-- Tampilkan 4 halaman setelahnya jika halaman saat ini tidak terlalu dekat dengan halaman terakhir --}}
+                                @if ($publicIp->currentPage() < $publicIp->lastPage() - 5)
+                                    @for ($i = $publicIp->currentPage() + 1; $i <= $publicIp->currentPage() + 3; $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @else
+                                    @for ($i = $publicIp->currentPage() + 1; $i <= $publicIp->lastPage(); $i++)
+                                        @if ($i == 1)
+                                            <li class="page-item">
+                                                <a class="page-link" href="/admin/ip_global">{{ $i }}</a>
+                                            </li>
+                                        @else
+                                            <li class="page-item">
+                                                <a class="page-link" href="{{ $publicIp->url($i) }}">{{ $i }}</a>
+                                            </li>
+                                        @endif
+                                    @endfor
+                                @endif
+                                
+                                {{-- Tombol Selanjutnya --}}
+                                @if ($publicIp->hasMorePages())
+                                    <li class="page-item">
+                                        <a class="page-link" href="{{ $publicIp->nextPageUrl() }}" aria-label="Next">
+                                            <span aria-hidden="true">&raquo;</span>
+                                        </a>
+                                    </li>
+                                @endif
+                            </ul>
+                        </nav>
+                    @endif
                 @endif
 
             </div>
