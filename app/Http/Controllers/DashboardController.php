@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\EventParticipant;
 use Illuminate\Http\Request;
 use App\Repositories\ActivityRepository;
 use App\Models\ChatDashboard;
@@ -10,6 +11,7 @@ use GeoIp2\Database\Reader;
 use App\Models\Activity;
 use App\Models\Tutorials;
 use App\Events\NotifyProcessed;
+use App\Models\Attendances;
 
 class DashboardController extends Controller
 {
@@ -104,5 +106,75 @@ class DashboardController extends Controller
         } catch (\Throwable $e) {
             return redirect()->back()->with('error_submit_chat', 'Gagal simpan chat. ' . $e->getMessage());
         }
+    }
+
+    public function events()
+    {
+        return view('events', $this->data);
+    }
+
+    public function submitEvents(Request $request)
+    {
+        $request->validate([
+            'code' => 'required|string',
+        ]);
+
+        $code = $request->input('code');
+        $event = Attendances::where('access_code', $code);
+
+        if ($event->exists()) {
+            $request->session()->put('code', $code);
+            return redirect()->route('events.home');
+
+        } else {
+            return redirect()->route('dashboard.events')->withErrors(['code' => 'Invalid code'])->withInput();
+        }
+    }
+
+    public function homeEvent()
+    {
+        $code = session('code');
+        $event = Attendances::select('events.*', 'attendances.*')->leftJoin('events', 'events.code', '=', 'attendances.event_code')->where('attendances.access_code', $code)->first();
+        return view('home_event', compact('code', 'event'));
+    }
+
+    public function registerParticipant(Request $request)
+    {
+
+        try {
+            $request->validate([
+                'name' => 'required|string|max:255',
+                'email' => 'required|email|max:255',
+                'phone_number' => 'required|string|max:15',
+            ]);
+
+            session([
+                'data_regis' => [
+                    'event_code' => json_decode($request->event[0])->event_code,
+                    'name' => $request->input('name'),
+                    'email' => $request->input('email'),
+                    'phone_number' => $request->input('phone_number'),
+                ]
+            ]);
+
+            // Logic to save the registration data
+            EventParticipant::create(session('data_regis'));
+
+            return redirect()->route('events.viewPresensi')->with('success', 'Registrasi berhasil!');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error', 'Gagal registrasi: ' . $e->getMessage());
+        }
+
+    }
+
+    public function viewPresensi()
+    {
+        $event = Attendances::select('events.*', 'attendances.*', 'event_participant.*')
+            ->leftJoin('events', 'events.code', '=', 'attendances.event_code')
+            ->leftJoin('event_participant', 'event_participant.event_code', '=', 'events.code')
+            ->where('attendances.access_code', session('code'))->first();
+
+        return view('presensi', compact('event'));
     }
 }

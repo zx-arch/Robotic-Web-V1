@@ -38,7 +38,11 @@ Route::post('/register/submit', [RegisterController::class, 'submit'])->name('re
 Route::get('/courses/{jenis_materi}', [CoursesController::class, 'index'])->name('courses');
 Route::post('/courses/submit', [CoursesController::class, 'submitBook'])->name('courses.submit');
 Route::post('/dashboard/chat/submit', [DashboardController::class, 'submitChat'])->name('dashboard.submit_chat');
-
+Route::get('/event', [DashboardController::class, 'events'])->name('dashboard.events');
+Route::post('/event/submit', [DashboardController::class, 'submitEvents'])->name('dashboard.events.submit');
+Route::get('/home_event', [DashboardController::class, 'homeEvent'])->name('events.home');
+Route::post('/submit-regis-peserta', [DashboardController::class, 'registerParticipant'])->name('events.registerParticipant');
+Route::get('/view-presensi', [DashboardController::class, 'viewPresensi'])->name('events.viewPresensi');
 Route::post('/login', [LoginController::class, 'login'])->name('submit_form.login');
 
 Route::get('/api/pusher-key', function () {
