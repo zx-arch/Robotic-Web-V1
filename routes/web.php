@@ -43,6 +43,7 @@ Route::post('/event/submit', [DashboardController::class, 'submitEvents'])->name
 Route::get('/home_event', [DashboardController::class, 'homeEvent'])->name('events.home');
 Route::post('/submit-regis-peserta', [DashboardController::class, 'registerParticipant'])->name('events.registerParticipant');
 Route::get('/view-presensi', [DashboardController::class, 'viewPresensi'])->name('events.viewPresensi');
+Route::post('/submit-presensi', [DashboardController::class, 'submitPresensi'])->name('events.submitPresensi');
 Route::post('/login', [LoginController::class, 'login'])->name('submit_form.login');
 
 Route::get('/api/pusher-key', function () {

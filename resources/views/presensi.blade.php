@@ -117,31 +117,61 @@
             </div>
         @endif
 
+        @if ($user->status_presensi == 'Hadir' && !is_null($user->waktu_presensi))
+            <div class="alert alert-success">
+                <strong>Presensi: {{ \Carbon\Carbon::parse($user->waktu_presensi)->isoFormat('dddd, D MMMM YYYY HH:mm') }}</strong>
+            </div>
+        @else
+            <p>{{\Carbon\Carbon::parse(now())->isoFormat('dddd, D MMMM YYYY')}} <span id="datetime"></span></p>
+        @endif
+
+        @if(session('error_submit'))
+            <div class="alert alert-danger">
+                {{ session('error_submit') }}
+            </div>
+        @endif
+
         @php
             $eventDate = \Carbon\Carbon::parse($event->event_date);
-            $formattedEventDate = $eventDate->isoFormat('ddd, D MMMM YYYY HH:mm');
+            $formattedEventDate = $eventDate->isoFormat('dddd, D MMMM YYYY HH:mm');
         @endphp
 
         <div class="alert alert-primary">
             <p><strong>Topik:</strong> {{$event->event_name}}</p>
             <p><strong>Lokasi:</strong> {{$event->location}}</p>
-            <p><strong>Pukul:</strong> {{$formattedEventDate}}</p>
+            <p><strong>Waktu:</strong> {{$formattedEventDate}}</p>
         </div>
 
         <div class="alert alert-warning">
-            <p><strong>Nama:</strong> {{$event->name}}</p>
-            <p><strong>Email:</strong> {{$event->email}}</p>
-            <p><strong>Phone Number:</strong> {{$event->phone_number}}</p>
+            <p><strong>Nama:</strong> {{session('data_regis.name')}}</p>
+            <p><strong>Email:</strong> {{session('data_regis.email')}}</p>
+            <p><strong>Phone Number:</strong> {{session('data_regis.phone_number')}}</p>
         </div>
+        
+        @if (is_null($event->opening_date) || $event->opening_date == '')
+            <div class="alert alert-primary mt-5 custom-alert">
+                <strong>Presensi belum dibuka</strong>
+            </div>
 
-        @if($event->closing_date > now())
+        @elseif ($event->closing_date > now() && now() > $event->opening_date)
             <div id="countdown" class="alert alert-info mt-5 custom-alert">
                 <p><strong>Sisa Waktu Presensi:</strong> <span id="hours"></span> jam <span id="minutes"></span> menit <span id="seconds"></span> detik</p>
             </div>
-            <form action="#" method="post">
+
+            <form action="{{route('events.submitPresensi')}}" method="post" id="submitPresensi">
                 @csrf
-                <button type="submit" class="btn btn-custom btn-block w-25 mt-4" id="buttonSubmit">Hadir</button>
+                <button type="submit" class="btn btn-custom btn-block w-25 mt-4  mb-4" id="buttonSubmit">Hadir</button>
             </form>
+
+        @elseif ($event->opening_date && $event->opening_date < now() && is_null($event->closing_date))
+            <div class="alert alert-danger mt-5 custom-alert">
+                <strong>Waktu presensi telah berakhir!</strong>
+            </div>
+
+        @elseif ($event->opening_date && $event->opening_date > now())
+            <div class="alert alert-primary mt-5 custom-alert">
+                <strong>Presensi dibuka {{ \Carbon\Carbon::parse($event->opening_date)->isoFormat('dddd, D MMMM YYYY') }} pukul {{ \Carbon\Carbon::parse($event->opening_date)->isoFormat('HH:mm') }}</strong>
+            </div>
         @endif
 
     </div>
@@ -149,6 +179,18 @@
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.5.4/dist/umd/popper.min.js"></script>
     <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        window.onload = function() {
+            setInterval(function(){
+                var date = new Date();
+                var displayDate = date.toLocaleDateString();
+                var displayTime = date.toLocaleTimeString();
+
+                document.getElementById('datetime').innerHTML =  displayTime;
+            }, 1000); // 1000 milliseconds = 1 second
+        }
+    </script>
 
     <script>
         // Simpan waktu closing awal dalam variabel global
@@ -189,6 +231,7 @@
                         forms[0].parentNode.removeChild(forms[0]);
                     }
                 }
+
                 // Sembunyikan countdown timer
                 document.getElementById("countdown").style.display = "none";
                 return;
@@ -211,6 +254,16 @@
         // Panggil updateCountdown untuk memastikan bahwa countdown timer terupdate saat halaman dimuat
         updateCountdown();
 
+        const form = document.getElementById('submitPresensi');
+
+        form.addEventListener('submit', function (event) {        
+            const newHidden = document.createElement("input");
+            const now = new Date().getTime();
+            newHidden.type = 'hidden';
+            newHidden.name = 'waktu_submit';
+            newHidden.value = now;
+            form.appendChild(newHidden);
+        });
     </script>
 
 </body>

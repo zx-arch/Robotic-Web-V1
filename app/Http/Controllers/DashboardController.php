@@ -12,6 +12,7 @@ use App\Models\Activity;
 use App\Models\Tutorials;
 use App\Events\NotifyProcessed;
 use App\Models\Attendances;
+use Carbon\Carbon;
 
 class DashboardController extends Controller
 {
@@ -100,7 +101,6 @@ class DashboardController extends Controller
                 }
 
                 return redirect()->back()->with('success_submit_chat', 'Chat berhasil terkirim, kami akan membalas ke email yang tertera!');
-
             }
 
         } catch (\Throwable $e) {
@@ -110,11 +110,27 @@ class DashboardController extends Controller
 
     public function events()
     {
+        if (session()->has('data_regis')) {
+            return redirect()->route('events.viewPresensi');
+        }
+
+        if (session()->has('code')) {
+            return redirect()->route('events.home');
+        }
+
         return view('events', $this->data);
     }
 
     public function submitEvents(Request $request)
     {
+        if (session()->has('data_regis')) {
+            return redirect()->route('events.viewPresensi');
+        }
+
+        if (!session()->has('code')) {
+            return redirect()->route('dashboard.events');
+        }
+
         $request->validate([
             'code' => 'required|string',
         ]);
@@ -133,6 +149,14 @@ class DashboardController extends Controller
 
     public function homeEvent()
     {
+        if (session()->has('data_regis')) {
+            return redirect()->route('events.viewPresensi');
+        }
+
+        if (!session()->has('code')) {
+            return redirect()->route('dashboard.events');
+        }
+
         $code = session('code');
         $event = Attendances::select('events.*', 'attendances.*')->leftJoin('events', 'events.code', '=', 'attendances.event_code')->where('attendances.access_code', $code)->first();
         return view('home_event', compact('code', 'event'));
@@ -140,6 +164,13 @@ class DashboardController extends Controller
 
     public function registerParticipant(Request $request)
     {
+        if (session()->has('data_regis')) {
+            return redirect()->route('events.viewPresensi');
+        }
+
+        if (!session()->has('code')) {
+            return redirect()->route('dashboard.events');
+        }
 
         try {
             $request->validate([
@@ -157,8 +188,12 @@ class DashboardController extends Controller
                 ]
             ]);
 
-            // Logic to save the registration data
-            EventParticipant::create(session('data_regis'));
+            $check = EventParticipant::where('event_code', session('data_regis.event_code'))->where('name', session('data_regis.name'))
+                ->where('email', session('data_regis.email'))->first();
+
+            if (!$check) {
+                EventParticipant::create(session('data_regis'));
+            }
 
             return redirect()->route('events.viewPresensi')->with('success', 'Registrasi berhasil!');
 
@@ -175,6 +210,32 @@ class DashboardController extends Controller
             ->leftJoin('event_participant', 'event_participant.event_code', '=', 'events.code')
             ->where('attendances.access_code', session('code'))->first();
 
-        return view('presensi', compact('event'));
+        $user = EventParticipant::where('name', session('data_regis.name'))->where('email', session('data_regis.email'))->first();
+
+        return view('presensi', compact('event', 'user'));
+    }
+
+    public function submitPresensi(Request $request)
+    {
+        try {
+            $waktuSubmit = $request->input('waktu_submit');
+
+            // Konversi dari milidetik ke detik
+            $timestampInSeconds = $waktuSubmit / 1000;
+
+            // Buat instance Carbon dari timestamp
+            $carbonDate = Carbon::createFromTimestamp($timestampInSeconds);
+
+            EventParticipant::where('event_code', session('data_regis.event_code'))->where('name', session('data_regis.name'))->where('email', session('data_regis.email'))->update([
+                'status_presensi' => 'Hadir',
+                'waktu_presensi' => $carbonDate->toDateTimeString()
+            ]);
+
+            return redirect()->back()->with('success', 'Berhasil melakukan presensi !');
+
+        } catch (\Throwable $e) {
+            return redirect()->back()->with('error_submit', 'Gagal melakukan presensi: ' . $e->getMessage());
+        }
+
     }
 }
