@@ -34,11 +34,9 @@ class EventsAdminController extends Controller
             'events.event_section',
             'events.poster',
             'events.created_at',
-            DB::raw('COUNT(event_manager.event_code) as total_pengurus'),
-            DB::raw('COUNT(event_participant.event_code) as total_peserta'),
+            DB::raw('(SELECT COUNT(*) FROM event_manager WHERE event_manager.event_code = events.code) as total_pengurus'),
+            DB::raw('(SELECT COUNT(*) FROM event_participant WHERE event_participant.event_code = events.code) as total_peserta')
         )
-            ->leftJoin('event_manager', 'events.code', '=', 'event_manager.event_code')
-            ->leftJoin('event_participant', 'events.code', '=', 'event_participant.event_code')
             ->groupBy(
                 'events.code',
                 'events.nama_event',
@@ -47,12 +45,39 @@ class EventsAdminController extends Controller
                 'events.organizer_name',
                 'events.event_section',
                 'events.poster',
-                'events.created_at',
+                'events.created_at'
             )
             ->latest()
             ->get();
 
-        return view('admin.Events.index', $this->data, compact('events'));
+        $eventNotSetPresensi = Events::whereNotIn('code', Attendances::select('event_code')->get()->pluck('event_code'))->get();
+
+        return view('admin.Events.index', $this->data, compact('events', 'eventNotSetPresensi'));
+    }
+
+    public function listPresensi()
+    {
+        $listPresensi = Attendances::select(
+            'attendances.*',
+            DB::raw('(SELECT COUNT(*) FROM event_participant WHERE event_participant.event_code = attendances.event_code) as total_peserta'),
+            DB::raw('(SELECT COUNT(*) FROM event_participant WHERE event_participant.event_code = attendances.event_code and event_participant.status_presensi = "Hadir") as peserta_hadir'),
+            DB::raw('(SELECT COUNT(*) FROM event_participant WHERE event_participant.event_code = attendances.event_code and event_participant.status_presensi = "Tidak Hadir") as peserta_tidak_hadir'),
+        )->groupBy(
+                'attendances.id',
+                'attendances.event_code',
+                'attendances.event_name',
+                'attendances.status',
+                'attendances.opening_date',
+                'attendances.closing_date',
+                'attendances.access_code',
+                'attendances.created_at',
+                'attendances.updated_at',
+                'attendances.deleted_at'
+            )->get();
+
+        $eventNotSetPresensi = Events::whereNotIn('code', Attendances::select('event_code')->get()->pluck('event_code'))->get();
+
+        return view('admin.Events.listPresensi', $this->data, compact('listPresensi', 'eventNotSetPresensi'));
     }
 
     public function add()
@@ -303,7 +328,7 @@ class EventsAdminController extends Controller
         try {
             EventParticipant::where('event_code', $code)->where('id', decrypt($id))->update([
                 'name' => $request->name,
-                'email' => $request->email,
+                'email' => $request->email ?? '(not set)',
                 'phone_number' => $request->phone_number,
             ]);
 
@@ -312,7 +337,7 @@ class EventsAdminController extends Controller
 
             ActivityRepository::create([
                 'user_id' => Auth::user()->id,
-                'action' => Auth::user()->username . ' Update Participant ' . $dataString . 'ID Event: ' . decrypt($id),
+                'action' => Auth::user()->username . ' Update Participant ' . $dataString . ' [ID Event: ' . decrypt($id) . ']',
             ]);
 
             return redirect()->route('admin.events.update', ['code' => $code])->with('success_saved', 'Data berhasil disimpan!');
@@ -379,7 +404,7 @@ class EventsAdminController extends Controller
             EventManager::create([
                 'event_code' => $code,
                 'name' => $request->nama,
-                'email' => $request->email,
+                'email' => $request->email ?? '(not set)',
                 'section' => $request->section,
                 'phone_number' => $request->phone_number,
             ]);
@@ -402,7 +427,7 @@ class EventsAdminController extends Controller
             EventParticipant::create([
                 'event_code' => $code,
                 'name' => $request->nama,
-                'email' => $request->email,
+                'email' => $request->email ?? '(not set)',
                 'phone_number' => $request->phone_number,
             ]);
 
@@ -480,7 +505,7 @@ class EventsAdminController extends Controller
                 'action' => Auth::user()->username . ' Create Presensi Event Code ' . $request->access_code,
             ]);
 
-            return redirect()->intended('/admin/events')->with('success_saved', 'Data presensi berhasil dibuat!');
+            return redirect()->intended('/admin/list_presensi')->with('success_saved', 'Data presensi berhasil dibuat!');
 
         } catch (\Throwable $e) {
             return redirect()->back()->with('error_saved', 'Data presensi gagal disimpan: ' . $e->getMessage());

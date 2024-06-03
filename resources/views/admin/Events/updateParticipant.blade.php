@@ -44,10 +44,10 @@
 
                                     <div class="form-group highlight-addon has-success">
                                         <label for="status">Status Kehadiran <span class="text-danger">*</span></label>
-                                        <select name="status" id="status" class="form-control" style="width: 150px;">
-                                            <option value="" selected disabled></option>
-                                            <option value="hadir">Hadir</option>
-                                            <option value="tidak_hadir">Tidak Hadir</option>
+                                        <select name="status" id="status" class="form-control" style="width: 150px;" disabled>
+                                            <option value="" {{$myEventParticipant->status_presensi ?? 'selected disabled'}}></option>
+                                            <option value="hadir" {{$myEventParticipant->status_presensi == 'Hadir' ? 'selected' : ''}}>Hadir</option>
+                                            <option value="tidak_hadir" {{$myEventParticipant->status_presensi == 'Tidak Hadir' ? 'selected' : ''}}>Tidak Hadir</option>
                                         </select>
                                         <div class="invalid-feedback"></div>
                                     </div>

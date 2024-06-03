@@ -150,6 +150,8 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
         Route::post('/create-attendance', [EventsAdminController::class, 'createAttendance'])->name('admin.events.createAttendance');
     });
 
+    Route::get('/admin/list_presensi', [EventsAdminController::class, 'listPresensi'])->name('admin.events.listPresensi');
+
     Route::get('/admin/ip_global', [IpGlobalController::class, 'index'])->name('ip_global.index');
 
     Route::prefix('/admin/ip_global')->group(function () {

@@ -250,6 +250,8 @@
                                                             <td>Nama</td>
                                                             <td>Email</td>
                                                             <td>No Handphone</td>
+                                                            <td>Status</td>
+                                                            <td>Waktu Presensi</td>
                                                             <td></td>
                                                         </tr>
 
@@ -273,25 +275,34 @@
                                                     </thead>
 
                                                     <tbody>
+                                                    @forelse ($eventParticipant as $participant)
+                                                        <tr>
+                                                            <td>{{$loop->index + 1}}</td>
+                                                            <td>{{$participant->name}}</td>
+                                                            <td>{{$participant->email}}</td>
+                                                            <td>{{$participant->phone_number}}</td>
+                                                            <td>
+                                                                @if ($participant->status_presensi == 'Hadir')
+                                                                    <i class="fa fa-check-circle" style="color: green;"></i>&nbsp; Hadir
+                                                                @elseif ($participant->status_presensi == 'Tidak Hadir')
+                                                                    <i class="fa fa-times-circle" style="color: red;"></i>&nbsp; Tidak Hadir
+                                                                @else
+                                                                    (not set)
+                                                                @endif
+                                                            </td>
+                                                            <td>{{$participant->waktu_presensi ?? 'null'}}</td>
+                                                            <td>
+                                                                <a class="btn btn-warning btn-sm" href="{{route('admin.events.updateParticipant', ['code' => $eventCode, 'id' => encrypt($participant->id)])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden="true"></i></a>
+                                                                <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.events.deleteParticipant', ['id' => encrypt($participant->id)])}}" title="Delete" aria-label="Delete" data-role="participant"><i class="fa-fw fas fa-trash" aria-hidden="true"></i></a>
+                                                            </td>
+                                                        </tr>
+                                                    @empty
+                                                        <tr>
+                                                            <td colspan="7" class="text-center text-danger">Data peserta tidak ditemukan!</td>
+                                                        </tr>
+                                                    @endforelse
+                                                </tbody>
 
-                                                        @forelse ($eventParticipant as $participant)
-                                                            <tr>
-                                                                <td>{{$loop->index += 1}}</td>
-                                                                <td>{{$participant->name}}</td>
-                                                                <td>{{$participant->email}}</td>
-                                                                <td>{{$participant->phone_number}}</td>
-                                                                <td>
-                                                                    <a class="btn btn-warning btn-sm" href="{{route('admin.events.updateParticipant', ['code' => $eventCode, 'id' => encrypt($participant->id)])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
-                                                                    <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.events.deleteParticipant', ['id' => encrypt($participant->id)])}}" title="Delete" aria-label="Delete" data-role="participant"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
-                                                                </td>
-                                                            </tr>
-                                                        @empty
-                                                            <tr>
-                                                                <td colspan="6" class="text-center text-danger">Data peserta tidak ditemukan!</td>
-                                                            </tr>
-                                                        @endforelse
-
-                                                    </tbody>
                                                 </table>
 
                                                 @if (isset($searchDataParticipant))
