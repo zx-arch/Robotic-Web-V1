@@ -230,7 +230,7 @@
                                                 <select class="form-control" id="event" name="event_name" required>
                                                     <option value="" disabled selected>Choose Event</option>
                                                     @forelse ($eventNotSetPresensi as $ev)
-                                                        <option value="{{$ev->nama_event}}" data-code="{{\Illuminate\Support\Str::random(15)}}" event-code="{{$ev->code_event}}">{{$ev->nama_event}}</option>
+                                                        <option value="{{$ev->nama_event}}" data-code="{{\Illuminate\Support\Str::random(15)}}" event-code="{{$ev->code}}">{{$ev->nama_event}}</option>
                                                     @endforeach
                                                     <!-- Tambahkan opsi event lain di sini -->
                                                 </select>

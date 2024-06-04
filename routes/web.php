@@ -138,6 +138,10 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
         Route::post('/save-add', [EventsAdminController::class, 'saveAdd'])->name('admin.events.saveAdd');
         Route::get('/{code}', [EventsAdminController::class, 'update'])->name('admin.events.update');
         Route::get('/{code}/update-manager/{id}', [EventsAdminController::class, 'updateManager'])->name('admin.events.updateManager');
+        Route::get('/detail-presensi/{code}', [EventsAdminController::class, 'detailPresensi'])->name('admin.events.detailPresensi');
+        Route::post('/perpanjang-presensi/{code}', [EventsAdminController::class, 'perpanjangPresensi'])->name('admin.events.perpanjangPresensi');
+        Route::post('/set-presensi/{code}', [EventsAdminController::class, 'submitSetPresensi'])->name('admin.events.submitSetPresensi');
+        Route::post('/presensi-user/{code}/{id}', [EventsAdminController::class, 'presentUser'])->name('admin.events.presentUser');
         Route::get('/search/{code}/role/{role}', [EventsAdminController::class, 'searchUpdate'])->name('admin.events.searchUpdate');
         Route::post('/{code}/save-manager/{id}', [EventsAdminController::class, 'saveManager'])->name('admin.events.saveManager');
         Route::get('/{code}/update-participant/{id}', [EventsAdminController::class, 'updateParticipant'])->name('admin.events.updateParticipant');

@@ -12,6 +12,7 @@ use App\Models\Events;
 use App\Models\EventManager;
 use App\Models\EventParticipant;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Validator;
 
 class EventsAdminController extends Controller
 {
@@ -57,11 +58,11 @@ class EventsAdminController extends Controller
 
     public function listPresensi()
     {
-        $listPresensi = Attendances::select(
+        $listPresensiQuery = Attendances::select(
             'attendances.*',
             DB::raw('(SELECT COUNT(*) FROM event_participant WHERE event_participant.event_code = attendances.event_code) as total_peserta'),
             DB::raw('(SELECT COUNT(*) FROM event_participant WHERE event_participant.event_code = attendances.event_code and event_participant.status_presensi = "Hadir") as peserta_hadir'),
-            DB::raw('(SELECT COUNT(*) FROM event_participant WHERE event_participant.event_code = attendances.event_code and event_participant.status_presensi = "Tidak Hadir") as peserta_tidak_hadir'),
+            DB::raw('(SELECT COUNT(*) FROM event_participant WHERE event_participant.event_code = attendances.event_code and event_participant.status_presensi = "Tidak Hadir") as peserta_tidak_hadir')
         )->groupBy(
                 'attendances.id',
                 'attendances.event_code',
@@ -73,11 +74,145 @@ class EventsAdminController extends Controller
                 'attendances.created_at',
                 'attendances.updated_at',
                 'attendances.deleted_at'
-            )->get();
+            );
 
-        $eventNotSetPresensi = Events::whereNotIn('code', Attendances::select('event_code')->get()->pluck('event_code'))->get();
+        $listPresensi = $listPresensiQuery->get();
+
+        $eventNotSetPresensi = Events::whereNotIn('code', $listPresensi->pluck('event_code'))->get();
 
         return view('admin.Events.listPresensi', $this->data, compact('listPresensi', 'eventNotSetPresensi'));
+    }
+
+    public function detailPresensi($code)
+    {
+        $participants = DB::table('event_participant')->where('event_code', $code)->latest();
+
+        $itemsPerPage = 15;
+        //print_r();
+        // Menentukan jumlah halaman maksimum untuk semua data
+
+        if ($itemsPerPage >= 15) {
+            $totalPages = 15;
+        }
+
+        $participants = $participants->paginate($itemsPerPage);
+
+        if ($participants->count() > 15) {
+            $participants = $participants->paginate($itemsPerPage);
+
+            if ($participants->currentPage() > $participants->lastPage()) {
+                return redirect($participants->url($participants->lastPage()));
+            }
+        }
+
+        $attendances = Attendances::where('event_code', $code)->first();
+        $events = Events::where('code', $code)->first();
+
+        return view('admin.Events.detailPresensi', $this->data, compact('code', 'participants', 'attendances', 'events'));
+    }
+
+    public function perpanjangPresensi(Request $request, $code)
+    {
+        //dd($code, $request->all());
+        return redirect()->back()->with('click_perpanjang', true);
+    }
+
+    public function submitSetPresensi(Request $request, $code)
+    {
+        try {
+            $validator = Validator::make($request->all(), [
+                'setTgl' => 'required|date|after_or_equal:today',
+                'waktuMulai' => 'required|date_format:H:i',
+                'waktuBerakhir' => 'required|date_format:H:i|after:waktuMulai',
+            ], [
+                'setTgl.after_or_equal' => 'Tanggal presensi harus setidaknya hari ini.',
+                'waktuBerakhir.after' => 'Jam berakhir harus lebih besar dari jam mulai.',
+            ]);
+
+            // Jika validasi gagal
+            if ($validator->fails()) {
+                return redirect()->back()
+                    ->withErrors($validator)
+                    ->withInput();
+            }
+
+            Attendances::where('event_code', $code)->update([
+                'opening_date' => $request->setTgl . ' ' . $request->waktuMulai,
+                'closing_date' => $request->setTgl . ' ' . $request->waktuBerakhir
+            ]);
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Set Waktu Presensi from ' . $request->setTgl . ' ' . $request->waktuMulai . ' to ' . $request->setTgl . ' ' . $request->waktuBerakhir,
+            ]);
+
+            session(['max_time_presensi' => $request->setTgl . ' ' . $request->waktuBerakhir]);
+
+            return redirect()->route('admin.events.detailPresensi', ['code' => $code])->with('success_saved', 'Berhasil perpanjang waktu presensi!');
+
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.events.detailPresensi', ['code' => $code])->with('error_saved', 'Gagal perpanjang waktu presensi: ' . $e->getMessage());
+        }
+
+    }
+
+    public function presentUser(Request $request, $code, $id)
+    {
+        try {
+
+            if ($request->isMethod('post')) {
+
+                $checkTime = Attendances::where('event_code', $code)->first()->closing_date;
+
+                if ($checkTime > now()) {
+                    $checkUser = EventParticipant::where('id', decrypt($id))->first();
+
+                    if ($checkUser) {
+                        if ($request->has('present')) {
+                            $checkUser->update([
+                                'status_presensi' => 'Hadir',
+                                'waktu_presensi' => now()
+                            ]);
+
+                            ActivityRepository::create([
+                                'user_id' => Auth::user()->id,
+                                'action' => Auth::user()->username . ' Presensikan User Hadir ' . $checkUser->name . ' Event Code ' . $code,
+                            ]);
+
+                            return redirect()->route('admin.events.detailPresensi', ['code' => $code]);
+
+                        }
+
+                        if ($request->has('block')) {
+                            $checkUser->update([
+                                'status_presensi' => 'Tidak Hadir',
+                                'waktu_presensi' => now()
+                            ]);
+
+                            ActivityRepository::create([
+                                'user_id' => Auth::user()->id,
+                                'action' => Auth::user()->username . ' Presensikan User Tidak Hadir ' . $checkUser->name . ' Event Code ' . $code,
+                            ]);
+
+                            return redirect()->route('admin.events.detailPresensi', ['code' => $code]);
+
+                        }
+
+                        return redirect()->route('admin.events.detailPresensi', ['code' => $code])->with('error_saved', 'Gagal presensikan peserta, id peserta tidak terdaftar!');
+                    }
+
+                    return redirect()->route('admin.events.detailPresensi', ['code' => $code])->with('error_saved', 'Gagal presensikan peserta, id peserta tidak terdaftar!');
+
+                } else {
+                    return redirect()->route('admin.events.detailPresensi', ['code' => $code])->with('error_saved', 'Gagal presensikan peserta, waktu presensi telah berakhir!');
+                }
+            } else {
+                return redirect()->route('admin.events.detailPresensi', ['code' => $code])->with('error_saved', 'Gagal presensikan peserta, tidak boleh akses melalui URL!');
+            }
+
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.events.detailPresensi', ['code' => $code])->with('error_saved', 'Gagal presensikan peserta: ' . $e->getMessage());
+        }
     }
 
     public function add()
@@ -442,6 +577,7 @@ class EventsAdminController extends Controller
             return redirect()->back()->with('error_saved', 'Data gagal ditambah: ' . $e->getMessage());
         }
     }
+
     public function deleteManager($id)
     {
         try {

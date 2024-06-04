@@ -7,6 +7,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Schema;
 use Illuminate\Database\Schema\Blueprint;
 use Illuminate\Support\Str;
+use Illuminate\Support\Facades\DB;
 
 class Events extends Model
 {
@@ -39,7 +40,14 @@ class Events extends Model
 
     private static function checkAndCreateTable()
     {
-        if (!Schema::hasTable('events')) {
+        // Mengambil semua tabel yang ada di skema database
+        $existingTables = DB::table('information_schema.tables')
+            ->select('table_name')
+            ->where('table_schema', DB::connection()->getDatabaseName())
+            ->pluck('table_name')
+            ->toArray();
+
+        if (!in_array('events', $existingTables)) {
             Schema::create('events', function (Blueprint $table) {
                 $table->uuid('code')->primary();
                 $table->string('nama_event', 100);
@@ -53,7 +61,7 @@ class Events extends Model
             });
         }
 
-        if (!Schema::hasTable('event_manager')) {
+        if (!in_array('event_manager', $existingTables)) {
             Schema::create('event_manager', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->string('event_code');
@@ -75,7 +83,7 @@ class Events extends Model
             });
         }
 
-        if (!Schema::hasTable('event_participant')) {
+        if (!in_array('event_participant', $existingTables)) {
             Schema::create('event_participant', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->string('event_code');
@@ -96,7 +104,7 @@ class Events extends Model
             });
         }
 
-        if (!Schema::hasTable('attendances')) {
+        if (!in_array('attendances', $existingTables)) {
             Schema::create('attendances', function (Blueprint $table) {
                 $table->bigIncrements('id');
                 $table->uuid('event_code');

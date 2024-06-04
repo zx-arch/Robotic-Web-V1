@@ -19,28 +19,4 @@ class Attendances extends Model
         'closing_date',
         'access_code',
     ];
-
-    protected static function boot()
-    {
-        parent::boot();
-
-        static::checkAndCreateTable();
-    }
-
-    private static function checkAndCreateTable()
-    {
-        if (!Schema::hasTable('attendances')) {
-            Schema::create('attendances', function (Blueprint $table) {
-                $table->bigIncrements('id');
-                $table->uuid('event_code');
-                $table->string('event_name');
-                $table->enum('status', ['Enable', 'Disable'])->nullable();
-                $table->timestamp('opening_date')->nullable();
-                $table->timestamp('closing_date')->nullable();
-                $table->char('access_code', 15);
-                $table->timestamps();
-                $table->softDeletes();
-            });
-        }
-    }
 }

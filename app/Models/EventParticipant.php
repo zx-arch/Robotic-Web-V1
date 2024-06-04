@@ -67,7 +67,7 @@ class EventParticipant extends Model
                 ->pluck('event_code')
                 ->toArray();
 
-            if (!empty ($closedEvents)) {
+            if (!empty($closedEvents)) {
                 DB::table('event_participant')
                     ->whereIn('event_code', $closedEvents)
                     ->whereNull('status_presensi')

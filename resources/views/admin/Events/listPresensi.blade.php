@@ -34,7 +34,7 @@
                                                 <select class="form-control" id="event" name="event_name" required>
                                                     <option value="" disabled selected>Choose Event</option>
                                                     @forelse ($eventNotSetPresensi as $ev)
-                                                        <option value="{{$ev->nama_event}}" data-code="{{\Illuminate\Support\Str::random(15)}}" event-code="{{$ev->code_event}}">{{$ev->nama_event}}</option>
+                                                        <option value="{{$ev->nama_event}}" data-code="{{\Illuminate\Support\Str::random(15)}}" event-code="{{$ev->code}}">{{$ev->nama_event}}</option>
                                                     @endforeach
                                                     <!-- Tambahkan opsi event lain di sini -->
                                                 </select>
@@ -138,7 +138,7 @@
                                                 <td>{{$presensi->peserta_hadir}}</td>
                                                 <td>{{$presensi->peserta_tidak_hadir}}</td>
                                                 <td>
-                                                    <a class="btn btn-warning btn-sm" href="#" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
+                                                    <a class="btn btn-warning btn-sm" href="{{route('admin.events.detailPresensi', ['code' => $presensi->event_code])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
                                                     <a class="btn btn-danger btn-sm btn-delete" href="#" title="Delete" aria-label="Delete" data-pjax="0"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
                                                 </td>
                                             </tr>
