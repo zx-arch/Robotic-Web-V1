@@ -47,6 +47,8 @@ class Events extends Model
             ->pluck('table_name')
             ->toArray();
 
+        session(['existingTables' => $existingTables]);
+
         if (!in_array('events', $existingTables)) {
             Schema::create('events', function (Blueprint $table) {
                 $table->uuid('code')->primary();
