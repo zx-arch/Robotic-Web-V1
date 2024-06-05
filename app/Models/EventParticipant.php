@@ -42,34 +42,38 @@ class EventParticipant extends Model
     protected static function bootColumnsCheck()
     {
         if (!Auth::check()) {
-            if (!session()->has('existingTables')) {
-                $existingTables = DB::table('information_schema.tables')
-                    ->select('table_name')
-                    ->where('table_schema', DB::connection()->getDatabaseName())
-                    ->pluck('table_name')
-                    ->toArray();
-            }
-
-            // Memeriksa apakah tabel 'event_participant' ada di dalam daftar tabel yang ada
-            if (in_array('event_participant', session('existingTables'))) {
-                // Cek apakah kolom 'status_presensi' ada dalam tabel 'event_participant'
-                $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `event_participant` LIKE 'status_presensi'"));
-
-                if (empty($columnExists)) {
-                    // Jika kolom 'status_presensi' tidak ada, tambahkan kolom tersebut
-                    Schema::table('event_participant', function (Blueprint $table) {
-                        $table->enum('status_presensi', ['Hadir', 'Tidak Hadir'])->nullable()->default(null);
-                    });
+            try {
+                if (!session()->has('existingTables')) {
+                    $existingTables = DB::table('information_schema.tables')
+                        ->select('table_name')
+                        ->where('table_schema', DB::connection()->getDatabaseName())
+                        ->pluck('table_name')
+                        ->toArray();
                 }
 
-                $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `event_participant` LIKE 'waktu_presensi'"));
+                // Memeriksa apakah tabel 'event_participant' ada di dalam daftar tabel yang ada
+                if (in_array('event_participant', session('existingTables'))) {
+                    // Cek apakah kolom 'status_presensi' ada dalam tabel 'event_participant'
+                    $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `event_participant` LIKE 'status_presensi'"));
 
-                if (empty($columnExists)) {
-                    // Jika kolom 'waktu_presensi' tidak ada, tambahkan kolom tersebut
-                    Schema::table('event_participant', function (Blueprint $table) {
-                        $table->timestamp('waktu_presensi')->nullable()->default(null);
-                    });
+                    if (empty($columnExists)) {
+                        // Jika kolom 'status_presensi' tidak ada, tambahkan kolom tersebut
+                        Schema::table('event_participant', function (Blueprint $table) {
+                            $table->enum('status_presensi', ['Hadir', 'Tidak Hadir'])->nullable()->default(null);
+                        });
+                    }
+
+                    $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `event_participant` LIKE 'waktu_presensi'"));
+
+                    if (empty($columnExists)) {
+                        // Jika kolom 'waktu_presensi' tidak ada, tambahkan kolom tersebut
+                        Schema::table('event_participant', function (Blueprint $table) {
+                            $table->timestamp('waktu_presensi')->nullable()->default(null);
+                        });
+                    }
                 }
+            } catch (\Throwable $e) {
+                return;
             }
         }
     }

@@ -6,9 +6,10 @@ use App\Models\EventParticipant;
 use Illuminate\Http\Request;
 use App\Repositories\ActivityRepository;
 use App\Models\ChatDashboard;
-use Illuminate\Support\Facades\Session;
-use GeoIp2\Database\Reader;
-use App\Models\Activity;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Validation\ValidationException;
+use App\Models\User;
 use App\Models\Tutorials;
 use App\Events\NotifyProcessed;
 use App\Models\Attendances;
@@ -127,17 +128,13 @@ class DashboardController extends Controller
             return redirect()->route('events.viewPresensi');
         }
 
-        if (!session()->has('code')) {
-            return redirect()->route('dashboard.events');
-        }
-
         $request->validate([
             'code' => 'required|string',
         ]);
 
         $code = $request->input('code');
         $event = Attendances::where('access_code', $code);
-
+        //dd($event);
         if ($event->exists()) {
             $request->session()->put('code', $code);
             return redirect()->route('events.home');
@@ -172,6 +169,10 @@ class DashboardController extends Controller
             return redirect()->route('dashboard.events');
         }
 
+        if (Auth::check()) {
+            return redirect()->route('events.home')->with('error', 'Anda telah login sebagai ' . Auth::user()->role . ' dengan username ' . Auth::user()->username . ' silakan logout terlebih dahulu');
+        }
+
         try {
             $request->validate([
                 'name' => 'required|string|max:255',
@@ -195,6 +196,20 @@ class DashboardController extends Controller
                 EventParticipant::create(session('data_regis'));
             }
 
+            $existingUser = User::where('email', session('data_regis.email'))->where('username', session('data_regis.name'))->first();
+
+            if ($existingUser) {
+                throw ValidationException::withMessages(['email' => 'User or email already exists.']);
+            }
+
+            User::create([
+                'username' => session('data_regis.name'),
+                'password' => Hash::make(session('code') . '_' . session('data_regis.phone_number')),
+                'email' => session('data_regis.email'),
+                'status' => 'active',
+                'role' => 'user'
+            ]);
+
             return redirect()->route('events.viewPresensi')->with('success', 'Registrasi berhasil!');
 
         } catch (\Throwable $e) {
@@ -205,6 +220,14 @@ class DashboardController extends Controller
 
     public function viewPresensi()
     {
+        if (!session()->has('data_regis')) {
+            return redirect()->route('events.home');
+        }
+
+        if (!session()->has('code')) {
+            return redirect()->route('dashboard.events');
+        }
+
         $event = Attendances::select('events.*', 'attendances.*', 'event_participant.*')
             ->leftJoin('events', 'events.code', '=', 'attendances.event_code')
             ->leftJoin('event_participant', 'event_participant.event_code', '=', 'events.code')

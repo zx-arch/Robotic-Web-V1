@@ -83,12 +83,14 @@ class LoginController extends Controller
         if (Auth::check()) {
 
             if (!session('blocked_ip')) {
-                $status = 403;
-                $message = 'Anda tidak memiliki akses ke halaman ini.';
-                return response()->view('errors.error', ['message' => $message, 'status' => $status], $status);
+                return redirect()->intended('/' . Auth::user()->role);
             }
 
         } else {
+
+            if (session()->has('data_regis')) {
+                session()->forget('data_regis');
+            }
 
             $tutorials = Tutorials::where('tutorial_category_id', 2)->with('categoryTutorial')->get();
             //dd($tutorials);

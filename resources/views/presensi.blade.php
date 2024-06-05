@@ -9,7 +9,6 @@
         body, html {
             height: 100%;
             margin: 0;
-            display: flex;
             justify-content: center;
             align-items: center;
             background-color: #f0f2f5;
@@ -18,6 +17,7 @@
         .container {
             background: white;
             padding: 50px;
+            max-height: 900px;
             border-radius: 10px;
             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
             animation: fadeIn 1s ease-in-out;
@@ -117,7 +117,7 @@
             </div>
         @endif
 
-        @if ($user->status_presensi == 'Hadir' && !is_null($user->waktu_presensi))
+        @if (isset($user->status_presensi) && $user->status_presensi == 'Hadir' && !is_null($user->waktu_presensi))
             <div class="alert alert-success">
                 <strong>Presensi: {{ \Carbon\Carbon::parse($user->waktu_presensi)->isoFormat('dddd, D MMMM YYYY HH:mm') }}</strong>
             </div>
@@ -174,6 +174,12 @@
             </div>
         @endif
 
+        <div class="alert alert-success mt-3">
+            <p><strong>Note</strong>: Anda dapat login ke sistem untuk mengisi presensi atau mengikuti event lainnya dengan account default: </p>
+            <p><strong>Username</strong>: {{session('data_regis.name')}}</p>
+            <p><strong>Password</strong>: {{session('code').'_'.session('data_regis.phone_number')}}</p>
+            <p>Melalui URL : <a href="{{env('APP_URL')}}/login">{{env('APP_URL')}}/login</a></p>
+        </div>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
