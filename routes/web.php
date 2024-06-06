@@ -11,7 +11,7 @@ use App\Http\Controllers\Admin\TutorialsAdminController;
 use App\Http\Controllers\Admin\CoursesAdminController;
 use App\Http\Controllers\Admin\DaftarPengguna;
 use App\Http\Controllers\Admin\AktivitasPenggunaController;
-use App\Http\Controllers\user\Dashboarduser;
+use App\Http\Controllers\User\DashboardUser;
 use App\Http\Controllers\Admin\LanguageController;
 use App\Http\Controllers\Pengurus\DashboardPengurus;
 use App\Http\Controllers\Pengurus\TutorialsPengurusController;
