@@ -190,10 +190,13 @@ Route::middleware(['auth.login', 'pengurus.auth', 'blocked', 'check.cookie', 'ro
     Route::post('/pengurus/tutorials', [TutorialsPengurusController::class, 'index']);
 });
 
-
 // Tambahkan rute lain untuk user di sini
 Route::middleware(['auth.login', 'user.auth', 'blocked', 'check.cookie'])->group(function () {
     Route::get('/user', [DashboardUser::class, 'index'])->name('user.dashboard');
+
+    Route::prefix('/user')->group(function () {
+        Route::post('/presensi/{code}/{id}', [DashboardUser::class, 'presentUser'])->name('user.dashboard.presentUser');
+    });
 });
 
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');

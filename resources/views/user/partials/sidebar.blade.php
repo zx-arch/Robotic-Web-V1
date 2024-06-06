@@ -4,7 +4,7 @@
             <i class="lni lni-grid-alt"></i>
         </button>
         <div class="sidebar-logo">
-            <a href="#">CodzSword</a>
+            <a href="#">{{Auth::user()->username}}</a>
         </div>
     </div>
 
