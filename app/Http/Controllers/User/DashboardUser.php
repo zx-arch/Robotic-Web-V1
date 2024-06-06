@@ -9,6 +9,6 @@ class DashboardUser extends Controller
 {
     public function index()
     {
-        dd('OK!');
+        return view('user.dashboard');
     }
 }
