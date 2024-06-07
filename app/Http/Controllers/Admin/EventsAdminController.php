@@ -11,8 +11,10 @@ use App\Models\Attendances;
 use App\Models\Events;
 use App\Models\EventManager;
 use App\Models\EventParticipant;
+use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Hash;
 
 class EventsAdminController extends Controller
 {
@@ -634,6 +636,18 @@ class EventsAdminController extends Controller
                 'opening_date' => $opening_date,
                 'closing_date' => $closing_date,
                 'access_code' => $request->access_code,
+            ]);
+
+            $newUser = User::create([
+                'username' => $request->access_code,
+                'email' => $request->access_code,
+                'password' => Hash::make($request->access_code),
+                'role' => 'guest',
+                'status' => 'active',
+            ]);
+
+            User::where('id', $newUser->id)->update([
+                'role' => 'guest'
             ]);
 
             ActivityRepository::create([
