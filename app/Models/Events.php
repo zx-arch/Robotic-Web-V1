@@ -49,6 +49,15 @@ class Events extends Model
 
         session(['existingTables' => $existingTables]);
 
+        $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `events` LIKE 'city'"));
+
+        if (empty($columnExists)) {
+            // Jika kolom 'city' tidak ada, tambahkan kolom tersebut
+            Schema::table('events', function (Blueprint $table) {
+                $table->string('city', 25)->nullable()->default(null)->after('location');
+            });
+        }
+
         if (!in_array('events', $existingTables)) {
             Schema::create('events', function (Blueprint $table) {
                 $table->uuid('code')->primary();

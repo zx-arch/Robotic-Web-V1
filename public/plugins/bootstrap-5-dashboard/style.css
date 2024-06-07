@@ -7,6 +7,61 @@
     padding: 0;
 }
 
+.info-box {
+    display: flex;
+    align-items: center;
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+    transition: all 0.3s ease;
+}
+
+.info-box:hover {
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+.info-box-icon {
+    background: rgba(0, 123, 255, 0.1);
+    border-radius: 50%;
+    padding: 15px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-size: 30px;
+    color: #007bff;
+    margin-right: 20px;
+}
+
+.info-box-content {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.info-box-text {
+    font-size: 16px;
+    color: #333;
+    margin-bottom: 5px;
+}
+
+.info-box-number {
+    font-size: 24px;
+    font-weight: bold;
+    color: #007bff;
+}
+
+.card-footer > * {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box; /* Menjamin padding dan border tidak mempengaruhi ukuran elemen */
+}
+
+/* Atur tampilan form agar sesuai dengan ukuran tombol */
+.card-footer form {
+    display: inline-block;
+}
+
 a {
     text-decoration: none;
 }
@@ -168,7 +223,5 @@ a.sidebar-link:hover {
     height: 40px;
     width: 40px;
 }
-
-
 
 @media (min-width: 768px) {}

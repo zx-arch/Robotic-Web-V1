@@ -15,53 +15,6 @@
     <link href="{{asset('assets/vendor/remixicon/remixicon.css')}}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
 
-    <style>
-        .info-box {
-            display: flex;
-            align-items: center;
-            background: white;
-            padding: 20px;
-            border-radius: 10px;
-            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
-            transition: all 0.3s ease;
-        }
-
-        .info-box:hover {
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
-        }
-
-        .info-box-icon {
-            background: rgba(0, 123, 255, 0.1);
-            border-radius: 50%;
-            padding: 15px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            font-size: 30px;
-            color: #007bff;
-            margin-right: 20px;
-        }
-
-        .info-box-content {
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .info-box-text {
-            font-size: 16px;
-            color: #333;
-            margin-bottom: 5px;
-        }
-
-        .info-box-number {
-            font-size: 24px;
-            font-weight: bold;
-            color: #007bff;
-        }
-
-    </style>
-
     <link rel="stylesheet" href="{{asset('assets/css/customcolor.css')}}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
 

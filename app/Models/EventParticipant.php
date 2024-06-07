@@ -43,14 +43,6 @@ class EventParticipant extends Model
     {
         if (!Auth::check()) {
             try {
-                if (!session()->has('existingTables')) {
-                    $existingTables = DB::table('information_schema.tables')
-                        ->select('table_name')
-                        ->where('table_schema', DB::connection()->getDatabaseName())
-                        ->pluck('table_name')
-                        ->toArray();
-                }
-
                 // Memeriksa apakah tabel 'event_participant' ada di dalam daftar tabel yang ada
                 if (in_array('event_participant', session('existingTables'))) {
                     // Cek apakah kolom 'status_presensi' ada dalam tabel 'event_participant'

@@ -14,8 +14,9 @@
     }
 
     .custom-card .card-title {
-        font-size: 1.5rem;
-        margin-bottom: 0.5rem;
+        font-size: 1.2rem;
+        font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        /* font-family: 'Franklin Gothic Medium', 'Arial Narrow', Arial, sans-serif; */
     }
 
     .custom-card .card-text {
@@ -37,7 +38,7 @@
     }
 
     .carousel-item {
-        transition-duration: 6s; /* Ganti nilai ini sesuai kebutuhan Anda */
+        transition-duration: 15s; /* Ganti nilai ini sesuai kebutuhan Anda */
     }
 
     .carousel-item > .row {
@@ -59,6 +60,7 @@
     .card.custom-card {
         height: 100%;
     }
+
     .custom-card:hover {
         box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
     }
@@ -88,8 +90,8 @@
                         <div class="info-box bg-info">
                             <span class="info-box-icon"><i class='bx bxs-user'></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Total Device Access</span>
-                                <span class="info-box-number">0</span>
+                                <span class="info-box-text">Total Semua Peserta</span>
+                                <span class="info-box-number">{{$totalPeserta}}</span>
                             </div>
                         </div>
                     </div>
@@ -97,8 +99,8 @@
                         <div class="info-box bg-primary">
                             <span class="info-box-icon"><i class='bx bxs-devices'></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Active Devices</span>
-                                <span class="info-box-number">10</span>
+                                <span class="info-box-text">Total Peserta Hadir</span>
+                                <span class="info-box-number">{{$participantCounts->hadir_count}} dari {{($participantCounts->tidak_hadir_count == 0 ? $totalPeserta : $participantCounts->tidak_hadir_count)}}</span>
                             </div>
                         </div>
                     </div>
@@ -106,8 +108,8 @@
                         <div class="info-box bg-success">
                             <span class="info-box-icon"><i class='bx bxs-bell'></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Notifications</span>
-                                <span class="info-box-number">5</span>
+                                <span class="info-box-text">Kota Event Terbanyak</span>
+                                <span class="info-box-number">{{$kotaTerbanyak->city}}</span>
                             </div>
                         </div>
                     </div>
@@ -115,8 +117,8 @@
                         <div class="info-box bg-warning">
                             <span class="info-box-icon"><i class='bx bxs-check-circle'></i></span>
                             <div class="info-box-content">
-                                <span class="info-box-text">Completed Tasks</span>
-                                <span class="info-box-number">8</span>
+                                <span class="info-box-text">Total Event Terbanyak</span>
+                                <span class="info-box-number">{{$kotaTerbanyak->total}} event</span>
                             </div>
                         </div>
                     </div>
@@ -126,119 +128,74 @@
 
                     <div class="highlight-title">Events Terbaru</div>
                     
-                    <div id="eventCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="12000">
+                    <div id="eventCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="35000">
                         <div class="carousel-inner">
                             <div class="carousel-item active">
-                                <div class="d-flex flex-wrap justify-content-center">
-                                    <div class="col-lg-3 col-md-6 p-2">
-                                        <div class="card custom-card my-bg-1">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Event 1</h5>
-                                                <p class="card-text"><strong>Date:</strong> June 1, 2024</p>
-                                                <p class="card-text"><strong>Place:</strong> Central Park</p>
-                                                <p class="card-text">Join us for a day of fun and activities.</p>
-                                            </div>
-                                            <div class="card-footer">
-                                                <button class="btn btn-primary my-bg-1-btn w-50">Register</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6 p-2">
-                                        <div class="card custom-card my-bg-2">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Event 2</h5>
-                                                <p class="card-text"><strong>Date:</strong> June 5, 2024</p>
-                                                <p class="card-text"><strong>Place:</strong> Downtown Hall</p>
-                                                <p class="card-text">Don't miss this special occasion with lots of learning opportunities.</p>
-                                            </div>
-                                            <div class="card-footer">
-                                                <button class="btn btn-primary my-bg-2-btn w-50">Register</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6 p-2">
-                                        <div class="card custom-card my-bg-3">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Event 3</h5>
-                                                <p class="card-text"><strong>Date:</strong> June 10, 2024</p>
-                                                <p class="card-text"><strong>Place:</strong> City Square</p>
-                                                <p class="card-text">A community gathering you don't want to miss.</p>
-                                            </div>
-                                            <div class="card-footer">
-                                                <button class="btn btn-primary my-bg-3-btn w-50">Register</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6 p-2">
-                                        <div class="card custom-card my-bg-4">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Event 4</h5>
-                                                <p class="card-text"><strong>Date:</strong> June 15, 2024</p>
-                                                <p class="card-text"><strong>Place:</strong> Riverbank</p>
-                                                <p class="card-text">Enjoy a relaxing day by the river.</p>
-                                            </div>
-                                            <div class="card-footer">
-                                                <button class="btn btn-primary my-bg-4-btn w-50">Register</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="carousel-item">
-                                <div class="d-flex flex-wrap justify-content-center">
-                                    <div class="col-lg-3 col-md-6 p-2">
-                                        <div class="card custom-card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Event 5</h5>
-                                                <p class="card-text"><strong>Date:</strong> June 20, 2024</p>
-                                                <p class="card-text"><strong>Place:</strong> Beachside</p>
-                                                <p class="card-text">A beachside event with lots of fun activities.</p>
-                                            </div>
-                                            <div class="card-footer">
-                                                <button class="btn btn-primary w-50">Register</button>
+                                <div class="d-flex flex-wrap">
+
+                                    @forelse ($allEvents as $events)
+                                        <div class="col-lg-3 col-md-6 p-2">
+                                            <div class="card custom-card my-bg-{{$loop->index += 1}}">
+                                                <div class="card-header">
+                                                    <h5 class="card-title">{{$events->nama_event}}</h5>
+                                                </div>
+
+                                                <div class="card-body">
+                                                    <p class="card-text"><strong>Date:</strong> {{$events->event_date}}</p>
+                                                    <p class="card-text"><strong>Place:</strong> {{$events->location}}</p>
+
+                                                    <p class="card-text"><strong>Access Code:</strong> {{$events->access_code ?? 'belum tersedia'}}</p>
+
+                                                    @php
+                                                        $eventDate = \Carbon\Carbon::parse($events->event_date);
+                                                        $openingDate = \Carbon\Carbon::parse($events->opening_date);
+                                                        $closingDate = \Carbon\Carbon::parse($events->closing_date);
+                                                    @endphp
+
+                                                    @if ($events->register)
+                                                        @if ($events->opening_date <= now() && $events->closing_date >= now())
+                                                            <p class="card-text mb-3">Presensi dibuka {{$eventDate->isoFormat('ddd, D MMMM YYYY')}}
+                                                                <br>pukul {{$openingDate->isoFormat('HH:mm')}} - {{$closingDate->isoFormat('HH:mm')}}
+                                                            </p>
+                                                        @endif
+                                                    @endif
+
+                                                    @if ($events->event_date < now())
+                                                        <span><i class="fas fa-circle" style="color: red"></i>&nbsp; Finished </span>
+                                                    @elseif ($events->event_date == now())
+                                                        <span><i class="fas fa-circle" style="color: orange"></i>&nbsp; Ongoing</span>
+                                                    @else
+                                                        <span><i class="fas fa-circle" style="color: green"></i>&nbsp; Upcoming</span>
+                                                    @endif
+
+                                                </div>
+                                                
+                                                <div class="card-footer">
+                                                    @if ($events->opening_date <= now() && $events->closing_date >= now())
+                                                        <button class="btn btn-primary my-bg-{{$loop->index}}-btn w-50" id="btnPresensi" type="submit">Presensi</button>
+                                                    @else
+                                                        @if ($eventDate->isoFormat('HH:mm') > now()->isoFormat('HH:mm') && $eventDate->isoFormat('D MMMM YYYY') >= now()->isoFormat('D MMMM YYYY'))
+                                                            @if (!$events->register)
+                                                                <form action="{{route('user.dashboard.eventRegister', ['code' => $events->code])}}" method="post" id="formRegister">
+                                                                    @csrf
+                                                                    <button class="btn btn-primary my-bg-{{$loop->index}}-btn" id="btnRegister">Register</button>
+                                                                </form>
+                                                            @else
+                                                                <p>Have Registered</p>
+                                                            @endif
+                                                        @else
+                                                            <p style="visibility: hidden;">Empty</p>
+                                                        @endif
+                                                    @endif
+                                                </div>
+
                                             </div>
                                         </div>
-                                    </div>
-                                    <!-- Repeating the first few cards to make the carousel continuous -->
-                                    <div class="col-lg-3 col-md-6 p-2">
-                                        <div class="card custom-card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Event 1</h5>
-                                                <p class="card-text"><strong>Date:</strong> June 1, 2024</p>
-                                                <p class="card-text"><strong>Place:</strong> Central Park</p>
-                                                <p class="card-text">Join us for a day of fun and activities.</p>
-                                            </div>
-                                            <div class="card-footer">
-                                                <button class="btn btn-primary w-50">Register</button>
-                                            </div>
+                                    @empty
+                                        <div class="alert alert-warning">
+                                            Event terbaru belum tersedia
                                         </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6 p-2">
-                                        <div class="card custom-card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Event 2</h5>
-                                                <p class="card-text"><strong>Date:</strong> June 5, 2024</p>
-                                                <p class="card-text"><strong>Place:</strong> Downtown Hall</p>
-                                                <p class="card-text">Don't miss this special occasion with lots of learning opportunities.</p>
-                                            </div>
-                                            <div class="card-footer">
-                                                <button class="btn btn-primary w-50">Register</button>
-                                            </div>
-                                        </div>
-                                    </div>
-                                    <div class="col-lg-3 col-md-6 p-2">
-                                        <div class="card custom-card">
-                                            <div class="card-body">
-                                                <h5 class="card-title">Event 3</h5>
-                                                <p class="card-text"><strong>Date:</strong> June 10, 2024</p>
-                                                <p class="card-text"><strong>Place:</strong> City Square</p>
-                                                <p class="card-text">A community gathering you don't want to miss.</p>
-                                            </div>
-                                            <div class="card-footer">
-                                                <button class="btn btn-primary w-50">Register</button>
-                                            </div>
-                                        </div>
-                                    </div>
+                                    @endforelse
                                 </div>
                             </div>
                         </div>
@@ -353,3 +310,15 @@
 </main>
 
 @endsection
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        document.getElementById('btnRegister').addEventListener('click', function () {
+            document.getElementById('formRegister').submit();
+        });
+        @if (session()->has('success_saved') || session()->has('error_saved'))
+            const tableElement = document.getElementById('w0');
+            tableElement.scrollIntoView({ behavior: 'smooth' });
+        @endif
+    });
+</script>

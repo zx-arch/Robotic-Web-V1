@@ -196,6 +196,7 @@ Route::middleware(['auth.login', 'user.auth', 'blocked', 'check.cookie'])->group
 
     Route::prefix('/user')->group(function () {
         Route::post('/presensi/{code}/{id}', [DashboardUser::class, 'presentUser'])->name('user.dashboard.presentUser');
+        Route::post('/register-event/{code}', [DashboardUser::class, 'eventRegister'])->name('user.dashboard.eventRegister');
     });
 });
 
