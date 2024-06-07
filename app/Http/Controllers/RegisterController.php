@@ -5,8 +5,7 @@ namespace App\Http\Controllers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use App\Interfaces\ActivityRepositoryInterface;
-use App\Models\Activity;
+use App\Repositories\ActivityRepository;
 use App\Models\User;
 
 class RegisterController extends Controller
@@ -14,10 +13,9 @@ class RegisterController extends Controller
     private $data;
     protected $activityRepository;
 
-    public function __construct(ActivityRepositoryInterface $activityRepository)
+    public function __construct()
     {
         $this->data['currentActive'] = 'dashboard';
-        $this->activityRepository = $activityRepository;
     }
     public function index()
     {
@@ -57,7 +55,7 @@ class RegisterController extends Controller
                 'role' => $request->role
             ]);
 
-            $this->activityRepository->create([
+            ActivityRepository::create([
                 'user_id' => $newUser->id,
                 'action' => 'User Create New Account ID ' . $newUser->id,
             ]);
