@@ -200,8 +200,10 @@ Route::middleware(['auth.login', 'user.auth', 'blocked', 'check.cookie'])->group
         Route::post('/register-event/{code}', [DashboardUser::class, 'eventRegister'])->name('user.dashboard.eventRegister');
     });
 });
+
 Route::middleware(['auth.login', 'guest.auth', 'blocked', 'check.cookie'])->group(function () {
     Route::get('/guest', [GuestController::class, 'index'])->name('guest.dashboard');
-
+    Route::get('/guest/search', [GuestController::class, 'search'])->name('guest.dashboard.search');
 });
+
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
