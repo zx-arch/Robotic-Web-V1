@@ -186,6 +186,29 @@ class LoginController extends Controller
 
                 return redirect()->intended('/user');
 
+            } elseif ($user->role == 'guest') {
+
+                User::where('id', Auth::user()->id)->update([
+                    'count_failed_login' => null,
+                    'last_login' => now(),
+                    'time_start_failed_login' => null,
+                    'time_end_failed_login' => null
+                ]);
+
+                session()->forget('failed_login');
+
+                // dd(session('myActivity'), Session::get('csrf_token'));
+                if (session()->has('myActivity')) {
+                    ActivityRepository::create([
+                        'user_id' => Auth::user()->id,
+                        'action' => Auth::user()->username . ' Access Login Role ' . Auth::user()->role
+                    ]);
+                }
+
+                Cookie::queue('user_email', $credentials['username_or_email'], 1440);
+
+                return redirect()->intended('/guest');
+
             } else {
                 return redirect()->intended('/');
             }

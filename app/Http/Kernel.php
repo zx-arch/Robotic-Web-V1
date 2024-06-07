@@ -61,6 +61,7 @@ class Kernel extends HttpKernel
         'admin.auth' => \App\Http\Middleware\AdminAuthentication::class,
         'pengurus.auth' => \App\Http\Middleware\PengurusAuthentication::class,
         'user.auth' => \App\Http\Middleware\UserAuthentication::class,
+        'guest.auth' => \App\Http\Middleware\GuestAuthentication::class,
         'auth.basic' => \Illuminate\Auth\Middleware\AuthenticateWithBasicAuth::class,
         'cache.headers' => \Illuminate\Http\Middleware\SetCacheHeaders::class,
         'can' => \Illuminate\Auth\Middleware\Authorize::class,

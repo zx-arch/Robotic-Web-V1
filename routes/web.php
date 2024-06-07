@@ -3,6 +3,7 @@
 use App\Http\Controllers\Admin\CategoryTutorialController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\DashboardController;
+use App\Http\Controllers\GuestController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\Auth\LoginController;
 use App\Http\Controllers\CoursesController;
@@ -199,5 +200,8 @@ Route::middleware(['auth.login', 'user.auth', 'blocked', 'check.cookie'])->group
         Route::post('/register-event/{code}', [DashboardUser::class, 'eventRegister'])->name('user.dashboard.eventRegister');
     });
 });
+Route::middleware(['auth.login', 'guest.auth', 'blocked', 'check.cookie'])->group(function () {
+    Route::get('/guest', [GuestController::class, 'index'])->name('guest.dashboard');
 
+});
 Route::post('/logout', [LoginController::class, 'logout'])->name('logout');
