@@ -10,13 +10,13 @@
 
     <ul class="sidebar-nav">
         <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
+            <a href="{{route('user.dashboard')}}" class="sidebar-link">
                 <i class="ri-calendar-event-line"></i>
                 <span>Events</span>
             </a>
         </li>
 
-        <li class="sidebar-item">
+        {{-- <li class="sidebar-item">
             <a href="#" class="sidebar-link">
                 <i class="lni lni-agenda"></i>
                 <span>Task</span>
@@ -75,7 +75,7 @@
                 <i class="lni lni-cog"></i>
                 <span>Setting</span>
             </a>
-        </li>
+        </li> --}}
     </ul>
 
     <div class="sidebar-footer">
