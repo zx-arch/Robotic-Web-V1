@@ -29,14 +29,6 @@
         border-top-right-radius: 10px;
     }
 
-    .highlight-title {
-        font-size: 1.5rem;
-        font-weight: bold;
-        padding: 2px;
-        color: #007bff;
-        margin-bottom: 20px;
-    }
-
     .carousel-item {
         transition-duration: 15s; /* Ganti nilai ini sesuai kebutuhan Anda */
     }

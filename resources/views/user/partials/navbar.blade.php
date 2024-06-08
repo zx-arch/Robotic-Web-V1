@@ -16,7 +16,7 @@
                     </div>
                     <div class="dropdown-divider"></div>
 
-                    <a href="" class="dropdown-item"><i class="fas fa-cog" aria-hidden="true"></i> Settings</a>
+                    <a href="{{route('user.settings')}}" class="dropdown-item"><i class="fas fa-cog" aria-hidden="true"></i> Settings</a>
                     <form action="{{route('logout')}}" method="post" style="margin: 0; padding: 0;">
                         @csrf
                         <button class="dropdown-item"><i class="fas fa-sign-out-alt"></i> Logout</button>

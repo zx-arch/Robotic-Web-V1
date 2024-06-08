@@ -57,6 +57,14 @@
     box-sizing: border-box; /* Menjamin padding dan border tidak mempengaruhi ukuran elemen */
 }
 
+.highlight-title {
+    font-size: 1.5rem;
+    font-weight: bold;
+    padding: 2px;
+    color: #007bff;
+    margin-bottom: 20px;
+}
+
 /* Atur tampilan form agar sesuai dengan ukuran tombol */
 .card-footer form {
     display: inline-block;
