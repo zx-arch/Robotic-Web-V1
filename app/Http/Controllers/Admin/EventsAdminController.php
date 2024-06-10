@@ -11,6 +11,7 @@ use App\Models\Attendances;
 use App\Models\Events;
 use App\Models\EventManager;
 use App\Models\EventParticipant;
+use App\Models\OnlineEvents;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Validator;
@@ -24,6 +25,17 @@ class EventsAdminController extends Controller
     {
         $this->data['currentAdminMenu'] = 'events';
         $this->data['currentTitle'] = 'Events | Artec Coding Indonesia';
+
+        $data = DB::table('information_schema.columns')
+            ->select('column_name')
+            ->where('table_name', 'events')
+            ->get();
+
+        $columns = $data->pluck('column_name')->toArray();
+
+        if (!in_array('type_event', $columns)) {
+            DB::statement('ALTER TABLE events ADD COLUMN type_event VARCHAR(50) NULL AFTER event_section');
+        }
     }
 
     public function index()
@@ -217,6 +229,60 @@ class EventsAdminController extends Controller
         }
     }
 
+    public function onlineEvent()
+    {
+        return view('admin.Events.addOnlineEvent', $this->data);
+    }
+
+    public function saveOnlineEvent(Request $request)
+    {
+        try {
+
+            if ($request->online_app == 'other' && $request->has('other_app') && !is_null($request->other_app)) {
+                $request->online_app = $request->other_app;
+            }
+
+            $event_date = Carbon::parse($request->event_date)->format('Y-m-d H:i:s');
+
+            if ($request->has('poster_event')) {
+                $file = $request->file('poster_event');
+
+                // Dapatkan ekstensi file
+                $imageExtension = $file->getClientOriginalExtension();
+                // Buat nama unik untuk file gambar
+                $uniqueImageName = $file->getClientOriginalName() . '_' . time() . '.' . $imageExtension;
+
+                $directory = public_path('events');
+
+                // Membuat direktori jika tidak ada
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0777, true);
+                }
+
+                // Simpan data image ke dalam file di direktori yang diinginkan
+                $request->file('poster_event')->move(public_path('events'), $uniqueImageName);
+            }
+
+            OnlineEvents::create([
+                'name' => $request->name,
+                'event_date' => $request->event_date,
+                'host' => $request->host,
+                'speakers' => $request->speakers,
+                'online_app' => $request->online_app,
+                'link_pendaftaran' => $request->link_pendaftaran,
+                'link_online' => $request->link_online,
+                'user_access' => $request->user_access,
+                'passcode' => $request->passcode,
+                'poster' => ($request->has('poster_event') && !is_null($request->poster_event) ? url('events/' . $uniqueImageName) : null)
+            ]);
+            return redirect()->route('admin.events.index')->with('success_saved', 'Data online event berhasil ditambah!');
+
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.events.index')->with('error_saved', 'Gagal menambahkan event online: ' . $e->getMessage());
+        }
+
+    }
+
     public function add()
     {
         return view('admin.Events.add', $this->data);
@@ -227,6 +293,11 @@ class EventsAdminController extends Controller
         try {
             // Konversi tanggal dan waktu menjadi timestamp
             $event_date_datetime = Carbon::parse($request->event_date)->format('Y-m-d H:i:s');
+            $type_event_arry = ['Sosialisasi', 'Kompetisi', 'Festival', 'Seminar', 'Training'];
+
+            if (!in_array($request->type_event, $type_event_arry)) {
+                return redirect()->back()->with('error_saved', 'Pilih type event diantara list yang tersedia');
+            }
 
             if ($request->has('poster_event')) {
                 $file = $request->file('poster_event');
@@ -250,6 +321,7 @@ class EventsAdminController extends Controller
                 $newEvent = Events::create([
                     'nama_event' => $request->event_name,
                     'location' => $request->location,
+                    'type_event' => $request->type_event,
                     'organizer_name' => $request->organizer_name,
                     'event_section' => $request->event_section,
                     'event_date' => $event_date_datetime,
@@ -261,6 +333,7 @@ class EventsAdminController extends Controller
                 $newEvent = Events::create([
                     'nama_event' => $request->event_name,
                     'location' => $request->location,
+                    'type_event' => $request->type_event,
                     'organizer_name' => $request->organizer_name,
                     'event_section' => $request->event_section,
                     'event_date' => $event_date_datetime,

@@ -21,6 +21,7 @@ class Events extends Model
         'nama_event',
         'location',
         'event_date',
+        'type_event',
         'organizer_name',
         'event_section',
         'poster',

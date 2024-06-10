@@ -154,6 +154,8 @@ Route::middleware(['auth.login', 'admin.auth', 'blocked', 'check.cookie'])->grou
         Route::get('/delete-manager/{id}', [EventsAdminController::class, 'deleteManager'])->name('admin.events.deleteManager');
         Route::get('/delete-participant/{id}', [EventsAdminController::class, 'deleteParticipant'])->name('admin.events.deleteParticipant');
         Route::post('/create-attendance', [EventsAdminController::class, 'createAttendance'])->name('admin.events.createAttendance');
+        Route::get('/add/online-event', [EventsAdminController::class, 'onlineEvent'])->name('admin.events.onlineEvent');
+        Route::post('/save-online-event', [EventsAdminController::class, 'saveOnlineEvent'])->name('admin.events.saveOnlineEvent');
     });
 
     Route::get('/admin/list_presensi', [EventsAdminController::class, 'listPresensi'])->name('admin.events.listPresensi');
