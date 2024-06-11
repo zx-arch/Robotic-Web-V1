@@ -278,6 +278,20 @@
                             </div>
                         @endif
 
+                        @if (session()->has('success_updated'))
+                            <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-75" role="alert">
+                                {{session('success_updated')}}
+                                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                            </div>
+                        @endif
+
+                        @if (session()->has('error_updated'))
+                            <div id="w6" class="alert-danger alert alert-dismissible mt-3 w-75" role="alert">
+                                {{session('error_updated')}}
+                                <button type="button" class="close" data-dismiss="alert"><span aria-hidden="true">×</span></button>
+                            </div>
+                        @endif
+
                         @if (session()->has('delete_successfull'))
                             <div id="w6" class="alert-warning alert alert-dismissible mt-3 w-75" role="alert">
                                 {{session('delete_successfull')}}
@@ -292,57 +306,116 @@
                             </div>
                         @endif
                     </div>
-
+                    <div class="card-body" style="margin-top: -15px;">
+                        <ul class="nav nav-tabs card-header-tabs" id="myTab" role="tablist">
+                            <li class="nav-item">
+                                <a class="nav-link" id="offline-tab" data-toggle="tab" href="#offline" role="tab" aria-controls="home" aria-selected="true">Offline</a>
+                            </li>
+                            <li class="nav-item">
+                                <a class="nav-link" id="online-tab" data-toggle="tab" href="#online" role="tab" aria-controls="profile" aria-selected="false">Online</a>
+                            </li>
+                        </ul>
+                    </div>
                     <div class="card-body">
-                        <div class="card-body p-0" style="overflow-x: auto;">
-                            <div id="w0" class="gridview table-responsive">
-                                <table class="table text-nowrap table-striped table-bordered mb-0">
-                                    <thead>
-                                        <tr>
-                                            <td>#</td>
-                                            <td>Code Event</td>
-                                            <td>Nama Event</td>
-                                            <td>Tanggal Event</td>
-                                            <td>Location</td>
-                                            <td>Nama Pengurus</td>
-                                            <td>Bagian Acara</td>
-                                            <td>Total Pengurus</td>
-                                            <td>Total Peserta</td>
-                                            <td>Dibuat</td>
-                                            <td></td>
-                                        </tr>
-                                    </thead>
-                                    <tbody>
-                                        @forelse ($events as $ev)
-                                            <tr>
-                                                @php
-                                                    $eventDate = \Carbon\Carbon::parse($ev->event_date);
-                                                    $formattedEventDate = $eventDate->isoFormat('ddd, D MMMM YYYY HH:mm');
-                                                @endphp 
+                        <div class="tab-content" id="myTabContent">
 
-                                                <td>{{$loop->index += 1}}</td>
-                                                <td>{{$ev->code_event}}</td>
-                                                <td>{{$ev->nama_event}}</td>
-                                                <td>{{ $formattedEventDate }}</td>
-                                                <td>{{$ev->location}}</td>
-                                                <td>{{$ev->organizer_name}}</td>
-                                                <td>{{$ev->event_section}}</td>
-                                                <td>{{$ev->total_pengurus}}</td>
-                                                <td>{{$ev->total_peserta}}</td>
-                                                <td>{{$ev->created_at}}</td>
-                                                <td>
-                                                    <a class="btn btn-warning btn-sm" href="{{route('admin.events.update', ['code' => $ev->code_event])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
-                                                    <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.events.delete', ['code' => $ev->code_event])}}" title="Delete" aria-label="Delete" data-pjax="0"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
-                                                </td>
+                            <div class="tab-pane fade" id="offline" role="tabpanel" aria-labelledby="offline-tab">
+                                <div id="w0" class="gridview table-responsive">
+                                    <table class="table text-nowrap table-striped table-bordered mb-0">
+                                        <thead>
+                                            <tr>
+                                                <td>#</td>
+                                                <td>Code Event</td>
+                                                <td>Nama Event</td>
+                                                <td>Tanggal Event</td>
+                                                <td>Location</td>
+                                                <td>Nama Pengurus</td>
+                                                <td>Bagian Acara</td>
+                                                <td>Total Pengurus</td>
+                                                <td>Total Peserta</td>
+                                                <td>Dibuat</td>
+                                                <td></td>
                                             </tr>
-                                        @empty
-                                            <p class="ml-2 mt-3 text-danger">Pengguna belum tersedia</p>
-                                        @endforelse
-                                    </tbody>
-                                </table>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($events as $ev)
+                                                <tr>
+                                                    @php
+                                                        $eventDate = \Carbon\Carbon::parse($ev->event_date);
+                                                        $formattedEventDate = $eventDate->isoFormat('ddd, D MMMM YYYY HH:mm');
+                                                    @endphp 
+
+                                                    <td>{{$loop->index += 1}}</td>
+                                                    <td>{{$ev->code_event}}</td>
+                                                    <td>{{$ev->nama_event}}</td>
+                                                    <td>{{ $formattedEventDate }}</td>
+                                                    <td>{{$ev->location}}</td>
+                                                    <td>{{$ev->organizer_name}}</td>
+                                                    <td>{{$ev->event_section}}</td>
+                                                    <td>{{$ev->total_pengurus}}</td>
+                                                    <td>{{$ev->total_peserta}}</td>
+                                                    <td>{{$ev->created_at}}</td>
+                                                    <td>
+                                                        <a class="btn btn-warning btn-sm" href="{{route('admin.events.update', ['code' => $ev->code_event])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
+                                                        <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.events.delete', ['code' => $ev->code_event])}}" title="Delete" aria-label="Delete" data-pjax="0"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <p class="ml-2 mt-3 text-danger">Pengguna belum tersedia</p>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
                             </div>
+
+                            <div class="tab-pane fade" id="online" role="tabpanel" aria-labelledby="online-tab">
+                                <div id="w0" class="gridview table-responsive">
+                                    <table class="table text-nowrap table-striped table-bordered mb-0">
+                                        <thead>
+                                            <tr>
+                                                <td>#</td>
+                                                <td>Code Event</td>
+                                                <td>Nama Event</td>
+                                                <td>Tanggal Event</td>
+                                                <td>Pembawa Acara</td>
+                                                <td>Pembicara</td>
+                                                <td>Online Aplikasi</td>
+                                                <td></td>
+                                            </tr>
+                                        </thead>
+                                        <tbody>
+                                            @forelse ($onlineEvents as $ev)
+                                                <tr>
+                                                    @php
+                                                        $eventDate = \Carbon\Carbon::parse($ev->event_date);
+                                                        $formattedEventDate = $eventDate->isoFormat('ddd, D MMMM YYYY HH:mm');
+                                                    @endphp
+
+                                                    <td>{{$loop->index += 1}}</td>
+                                                    <td>{{$ev->code}}</td>
+                                                    <td>{{$ev->name}}</td>
+                                                    <td>{{$formattedEventDate}}</td>
+                                                    <td>{{$ev->host}}</td>
+                                                    <td>{{$ev->speakers}}</td>
+                                                    <td>{{$ev->online_app}}</td>
+                                                    <td>
+                                                        <a class="btn btn-warning btn-sm" href="{{route('admin.onlineEvents.update', ['code' => $ev->code])}}" title="Update" aria-label="Update" data-pjax="0"><i class="fa-fw fas fa-edit" aria-hidden></i></a>
+                                                        <a class="btn btn-danger btn-sm btn-delete" href="{{route('admin.onlineEvents.delete', ['code' => $ev->code])}}" title="Delete" aria-label="Delete" data-pjax="0"><i class="fa-fw fas fa-trash" aria-hidden></i></a>
+                                                    </td>
+                                                </tr>
+                                            @empty
+                                                <p class="ml-2 mt-3 text-danger">Event belum tersedia</p>
+                                            @endforelse
+                                        </tbody>
+                                    </table>
+                                </div>
+                            </div>
+
                         </div>
                     </div>
+
+                            
+
                 </div>
             </div>
         </div>
@@ -405,7 +478,28 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
-        
+        // Default to the Events tab if localStorage is empty
+        document.getElementById('offline-tab').classList.add('active');
+        document.getElementById('offline').classList.add('show', 'active');
+
+        // Add offline listeners to nav tabs
+        document.querySelectorAll('.nav-link').forEach(function(navLink) {
+            navLink.addEventListener('click', function(event) {
+                // Save the selected tab to localStorage
+                localStorage.setItem('selectedTab', event.target.getAttribute('href'));
+            });
+        });
+
+        // Check if there's a saved tab in localStorage
+        var savedTab = localStorage.getItem('selectedTab');
+        if (savedTab) {
+            // Show the saved tab
+            document.querySelector(savedTab).classList.add('show', 'active');
+            document.querySelector(`[href="${savedTab}"]`).classList.add('active');
+            document.getElementById('offline-tab').classList.remove('active');
+            document.getElementById('offline').classList.remove('show', 'active');
+        }
+
         // Event listener untuk select event
         document.getElementById('event').addEventListener('change', function() {
             // Ambil nilai dan data-code dari option yang dipilih

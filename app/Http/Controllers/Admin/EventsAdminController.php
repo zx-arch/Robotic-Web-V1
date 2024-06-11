@@ -65,9 +65,10 @@ class EventsAdminController extends Controller
             ->latest()
             ->get();
 
+        $onlineEvents = OnlineEvents::get();
         $eventNotSetPresensi = Events::whereNotIn('code', Attendances::select('event_code')->get()->pluck('event_code'))->get();
 
-        return view('admin.Events.index', $this->data, compact('events', 'eventNotSetPresensi'));
+        return view('admin.Events.index', $this->data, compact('events', 'eventNotSetPresensi', 'onlineEvents'));
     }
 
     public function listPresensi()
@@ -263,7 +264,7 @@ class EventsAdminController extends Controller
                 $request->file('poster_event')->move(public_path('events'), $uniqueImageName);
             }
 
-            OnlineEvents::create([
+            $newOnlineEv = OnlineEvents::create([
                 'name' => $request->name,
                 'event_date' => $request->event_date,
                 'host' => $request->host,
@@ -275,6 +276,12 @@ class EventsAdminController extends Controller
                 'passcode' => $request->passcode,
                 'poster' => ($request->has('poster_event') && !is_null($request->poster_event) ? url('events/' . $uniqueImageName) : null)
             ]);
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Create New Online Event Code ' . $newOnlineEv->code,
+            ]);
+
             return redirect()->route('admin.events.index')->with('success_saved', 'Data online event berhasil ditambah!');
 
         } catch (\Throwable $e) {
@@ -557,6 +564,64 @@ class EventsAdminController extends Controller
         }
     }
 
+    public function updateOnlineEvent($code)
+    {
+        $onlineEvents = OnlineEvents::where('code', $code)->first();
+        $dataOnlineApp = ['Google Meet', 'Zoom', 'Microsoft Teams', 'Youtube'];
+
+        return view('admin.Events.updateOnlineEvent', $this->data, compact('onlineEvents', 'dataOnlineApp'));
+    }
+
+    public function saveUpdateOnlineEvent(Request $request, $code)
+    {
+        try {
+
+            if ($request->online_app == 'other' && $request->has('other_app') && !is_null($request->other_app)) {
+                $request->online_app = $request->other_app;
+            }
+
+            $event_date = Carbon::parse($request->event_date)->format('Y-m-d H:i:s');
+
+            if ($request->has('poster_event')) {
+                $file = $request->file('poster_event');
+
+                // Dapatkan ekstensi file
+                $imageExtension = $file->getClientOriginalExtension();
+                // Buat nama unik untuk file gambar
+                $uniqueImageName = $file->getClientOriginalName() . '_' . time() . '.' . $imageExtension;
+
+                $directory = public_path('events');
+
+                // Membuat direktori jika tidak ada
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0777, true);
+                }
+
+                // Simpan data image ke dalam file di direktori yang diinginkan
+                $request->file('poster_event')->move(public_path('events'), $uniqueImageName);
+            }
+
+            $check = OnlineEvents::where('code', $code)->first();
+
+            $check->update([
+                'name' => !is_null($request->name) ? $request->name : $check->name,
+                'event_date' => !is_null($request->event_date) ? $request->event_date : $check->event_date,
+                'host' => !is_null($request->host) ? $request->host : $check->host,
+                'speakers' => !is_null($request->speakers) ? $request->speakers : $check->speakers,
+                'online_app' => !is_null($request->online_app) ? $request->online_app : $check->online_app,
+                'link_pendaftaran' => !is_null($request->link_pendaftaran) ? $request->link_pendaftaran : $check->link_pendaftaran,
+                'link_online' => !is_null($request->link_online) ? $request->link_online : $check->link_online,
+                'user_access' => !is_null($request->user_access) ? $request->user_access : $check->user_access,
+                'passcode' => !is_null($request->passcode) ? $request->passcode : $check->passcode,
+                'poster' => ($request->has('poster_event') && !is_null($request->poster_event) ? url('events/' . $uniqueImageName) : null)
+            ]);
+
+            return redirect()->route('admin.events.index')->with('success_updated', 'Data online event berhasil diupdate!');
+
+        } catch (\Throwable $e) {
+            return redirect()->route('admin.events.index')->with('error_updated', 'Gagal mengupdate event online: ' . $e->getMessage());
+        }
+    }
     public function updateManager($code, $id)
     {
         $eventCode = $code;
@@ -599,6 +664,24 @@ class EventsAdminController extends Controller
             ActivityRepository::create([
                 'user_id' => Auth::user()->id,
                 'action' => Auth::user()->username . ' Delete Event Code ' . $code,
+            ]);
+
+            return redirect()->intended('/admin/events')->with('delete_successfull', 'Data event berhasil dihapus!');
+
+        } catch (\Throwable $e) {
+            return redirect()->intended('/admin/events')->with('delete_successfull', 'Data event gagal dihapus: ' . $e->getMessage());
+        }
+    }
+
+    public function deleteOnlineEvent($code)
+    {
+        try {
+            OnlineEvents::where('code', $code)->delete();
+            EventParticipant::where('event_code', $code)->delete();
+
+            ActivityRepository::create([
+                'user_id' => Auth::user()->id,
+                'action' => Auth::user()->username . ' Delete Online Event Code ' . $code,
             ]);
 
             return redirect()->intended('/admin/events')->with('delete_successfull', 'Data event berhasil dihapus!');
