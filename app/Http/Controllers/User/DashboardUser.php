@@ -4,6 +4,7 @@ namespace App\Http\Controllers\User;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Models\OnlineEvents;
 use App\Models\Events;
 use App\Models\EventParticipant;
 use App\Models\Attendances;
@@ -56,7 +57,30 @@ class DashboardUser extends Controller
             })
             ->leftJoin('attendances', 'attendances.event_code', '=', 'events.code')
             ->latest()
-            ->get();
+            ->get()
+            ->map(function ($event) {
+                $event->event_type = 'offline'; // Tandai sebagai offline event
+                return $event;
+            });
+
+        // Ambil semua data dari tabel online_events dan sesuaikan kolomnya
+        $onlineEvents = OnlineEvents::select(
+            'online_events.name as nama_event',
+            'online_events.event_date',
+            'online_events.*',
+            DB::raw('CASE WHEN event_participant.email IS NOT NULL THEN TRUE ELSE FALSE END as register')
+        )
+            ->leftJoin('event_participant', function ($join) use ($userEmail) {
+                $join->on('event_participant.event_code', '=', 'online_events.code')
+                    ->where('event_participant.email', '=', $userEmail);
+            })->get()
+            ->map(function ($event) {
+                $event->event_type = 'online'; // Tandai sebagai online event
+                return $event;
+            });
+
+        // Gabungkan kedua koleksi data menjadi satu koleksi
+        $allEvents = $allEvents->concat($onlineEvents);
 
         return view('user.dashboard', compact('allEvents', 'participants', 'totalPeserta', 'participantCounts', 'kotaTerbanyak'));
 

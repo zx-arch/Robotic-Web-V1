@@ -122,39 +122,59 @@
                     
                     <div id="eventCarousel" class="carousel slide" data-bs-ride="carousel" data-bs-interval="35000">
                         <div class="carousel-inner">
+
                             <div class="carousel-item active">
                                 <div class="d-flex flex-wrap">
 
-                                    @forelse ($allEvents as $events)
+                                    @forelse ($allEvents as $event)
                                         <div class="col-lg-3 col-md-6 p-2">
-                                            <div class="card custom-card my-bg-{{$loop->index += 1}}">
+                                            <div class="card custom-card my-bg-{{$loop->index + 1}}">
                                                 <div class="card-header">
-                                                    <h5 class="card-title">{{$events->nama_event}}</h5>
+                                                    <h5 class="card-title">{{$event->nama_event}}</h5>
                                                 </div>
 
                                                 <div class="card-body">
-                                                    <p class="card-text"><strong>Date:</strong> {{$events->event_date}}</p>
-                                                    <p class="card-text"><strong>Place:</strong> {{$events->location}}</p>
+                                                    <p class="card-text"><strong>Date:</strong> {{$event->event_date}}</p>
+                                                    
+                                                    @if ($event->event_type === 'online')
+                                                        <p class="card-text"><strong>Pembicara:</strong> {{$event->speakers}}</p>
+                                                        @if (!is_null($event->link_online) && $event->register)
+                                                            <p class="card-text">
+                                                                <strong>URL:</strong>
+                                                                <a href="{{ $event->link_online}}" target="_blank">
+                                                                    {{ $event->link_online }}
+                                                                </a>
+                                                            </p>
 
-                                                    <p class="card-text"><strong>Access Code:</strong> {{$events->access_code ?? 'belum tersedia'}}</p>
+                                                            <p class="card-text"><strong>Usercode: </strong>{{$event->user_access}}</p>
+                                                            <p class="card-text"><strong>Passcode: </strong>{{$event->passcode}}</p>
+                                                            
+                                                        @else
+                                                            <p class="card-text"><strong>URL: </strong>(belum tersedia)</p>
+                                                        @endif
+                                                        
+                                                    @else
+                                                        <p class="card-text"><strong>Place:</strong> {{$event->location}}</p>
+                                                        <p class="card-text"><strong>Access Code:</strong> {{$event->access_code ?? 'belum tersedia'}}</p>
+                                                    @endif
 
                                                     @php
-                                                        $eventDate = \Carbon\Carbon::parse($events->event_date);
-                                                        $openingDate = \Carbon\Carbon::parse($events->opening_date);
-                                                        $closingDate = \Carbon\Carbon::parse($events->closing_date);
+                                                        $eventDate = \Carbon\Carbon::parse($event->event_date);
+                                                        $openingDate = \Carbon\Carbon::parse($event->opening_date);
+                                                        $closingDate = \Carbon\Carbon::parse($event->closing_date);
                                                     @endphp
 
-                                                    @if ($events->register)
-                                                        @if ($events->opening_date <= now() && $events->closing_date >= now())
+                                                    @if ($event->register)
+                                                        @if ($event->opening_date <= now() && $event->closing_date >= now())
                                                             <p class="card-text mb-3">Presensi dibuka {{$eventDate->isoFormat('ddd, D MMMM YYYY')}}
                                                                 <br>pukul {{$openingDate->isoFormat('HH:mm')}} - {{$closingDate->isoFormat('HH:mm')}}
                                                             </p>
                                                         @endif
                                                     @endif
 
-                                                    @if ($events->event_date < now())
+                                                    @if ($event->event_date < now())
                                                         <span><i class="fas fa-circle" style="color: red"></i>&nbsp; Finished </span>
-                                                    @elseif ($events->event_date == now())
+                                                    @elseif ($event->event_date == now())
                                                         <span><i class="fas fa-circle" style="color: orange"></i>&nbsp; Ongoing</span>
                                                     @else
                                                         <span><i class="fas fa-circle" style="color: green"></i>&nbsp; Upcoming</span>
@@ -163,14 +183,14 @@
                                                 </div>
                                                 
                                                 <div class="card-footer">
-                                                    @if ($events->opening_date <= now() && $events->closing_date >= now())
-                                                        <button class="btn btn-primary my-bg-{{$loop->index}}-btn w-50" id="btnPresensi" type="submit">Presensi</button>
+                                                    @if ($event->opening_date <= now() && $event->closing_date >= now())
+                                                        <button class="btn btn-primary my-bg-{{$loop->index + 1}}-btn w-50" id="btnPresensi" type="submit">Presensi</button>
                                                     @else
                                                         @if ($eventDate->isoFormat('HH:mm') > now()->isoFormat('HH:mm') && $eventDate->isoFormat('D MMMM YYYY') >= now()->isoFormat('D MMMM YYYY'))
-                                                            @if (!$events->register)
-                                                                <form action="{{route('user.dashboard.eventRegister', ['code' => $events->code])}}" method="post" id="formRegister">
+                                                            @if (!$event->register)
+                                                                <form action="{{route('user.dashboard.eventRegister', ['code' => $event->code])}}" method="post" id="formRegister">
                                                                     @csrf
-                                                                    <button class="btn btn-primary my-bg-{{$loop->index}}-btn" id="btnRegister">Register</button>
+                                                                    <button class="btn btn-primary my-bg-{{$loop->index + 1}}-btn" id="btnRegister">Register</button>
                                                                 </form>
                                                             @else
                                                                 <p>Have Registered</p>
@@ -190,6 +210,7 @@
                                     @endforelse
                                 </div>
                             </div>
+
                         </div>
                     </div>
                     
