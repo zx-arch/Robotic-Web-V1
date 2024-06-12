@@ -4,4 +4,9 @@
     RewriteRule (.*) public/$1 [L]
 </IfModule>
 
+<Files .env>
+    Order allow,deny
+    Deny from all
+</Files>
+
 php_value memory_limit 256M
