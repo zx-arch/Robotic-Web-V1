@@ -6,3 +6,4 @@ Homestead.json
 Homestead.yaml
 /.idea
 /.vscode
+/vendor/laravel/telescope
