@@ -83,6 +83,7 @@ return array(
     'App\\Providers\\EventServiceProvider' => $baseDir . '/app/Providers/EventServiceProvider.php',
     'App\\Providers\\RepositoryServiceProvider' => $baseDir . '/app/Providers/RepositoryServiceProvider.php',
     'App\\Providers\\RouteServiceProvider' => $baseDir . '/app/Providers/RouteServiceProvider.php',
+    'App\\Providers\\TelescopeServiceProvider' => $baseDir . '/app/Providers/TelescopeServiceProvider.php',
     'App\\Repositories\\ActivityRepository' => $baseDir . '/app/Repositories/ActivityRepository.php',
     'App\\Repositories\\IpGlobalRepository' => $baseDir . '/app/Repositories/IpGlobalRepository.php',
     'App\\Scopes\\ExcludeAdminScope' => $baseDir . '/app/Scopes/ExcludeAdminScope.php',

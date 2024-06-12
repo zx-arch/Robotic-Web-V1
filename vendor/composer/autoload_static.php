@@ -640,6 +640,7 @@ class ComposerStaticInitc61ff82cbf0142a401a48a8161e1595a
         'App\\Providers\\EventServiceProvider' => __DIR__ . '/../..' . '/app/Providers/EventServiceProvider.php',
         'App\\Providers\\RepositoryServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RepositoryServiceProvider.php',
         'App\\Providers\\RouteServiceProvider' => __DIR__ . '/../..' . '/app/Providers/RouteServiceProvider.php',
+        'App\\Providers\\TelescopeServiceProvider' => __DIR__ . '/../..' . '/app/Providers/TelescopeServiceProvider.php',
         'App\\Repositories\\ActivityRepository' => __DIR__ . '/../..' . '/app/Repositories/ActivityRepository.php',
         'App\\Repositories\\IpGlobalRepository' => __DIR__ . '/../..' . '/app/Repositories/IpGlobalRepository.php',
         'App\\Scopes\\ExcludeAdminScope' => __DIR__ . '/../..' . '/app/Scopes/ExcludeAdminScope.php',
