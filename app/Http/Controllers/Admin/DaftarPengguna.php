@@ -27,15 +27,12 @@ class DaftarPengguna extends Controller
 
     public function index()
     {
-        //dd(Users::active()->get());
+        // Hapus data sesi yang tidak diperlukan
         session()->forget('data_users');
 
-        if (session()->has('data_users_serch')) {
-            session()->forget('data_users_serch');
+        if (session()->has('data_users_search')) {
+            session()->forget('data_users_search');
         }
-
-        $users = Users::withTrashed()->latest(); // Ambil data dan konversi ke array
-        session(['data_users' => $users->get()]); // Simpan array dalam sesi
 
         if (session()->has('sorting')) {
             session()->forget('sorting');
@@ -43,42 +40,49 @@ class DaftarPengguna extends Controller
 
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
-        //print_r();
-        // Menentukan jumlah halaman maksimum untuk semua data
 
+        // Ambil data pengguna dan paginate
+        $usersQuery = Users::withTrashed()->latest();
+
+        // Menentukan jumlah halaman maksimum untuk semua data
         if ($itemsPerPage >= 15) {
             $totalPages = 15;
         }
 
-        $users = session('data_users');
+        // Paginate data pengguna
 
-        $fullUri = route('daftar_pengguna.index', request()->query() + ['sort' => 'id']);
-        //dd($fullUri);
-        if ($users->count() > 15) {
-            $users = $users->paginate($itemsPerPage);
-            //dd($users);
+        if ($usersQuery->count() > 15) {
+            $users = $usersQuery->paginate($itemsPerPage);
+
             if ($users->currentPage() > $users->lastPage()) {
                 return redirect($users->url($users->lastPage()));
             }
         }
-        $userss = session('data_users')->toArray(); // Mengonversi hasil menjadi array
 
-        $allUser = session('data_users')->count();
+        // Simpan data pengguna dalam sesi
+        session(['data_users' => $users]);
 
-        $userActive = count(array_filter($userss, function ($user) {
+        $usersArray = $users->items(); // Mengonversi hasil menjadi array
+
+        $allUser = $users->total();
+
+        $userActive = count(array_filter($usersArray, function ($user) {
             return $user['status'] === 'active';
         }));
 
-        $userInActive = count(array_filter($userss, function ($user) {
+        $userInActive = count(array_filter($usersArray, function ($user) {
             return $user['status'] === 'inactive';
         }));
 
-        $userDeleted = count(array_filter($userss, function ($user) {
+        $userDeleted = count(array_filter($usersArray, function ($user) {
             return $user['status'] === 'deleted';
         }));
 
+        $fullUri = route('daftar_pengguna.index', request()->query() + ['sort' => 'id']);
+
         return view('admin.DaftarPengguna.index', $this->data, compact('users', 'allUser', 'userInActive', 'userActive', 'userDeleted', 'itemsPerPage', 'fullUri'));
     }
+
 
     public function search(Request $request, $sort = '')
     {
@@ -118,7 +122,7 @@ class DaftarPengguna extends Controller
             $users->where('last_login', 'like', "$last_login%");
         }
 
-        session(['data_users_serch' => $users->get()]);
+        session(['data_users_search' => $users->get()]);
 
         // Menentukan jumlah item per halaman
         $itemsPerPage = 15;
@@ -129,7 +133,7 @@ class DaftarPengguna extends Controller
             $totalPages = 15;
         }
 
-        $users = session('data_users_serch');
+        $users = session('data_users_search');
 
         $fullUri = route('daftar_pengguna.index', request()->query() + ['sort' => 'id']);
 
@@ -457,7 +461,7 @@ class DaftarPengguna extends Controller
                         'email_pengelola' => (($request->has('email_pengelola')) ? $request->email_pengelola : $check->email_pengelola),
                         'instansi' => (($request->has('instansi')) ? $request->instansi : $check->instansi),
                         'jabatan' => (($request->has('jabatan')) ? $request->jabatan : $check->jabatan),
-                        'foto_profil' => ((isset ($uniqueImageName)) ? $uniqueImageName : $check->foto_profil), // Simpan path gambar ke database
+                        'foto_profil' => ((isset($uniqueImageName)) ? $uniqueImageName : $check->foto_profil), // Simpan path gambar ke database
                     ]);
                 }
 
