@@ -9,6 +9,7 @@ use App\Models\Events;
 use App\Models\EventParticipant;
 use App\Models\Attendances;
 use App\Models\User;
+use App\Models\Notification;
 use App\Repositories\ActivityRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
@@ -82,8 +83,97 @@ class DashboardUser extends Controller
         // Gabungkan kedua koleksi data menjadi satu koleksi
         $allEvents = $allEvents->concat($onlineEvents);
 
-        return view('user.dashboard', compact('allEvents', 'participants', 'totalPeserta', 'participantCounts', 'kotaTerbanyak'));
+        $ev_participant = EventParticipant::select('event_code')->where('email', Auth::user()->email)->groupBy('event_code', 'email')->get()->pluck('event_code');
+        //dd($ev_participant);
+        $checkPresensi = Attendances::whereIn('event_code', $ev_participant)->get();
 
+        foreach ($checkPresensi as $presensi) {
+            if ($presensi->opening_date <= now() && $presensi->closing_date > now()) {
+                $checkNotif = Notification::where('event_code', $presensi->event_code)->first();
+
+                if (!$checkNotif) {
+                    $newNotif = Notification::create([
+                        'user_id' => Auth::user()->id,
+                        'title' => 'Presensi Kehadiran Dibuka',
+                        'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah dibuka, silakan melakukan presensi hingga ' . $presensi->closing_date,
+                        'event_code' => $presensi->event_code,
+                        'redirect' => ''
+                    ]);
+                    Notification::where('id', $newNotif->id)->update([
+                        'redirect' => env('APP_URL') . '/' . Auth::user()->role . '/detail-notification/' . $newNotif->id,
+                    ]);
+                }
+
+            } else {
+                Notification::where('event_code', $presensi->event_code)->forceDelete();
+            }
+        }
+
+        $notifications = Notification::where('user_id', Auth::user()->id)
+            ->orderBy('read', 'asc')
+            ->orderBy('created_at', 'desc')
+            ->get();
+
+        // Hitung jumlah notifikasi yang belum dibaca
+        $totalNotification = $notifications->where('read', false)->count();
+
+        session([
+            'info_notif' => [
+                'total_notif' => $totalNotification,
+                'notifications' => $notifications
+            ]
+        ]);
+
+        return view('user.dashboard', compact('allEvents', 'participants', 'totalPeserta', 'participantCounts', 'kotaTerbanyak', 'notifications', 'totalNotification'));
+
+    }
+
+    public function notificationView($id = null)
+    {
+        $participants = EventParticipant::select('events.*', 'attendances.opening_date', 'attendances.closing_date', 'attendances.access_code', 'event_participant.id as id_user', 'event_participant.status_presensi', 'event_participant.waktu_presensi')->leftJoin('events', 'events.code', '=', 'event_participant.event_code')
+            ->leftJoin('attendances', 'attendances.event_code', '=', 'events.code')->where('event_participant.email', Auth::user()->email)->get();
+
+        // Menggabungkan dua query menjadi satu
+        $participantStats = EventParticipant::select(
+            DB::raw('COUNT(*) as total_peserta'),
+            DB::raw('COUNT(CASE WHEN status_presensi = "Hadir" THEN 1 END) as hadir_count'),
+            DB::raw('COUNT(CASE WHEN status_presensi = "Tidak Hadir" THEN 1 END) as tidak_hadir_count')
+        )->first();
+
+        // Mengambil kota dengan jumlah peserta terbanyak
+        $kotaTerbanyak = Events::select('city', DB::raw('count(*) as total'))
+            ->groupBy('city')
+            ->orderBy('total', 'desc')
+            ->first();
+
+        $totalPeserta = $participantStats->total_peserta;
+        $participantCounts = $participantStats;
+
+        $notification = Notification::where('id', request()->route('id'))->first();
+
+        $notification->update([
+            'read' => true,
+            'date_read' => now()
+        ]);
+
+        $presensi = Attendances::where('event_code', $notification->event_code)->first();
+
+        if (now() > $presensi->closing_date) {
+            $notification->update([
+                'title' => 'Presensi Kehadiran Ditutup',
+                'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah ditutup sejak ' . $presensi->closing_date,
+            ]);
+        } else {
+            $notification->update([
+                'title' => 'Presensi Kehadiran Dibuka',
+                'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah dibuka, silakan melakukan presensi hingga ' . $presensi->closing_date,
+            ]);
+
+        }
+
+        $myev = EventParticipant::where('event_code', $notification->event_code)->where('email', Auth::user()->email)->first();
+
+        return view('user.dashboardNotification', compact('notification', 'totalPeserta', 'participantCounts', 'kotaTerbanyak', 'myev'));
     }
 
     public function presentUser(Request $request, $code, $id)

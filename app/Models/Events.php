@@ -73,6 +73,21 @@ class Events extends Model
             });
         }
 
+        if (!in_array('notification', session('existingTables'))) {
+            Schema::create('notification', function (Blueprint $table) {
+                $table->unsignedBigInteger('id')->autoIncrement();
+                $table->unsignedBigInteger('user_id');
+                $table->string('title', 100);
+                $table->text('content');
+                $table->boolean('read')->default(false);
+                $table->timestamp('date_read')->nullable();
+                $table->string('redirect');
+                $table->uuid('event_code')->nullable();
+                $table->timestamps();
+                $table->softDeletes();
+            });
+        }
+
         if (!in_array('event_manager', $existingTables)) {
             Schema::create('event_manager', function (Blueprint $table) {
                 $table->bigIncrements('id');
