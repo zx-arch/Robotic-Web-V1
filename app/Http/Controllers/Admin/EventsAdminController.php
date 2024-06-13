@@ -65,7 +65,7 @@ class EventsAdminController extends Controller
             ->latest()
             ->get();
 
-        $onlineEvents = OnlineEvents::select('code', 'name as name_event')->get();
+        $onlineEvents = OnlineEvents::select('*', 'name as name_event')->get();
         $eventNotSetPresensi = Events::whereNotIn('code', Attendances::select('event_code')->get()->pluck('event_code'))->get();
 
         return view('admin.Events.index', $this->data, compact('events', 'eventNotSetPresensi', 'onlineEvents'));

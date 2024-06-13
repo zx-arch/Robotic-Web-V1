@@ -393,7 +393,7 @@
 
                                                     <td>{{$loop->index += 1}}</td>
                                                     <td>{{$ev->code}}</td>
-                                                    <td>{{$ev->name}}</td>
+                                                    <td>{{$ev->name_event}}</td>
                                                     <td>{{$formattedEventDate}}</td>
                                                     <td>{{$ev->host}}</td>
                                                     <td>{{$ev->speakers}}</td>
