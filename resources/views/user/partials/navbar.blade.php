@@ -104,6 +104,11 @@
                 if (index < 6) {
                     const notificationItem = document.createElement('a');
                     notificationItem.href = `${notif.redirect}`;
+                    if (`${notif.read}` == '1' && `${notif.date_read}`) {
+                        notificationItem.style.backgroundColor = '#e2e7ec';
+                    } else {
+                        notificationItem.style.backgroundColor = 'white';
+                    }
                     notificationItem.classList.add('dropdown-item', 'notification-item', 'mb-1');
                     notificationItem.innerHTML = `
                         <div class="d-flex flex-column">
@@ -134,6 +139,13 @@
             notifications.slice(6).forEach(notif => {
                 const notificationItem = document.createElement('a');
                 notificationItem.href = `${notif.redirect}`;
+
+                if (`${notif.read}` == '1' && `${notif.date_read}`) {
+                    notificationItem.style.backgroundColor = '#e2e7ec';
+                } else {
+                    notificationItem.style.backgroundColor = 'white';
+                }
+
                 notificationItem.classList.add('dropdown-item', 'notification-item', 'mb-1');
                 notificationItem.innerHTML = `
                     <div class="d-flex flex-column">

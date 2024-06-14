@@ -88,11 +88,16 @@ class DashboardUser extends Controller
         //dd($ev_participant);
         $checkPresensi = Attendances::whereIn('event_code', $ev_participant)->get();
 
+        // Ambil semua notifikasi yang berkaitan dengan event_code dari presensi
+        $eventCodes = $checkPresensi->pluck('event_code');
+        $checkNotifs = Notification::whereIn('event_code', $eventCodes)->get()->keyBy('event_code');
+
+        // Loop melalui presensi untuk memproses notifikasi
         foreach ($checkPresensi as $presensi) {
             if ($presensi->opening_date <= now() && $presensi->closing_date > now()) {
-                $checkNotif = Notification::where('event_code', $presensi->event_code)->first();
-
-                if (!$checkNotif) {
+                // Cek apakah notifikasi sudah ada di dalam koleksi notifikasi
+                if (!$checkNotifs->has($presensi->event_code)) {
+                    // Buat notifikasi baru jika belum ada
                     $newNotif = Notification::create([
                         'user_id' => Auth::user()->id,
                         'title' => 'Presensi Kehadiran Dibuka',
@@ -104,9 +109,11 @@ class DashboardUser extends Controller
                         'redirect' => env('APP_URL') . '/' . Auth::user()->role . '/detail-notification/' . $newNotif->id,
                     ]);
                 }
-
             } else {
-                Notification::where('event_code', $presensi->event_code)->forceDelete();
+                // Hapus notifikasi jika tidak sesuai dengan kondisi
+                if ($checkNotifs->has($presensi->event_code)) {
+                    Notification::where('event_code', $presensi->event_code)->forceDelete();
+                }
             }
         }
 
