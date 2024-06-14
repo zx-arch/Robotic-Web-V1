@@ -103,7 +103,7 @@
                 // Hanya tampilkan lima notifikasi pertama
                 if (index < 6) {
                     const notificationItem = document.createElement('a');
-                    notificationItem.href = ${notif.redirect};
+                    notificationItem.href = `${notif.redirect}`;
                     notificationItem.classList.add('dropdown-item', 'notification-item', 'mb-1');
                     notificationItem.innerHTML = `
                         <div class="d-flex flex-column">
@@ -133,7 +133,7 @@
             // Tambahkan sisa notifikasi ke dalam container
             notifications.slice(6).forEach(notif => {
                 const notificationItem = document.createElement('a');
-                notificationItem.href = ${notif.redirect};
+                notificationItem.href = `${notif.redirect}`;
                 notificationItem.classList.add('dropdown-item', 'notification-item', 'mb-1');
                 notificationItem.innerHTML = `
                     <div class="d-flex flex-column">
@@ -155,7 +155,6 @@
             });
         });
 
-        document.querySelector('dropdown-header').innerHTML = {!! session('info_notif.totalNotifRead') !!};
     });
 
 </script>
