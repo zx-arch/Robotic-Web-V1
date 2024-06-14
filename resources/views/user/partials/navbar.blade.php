@@ -154,6 +154,8 @@
                 event.stopPropagation();
             });
         });
+
+        document.querySelector('dropdown-header').innerHTML = {!! session('info_notif.totalNotifRead') !!};
     });
 
 </script>

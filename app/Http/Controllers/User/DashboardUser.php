@@ -13,6 +13,7 @@ use App\Models\Notification;
 use App\Repositories\ActivityRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Session;
 
 class DashboardUser extends Controller
 {
@@ -111,16 +112,15 @@ class DashboardUser extends Controller
 
         $notifications = Notification::where('user_id', Auth::user()->id)
             ->orderBy('read', 'asc')
-            ->orderBy('created_at', 'desc')
-            ->get();
+            ->orderBy('created_at', 'desc')->get();
 
         // Hitung jumlah notifikasi yang belum dibaca
-        $totalNotification = $notifications->where('read', false)->count();
+        $totalNotification = $notifications->count();
 
         session([
             'info_notif' => [
                 'total_notif' => $totalNotification,
-                'notifications' => $notifications
+                'notifications' => $notifications,
             ]
         ]);
 
@@ -130,6 +130,26 @@ class DashboardUser extends Controller
 
     public function notificationView($id = null)
     {
+
+        $notification = Notification::where('id', request()->route('id'))->first();
+
+        $notification->update([
+            'read' => true,
+            'date_read' => now()
+        ]);
+
+        $notifications = Notification::where('user_id', Auth::user()->id)
+            ->orderBy('read', 'asc')
+            ->orderBy('created_at', 'desc')->get();
+
+        // Hitung jumlah notifikasi yang belum dibaca
+        $totalNotification = $notifications->count();
+
+        Session::put('info_notif', [
+            'total_notif' => $totalNotification,
+            'notifications' => $notifications,
+        ]);
+
         $participants = EventParticipant::select('events.*', 'attendances.opening_date', 'attendances.closing_date', 'attendances.access_code', 'event_participant.id as id_user', 'event_participant.status_presensi', 'event_participant.waktu_presensi')->leftJoin('events', 'events.code', '=', 'event_participant.event_code')
             ->leftJoin('attendances', 'attendances.event_code', '=', 'events.code')->where('event_participant.email', Auth::user()->email)->get();
 
@@ -148,13 +168,6 @@ class DashboardUser extends Controller
 
         $totalPeserta = $participantStats->total_peserta;
         $participantCounts = $participantStats;
-
-        $notification = Notification::where('id', request()->route('id'))->first();
-
-        $notification->update([
-            'read' => true,
-            'date_read' => now()
-        ]);
 
         $presensi = Attendances::where('event_code', $notification->event_code)->first();
 
