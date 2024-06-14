@@ -91,7 +91,7 @@ class Events extends Model
         $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `notification` LIKE 'link_online'"));
 
         if (empty($columnExists)) {
-            // Jika kolom 'city' tidak ada, tambahkan kolom tersebut
+            // Jika kolom 'link_online' tidak ada, tambahkan kolom tersebut
             Schema::table('notification', function (Blueprint $table) {
                 $table->string('link_online', 100)->nullable()->after('event_code');
             });
@@ -100,7 +100,7 @@ class Events extends Model
         $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `notification` WHERE FIELD IN ('id_access', 'passcode')"));
 
         if (empty($columnExists)) {
-            // Jika kolom 'city' tidak ada, tambahkan kolom tersebut
+            // Jika kolom 'id_access' dan 'passcode' tidak ada, tambahkan kolom tersebut
             Schema::table('notification', function (Blueprint $table) {
                 $table->string('id_access', 50)->nullable()->after('link_online');
                 $table->string('passcode')->nullable()->after('id_access');
@@ -110,7 +110,7 @@ class Events extends Model
         if (!in_array('event_manager', $existingTables)) {
             Schema::create('event_manager', function (Blueprint $table) {
                 $table->bigIncrements('id');
-                $table->string('event_code');
+                $table->string('event_code')->nullable();
                 $table->string('name', 50);
                 $table->string('email', 100);
                 $table->string('section', 50);
@@ -127,12 +127,26 @@ class Events extends Model
                     ->on('events')
                     ->onDelete('cascade');
             });
+        } else {
+            Schema::table('event_manager', function (Blueprint $table) {
+                $foreignKeyExists = DB::select(DB::raw("
+                        SELECT CONSTRAINT_NAME 
+                        FROM information_schema.KEY_COLUMN_USAGE 
+                        WHERE TABLE_NAME = 'event_manager' 
+                        AND COLUMN_NAME = 'event_code' 
+                        AND CONSTRAINT_SCHEMA = '" . DB::connection()->getDatabaseName() . "'
+                    "));
+
+                if ($foreignKeyExists) {
+                    $table->dropForeign(['event_code']);
+                }
+            });
         }
 
         if (!in_array('event_participant', $existingTables)) {
             Schema::create('event_participant', function (Blueprint $table) {
                 $table->bigIncrements('id');
-                $table->string('event_code');
+                $table->string('event_code')->nullable();
                 $table->string('name', 50);
                 $table->string('email', 100);
                 $table->string('phone_number', 20);
@@ -148,6 +162,20 @@ class Events extends Model
                     ->on('events')
                     ->onDelete('cascade');
             });
+        } else {
+            Schema::table('event_participant', function (Blueprint $table) {
+                $foreignKeyExists = DB::select(DB::raw("
+                        SELECT CONSTRAINT_NAME 
+                        FROM information_schema.KEY_COLUMN_USAGE 
+                        WHERE TABLE_NAME = 'event_participant' 
+                        AND COLUMN_NAME = 'event_code' 
+                        AND CONSTRAINT_SCHEMA = '" . DB::connection()->getDatabaseName() . "'
+                    "));
+
+                if ($foreignKeyExists) {
+                    $table->dropForeign(['event_code']);
+                }
+            });
         }
 
         if (!in_array('attendances', $existingTables)) {
@@ -161,6 +189,12 @@ class Events extends Model
                 $table->char('access_code', 15);
                 $table->timestamps();
                 $table->softDeletes();
+
+                // Tambahkan foreign key untuk event_code
+                $table->foreign('event_code')
+                    ->references('code')
+                    ->on('events')
+                    ->onDelete('cascade');
             });
         }
     }

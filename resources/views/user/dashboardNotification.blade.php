@@ -60,17 +60,21 @@
                     <div class="card">
                         <div class="card-body bg bg-cyan">
                             <h5 class="card-title">{{ $notification->title }}</h5>
-                            <p class="card-text">{{ $notification->content }}</p>
-                            @if ($myev->status_presensi != 'Hadir')
-                                <form action="{{route('user.dashboard.presentUser', ['code' => $notification->event_code, 'id' => encrypt($myev->id)])}}" method="post">
-                                    @csrf
-                                    <button type="submit" class="btn btn-primary">Hadir</button>
-                                </form>
-                            @else
-                                <p class="card-text text-primary">presensi {{$myev->waktu_presensi}}</p>
+                            <p class="card-text">{!! $notification->content !!}</p>
+
+                            @if (isset($myev->status_presensi) && isset($myev->waktu_presensi))
+                                @if ($myev->status_presensi != 'Hadir')
+                                    <form action="{{route('user.dashboard.presentUser', ['code' => $notification->event_code, 'id' => encrypt($myev->id)])}}" method="post">
+                                        @csrf
+                                        <button type="submit" class="btn btn-primary">Hadir</button>
+                                    </form>
+                                @else
+                                    <p class="card-text text-primary">presensi {{$myev->waktu_presensi}}</p>
+                                @endif
                             @endif
-                            
+
                         </div>
+
                         <div class="card-footer text-muted">
                             notif: {{ $notification->created_at->diffForHumans() }}
                         </div>

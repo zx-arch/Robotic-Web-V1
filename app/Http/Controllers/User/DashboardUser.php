@@ -14,6 +14,8 @@ use App\Repositories\ActivityRepository;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
+use Carbon\Carbon;
+
 
 class DashboardUser extends Controller
 {
@@ -116,6 +118,59 @@ class DashboardUser extends Controller
                 }
             }
         }
+        // Ambil semua event_code yang sudah ada dalam notifikasi
+        $notif = Notification::pluck('event_code')->toArray();
+
+        // Ambil semua online events yang memiliki link online
+        $onlineEvents = OnlineEvents::leftJoin('event_participant', 'event_participant.event_code', '=', 'online_events.code')->where('email', Auth::user()->email)->whereNotNull('online_events.link_online')->get();
+
+        if ($onlineEvents) {
+            foreach ($onlineEvents as $event) {
+                $eventDate = Carbon::parse($event->event_date);
+
+                // Periksa apakah event_code belum ada dalam notifikasi
+                if (!in_array($event->code, $notif)) {
+                    $eventName = $event->name;
+                    $day = $eventDate->isoFormat('dddd, D MMMM YYYY');
+                    $time = $eventDate->isoFormat('HH:mm');
+                    $speaker = $event->speakers;
+                    $link = $event->link_online;
+                    $idAccess = $event->user_access;
+                    $passcode = $event->passcode;
+
+                    // Bangun string HTML dengan interpolasi
+                    $content = "Anda telah menerima link zoom dalam acara '$eventName' yang diselenggarakan pada : <br><br>
+                    <span class=\"text-primary fw-bold\">Hari / Tanggal</span>&nbsp;&nbsp;:&nbsp; $day<br>
+                    <span class=\"text-primary fw-bold\">Pukul</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"ms-5\">:&nbsp; $time</span> <br>
+                    <span class=\"text-primary fw-bold\">Pembicara</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; $speaker <br>
+                    <br><a href='$link'>$link</a>";
+
+                    if ($idAccess && $passcode) {
+                        $content += "<br><br>ID Access : $idAccess<br>Passcode: $passcode";
+                    }
+
+                    // Simpan notifikasi baru
+                    $newNotif = Notification::create([
+                        'user_id' => Auth::user()->id,
+                        'title' => 'New Link Zoom Invitation',
+                        'content' => $content,
+                        'event_code' => $event->code,
+                        'link_online' => $event->link_online,
+                        'id_access' => $event->user_access,
+                        'passode' => $event->passode,
+                        'redirect' => ''
+                    ]);
+
+                    // Update field redirect
+                    Notification::where('id', $newNotif->id)->update([
+                        'redirect' => env('APP_URL') . '/' . Auth::user()->role . '/detail-notification/' . $newNotif->id,
+                    ]);
+
+                    // Tambahkan event_code ke array notifikasi untuk menghindari duplikasi dalam loop
+                    $notif[] = $event->code;
+                }
+            }
+        }
 
         $notifications = Notification::where('user_id', Auth::user()->id)
             ->orderBy('read', 'asc')
@@ -152,6 +207,18 @@ class DashboardUser extends Controller
         // Hitung jumlah notifikasi yang belum dibaca
         $totalNotification = $notifications->count();
 
+        $onlineEvents = OnlineEvents::leftJoin('event_participant', 'event_participant.event_code', '=', 'online_events.code')->where('email', Auth::user()->email)->whereNotNull('online_events.link_online')->get();
+
+        if ($onlineEvents) {
+            foreach ($onlineEvents as $event) {
+                $eventDate = Carbon::parse($event->event_date);
+
+                if ($eventDate->diffInDays(Carbon::now()) > 1) {
+                    Notification::where('event_code', $event->code)->forceDelete();
+                }
+            }
+        }
+
         Session::put('info_notif', [
             'total_notif' => $totalNotification,
             'notifications' => $notifications,
@@ -178,17 +245,19 @@ class DashboardUser extends Controller
 
         $presensi = Attendances::where('event_code', $notification->event_code)->first();
 
-        if (now() > $presensi->closing_date) {
-            $notification->update([
-                'title' => 'Presensi Kehadiran Ditutup',
-                'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah ditutup sejak ' . $presensi->closing_date,
-            ]);
-        } else {
-            $notification->update([
-                'title' => 'Presensi Kehadiran Dibuka',
-                'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah dibuka, silakan melakukan presensi hingga ' . $presensi->closing_date,
-            ]);
+        if ($presensi) {
+            if (now() > $presensi->closing_date) {
+                $notification->update([
+                    'title' => 'Presensi Kehadiran Ditutup',
+                    'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah ditutup sejak ' . $presensi->closing_date,
+                ]);
+            } else {
+                $notification->update([
+                    'title' => 'Presensi Kehadiran Dibuka',
+                    'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah dibuka, silakan melakukan presensi hingga ' . $presensi->closing_date,
+                ]);
 
+            }
         }
 
         $myev = EventParticipant::where('event_code', $notification->event_code)->where('email', Auth::user()->email)->first();
