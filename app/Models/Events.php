@@ -88,6 +88,25 @@ class Events extends Model
             });
         }
 
+        $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `notification` LIKE 'link_online'"));
+
+        if (empty($columnExists)) {
+            // Jika kolom 'city' tidak ada, tambahkan kolom tersebut
+            Schema::table('notification', function (Blueprint $table) {
+                $table->string('link_online', 100)->nullable()->after('event_code');
+            });
+        }
+
+        $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `notification` WHERE FIELD IN ('id_access', 'passcode')"));
+
+        if (empty($columnExists)) {
+            // Jika kolom 'city' tidak ada, tambahkan kolom tersebut
+            Schema::table('notification', function (Blueprint $table) {
+                $table->string('id_access', 50)->nullable()->after('link_online');
+                $table->string('passcode')->nullable()->after('id_access');
+            });
+        }
+
         if (!in_array('event_manager', $existingTables)) {
             Schema::create('event_manager', function (Blueprint $table) {
                 $table->bigIncrements('id');

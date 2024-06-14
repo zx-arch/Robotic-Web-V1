@@ -21,7 +21,10 @@ class Notification extends Model
         'read', // status notifikasi ketika telah dibuka atau dibaca user
         'date_read', // tanggal dan jam notifikasi dibuka atau dibaca user
         'event_code',
-        'redirect' // arahkan akses link ketika notifikasi diklik
+        'redirect', // arahkan akses link ketika notifikasi diklik
+        'link_online',
+        'id_access',
+        'passcode'
     ];
 
 }
