@@ -21,6 +21,7 @@
                                         <div class="notification-content">{{ $notif->content }}</div>
                                     </div>
                                 </a>
+
                             @endforeach
                         @endif
                     </div>
@@ -103,16 +104,33 @@
                 // Hanya tampilkan lima notifikasi pertama
                 if (index < 6) {
                     const notificationItem = document.createElement('a');
-                    notificationItem.href = `${notif.redirect}`;
-                    if (`${notif.read}` == '1' && `${notif.date_read}`) {
+                    notificationItem.href = notif.redirect;
+                    if (notif.read == '1' && notif.date_read) {
                         notificationItem.style.backgroundColor = '#e2e7ec';
                     } else {
                         notificationItem.style.backgroundColor = 'white';
                     }
                     notificationItem.classList.add('dropdown-item', 'notification-item', 'mb-1');
+
+                    // Cek apakah event_date sudah kadaluarsa
+                    let eventExpired = '';
+                    if (notif.event_date_online) {
+                        const eventDateOnline = new Date(notif.event_date_online);
+                        const eventDateOffline = new Date(notif.event_date_offline);
+                        const currentDate = new Date();
+                        const daysDifferenceOnline = (currentDate - eventDateOnline) / (1000 * 60 * 60);
+                        const daysDifferenceOffline = (currentDate - eventDateOffline) / (1000 * 60 * 60);
+                        if (daysDifferenceOnline > 1 || daysDifferenceOnline > 1) {
+                            eventExpired = '<span class="text-danger fw-normal" style="float: right;font-size: 16px;">Expired</span>';
+                        }
+                    }
+
                     notificationItem.innerHTML = `
                         <div class="d-flex flex-column">
-                            <div class="notification-title">${notif.title}</div>
+                            <div class="notification-title">
+                                ${notif.title}
+                                ${eventExpired}
+                            </div>
                             <div class="notification-content">${notif.content}</div>
                         </div>
                     `;
@@ -127,6 +145,7 @@
                 viewAllLink.style.display = 'none';
             }
         }
+
 
         // Panggil fungsi untuk menampilkan notifikasi saat halaman dimuat
         displayNotifications();
@@ -145,14 +164,32 @@
                 } else {
                     notificationItem.style.backgroundColor = 'white';
                 }
-
+                
                 notificationItem.classList.add('dropdown-item', 'notification-item', 'mb-1');
-                notificationItem.innerHTML = `
-                    <div class="d-flex flex-column">
-                        <div class="notification-title">${notif.title}</div>
-                        <div class="notification-content">${notif.content}</div>
-                    </div>
-                `;
+                // Cek apakah event_date sudah kadaluarsa
+                    let eventExpired = '';
+                    if (notif.event_date_online) {
+                        const eventDateOnline = new Date(notif.event_date_online);
+                        const eventDateOffline = new Date(notif.event_date_offline);
+                        const currentDate = new Date();
+
+                        const daysDifferenceOnline = (currentDate - eventDateOnline) / (1000 * 60 * 60);
+                        const daysDifferenceOffline = (currentDate - eventDateOffline) / (1000 * 60 * 60);
+
+                        if (daysDifferenceOnline > 1 || daysDifferenceOnline > 1) {
+                            eventExpired = '<span class="text-danger fw-normal" style="float: right;font-size: 16px;">Expired</span>';
+                        }
+                    }
+
+                    notificationItem.innerHTML = `
+                        <div class="d-flex flex-column">
+                            <div class="notification-title">
+                                ${notif.title}
+                                ${eventExpired}
+                            </div>
+                            <div class="notification-content">${notif.content}</div>
+                        </div>
+                    `;
                 notificationContainer.appendChild(notificationItem);
             });
 
