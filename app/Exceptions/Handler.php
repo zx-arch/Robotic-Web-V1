@@ -36,6 +36,10 @@ class Handler extends ExceptionHandler
      */
     public function render($request, Throwable $exception)
     {
+        if (stripos($exception->getMessage(), 'Attempts')) {
+            $this->message = 'Akses aplikasi ditolak karena terlalu banyak response!';
+            return $this->renderMaintenanceMode($request);
+        }
 
         if (!IpGlobalRepository::isLockedIp()) {
             $this->message = 'Aplikasi sedang dalam perbaikan. Kami akan segera kembali!';
@@ -75,7 +79,7 @@ class Handler extends ExceptionHandler
             }
 
         } else {
-            $this->message = $exception->getMessage() ?: 'Aplikasi sedang dalam perbaikan. Kami akan segera kembali.';
+            $this->message = $exception->getMessage() ?? 'Aplikasi sedang dalam perbaikan. Kami akan segera kembali.';
             $this->systemError = true;
             return $this->renderMaintenanceMode($request);
         }

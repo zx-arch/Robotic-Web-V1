@@ -33,6 +33,7 @@ use App\Http\Controllers\Admin\EventsAdminController;
 | be assigned to the "web" middleware group. Make something great!
 |
 */
+
 Route::middleware('throttle:100,1')->group(function () {
 
     Route::get('/', [DashboardController::class, 'index'])->name('home_dashboard');
