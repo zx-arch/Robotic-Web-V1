@@ -196,7 +196,18 @@
                                                                 <p>Have Registered</p>
                                                             @endif
                                                         @else
-                                                            <p style="visibility: hidden;">Empty</p>
+                                                            @if ($event->event_type == 'online')
+                                                                @if (!$event->register && $eventDate->isoFormat('HH:mm') > now()->isoFormat('HH:mm') && $eventDate->isoFormat('D MMMM YYYY') >= now()->isoFormat('D MMMM YYYY'))
+                                                                    <form action="{{route('user.dashboard.eventRegister', ['code' => $event->code])}}" method="post" id="formRegister">
+                                                                        @csrf
+                                                                        <button class="btn btn-primary my-bg-{{$loop->index + 1}}-btn" id="btnRegister">Register</button>
+                                                                    </form>
+                                                                @else
+                                                                    <p style="visibility: hidden;">Empty</p>
+                                                                @endif
+                                                            @else
+                                                                <p style="visibility: hidden;">Empty</p>
+                                                            @endif
                                                         @endif
                                                     @endif
                                                 </div>
@@ -251,9 +262,9 @@
                                             <tr>
                                                 <td>{{$loop->index += 1}}</td>
                                                 <td><button class="btn btn-sm btn-warning" type="submit"><i class="fas fa-list-ul"></i></button></td>
-                                                <td>{{$myev->nama_event}}</td>
-                                                <td>{{$myev->event_date}}</td>
-                                                <td>{{$myev->location}}</td>
+                                                <td>{{$myev->event_offline ?? $myev->event_online}}</td>
+                                                <td>{{$myev->event_date ?? $myev->event_date_online}}</td>
+                                                <td>{{$myev->location ?? '- event online'}}</td>
                                                 <td>{{$myev->access_code}}</td>
 
                                                 @if ($myev->event_date < now())

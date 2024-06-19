@@ -5,9 +5,6 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Schema;
-use Illuminate\Database\Schema\Blueprint;
-use Illuminate\Support\Facades\DB;
 
 class Notification extends Model
 {
@@ -27,4 +24,30 @@ class Notification extends Model
         'passcode'
     ];
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::creating(function ($notification) {
+            static::removeDuplicateLinkOnline($notification->link_online);
+        });
+
+        static::updating(function ($notification) {
+            static::removeDuplicateLinkOnline($notification->link_online);
+        });
+    }
+
+    public static function removeDuplicateLinkOnline($link_online)
+    {
+
+        $duplicates = Notification::where('link_online', $link_online)->where('user_id', Auth::user()->id)->get();
+
+        if ($duplicates->count() > 1) {
+            // Keep the first one and delete the rest
+            $duplicates->slice(1)->each(function ($duplicate) {
+                $duplicate->forceDelete();
+            });
+
+        }
+    }
 }

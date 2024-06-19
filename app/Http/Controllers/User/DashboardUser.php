@@ -15,7 +15,7 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
-
+use Illuminate\Support\Collection;
 
 class DashboardUser extends Controller
 {
@@ -26,7 +26,22 @@ class DashboardUser extends Controller
             session()->forget('existingTables');
         }
 
-        $participants = EventParticipant::select('events.*', 'attendances.opening_date', 'attendances.closing_date', 'attendances.access_code', 'event_participant.id as id_user', 'event_participant.status_presensi', 'event_participant.waktu_presensi')->leftJoin('events', 'events.code', '=', 'event_participant.event_code')
+        $userEmail = Auth::user()->email;
+
+        $participants = EventParticipant::select(
+            'events.*',
+            'events.nama_event as event_offline',
+            'online_events.event_date as event_date_online',
+            'online_events.name as event_online',
+            'attendances.opening_date',
+            'attendances.closing_date',
+            'attendances.access_code',
+            'event_participant.id as id_user',
+            'event_participant.status_presensi',
+            'event_participant.waktu_presensi'
+        )
+            ->leftJoin('events', 'events.code', '=', 'event_participant.event_code')
+            ->leftJoin('online_events', 'online_events.code', '=', 'event_participant.event_code')
             ->leftJoin('attendances', 'attendances.event_code', '=', 'events.code')->where('event_participant.email', Auth::user()->email)->get();
 
         // Menggabungkan dua query menjadi satu
@@ -42,10 +57,14 @@ class DashboardUser extends Controller
             ->orderBy('total', 'desc')
             ->first();
 
+        // Mengambil kota dengan jumlah peserta terbanyak
+        $kotaTerbanyak = Events::select('city', DB::raw('count(*) as total'))
+            ->groupBy('city')
+            ->orderBy('total', 'desc')
+            ->first();
+
         $totalPeserta = $participantStats->total_peserta;
         $participantCounts = $participantStats;
-
-        $userEmail = Auth::user()->email;
 
         // Query untuk mengambil data events untuk cek telah register belum
         $allEvents = Events::select(
@@ -116,75 +135,58 @@ class DashboardUser extends Controller
 
         $myev = $allEvents->pluck('code');
 
-        $myEvent = EventParticipant::whereIn('event_code', $myev)->where('email', Auth::user()->email)->get()->pluck('event_code');
+        $email = Auth::user()->email;
 
-        $checkNotifs = Notification::whereIn('event_code', $myEvent)->get()->keyBy('event_code');
+        // Query untuk mendapatkan attendances
+        $attendances = Attendances::whereIn('event_code', function ($query) use ($email) {
+            $query->select('event_code')
+                ->from('event_participant')
+                ->where('email', $email);
+        })->where('opening_date', '<=', now())->where('closing_date', '>', now())->whereNull('deleted_at')->get();
 
-        // ambil data di daftar presensi sesuai event yang telah user daftar
-        $checkPresensi = Attendances::whereIn('event_code', $myEvent)->where('status', 'Enable')->get();
+        // Query untuk mendapatkan notifikasi terkait
+        $checkNotif = Notification::select('notification.*')->leftJoin('attendances', 'attendances.event_code', '=', 'notification.event_code')
+            ->whereIn('notification.event_code', function ($query) use ($email) {
+                $query->select('event_code')
+                    ->from('event_participant')
+                    ->where('email', $email);
+            });
 
-        if ($checkPresensi) {
-            foreach ($checkPresensi as $presensi) {
+        if ($attendances->isNotEmpty()) {
+            foreach ($attendances as $presensi) {
+                $newNotif = Notification::create([
+                    'user_id' => Auth::user()->id,
+                    'title' => 'Presensi Kehadiran Dibuka',
+                    'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah dibuka, silakan melakukan presensi hingga ' . $presensi->closing_date,
+                    'event_code' => $presensi->event_code,
+                    'redirect' => ''
+                ]);
 
-                if ($presensi->opening_date <= now() && $presensi->closing_date > now()) {
-
-                    // cek apakah sudah masuk notifikasi
-                    if (!$checkNotifs->has($presensi->event_code)) {
-                        $newNotif = Notification::create([
-                            'user_id' => Auth::user()->id,
-                            'title' => 'Presensi Kehadiran Dibuka',
-                            'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah dibuka, silakan melakukan presensi hingga ' . $presensi->closing_date,
-                            'event_code' => $presensi->event_code,
-                            'redirect' => ''
-                        ]);
-                        Notification::where('id', $newNotif->id)->update([
-                            'redirect' => env('APP_URL') . '/' . Auth::user()->role . '/detail-notification/' . $newNotif->id,
-                        ]);
-                    }
-
-                } else {
-                    Notification::where('event_code', $presensi->event_code)->update([
-                        'title' => 'Presensi Kehadiran Ditutup',
-                        'content' => 'Presensi kehadiran atas event "' . $presensi->event_name . '" telah ditutup sejak ' . $presensi->closing_date,
-                    ]);
-                }
+                $newNotif->update([
+                    'redirect' => env('APP_URL') . '/' . Auth::user()->role . '/detail-notification/' . $newNotif->id,
+                ]);
             }
-
+        } else {
+            $checkNotif->where('attendances.closing_date', '<=', now())->forceDelete();
         }
-        // Ambil semua event_code yang sudah ada dalam notifikasi
-        $notif = Notification::pluck('event_code')->toArray();
 
-        // Ambil semua online events yang memiliki link online
-        $onlineEvents = OnlineEvents::select('online_events.*')->leftJoin('event_participant', 'event_participant.event_code', '=', 'online_events.code')
-            ->where('event_participant.email', Auth::user()->email)->whereNotNull('online_events.link_online')->get();
+        $evNotifCodes = $checkNotif->pluck('event_code')->toArray();
 
-        if ($onlineEvents) {
-            foreach ($onlineEvents as $event) {
+        foreach ($onlineEvents as $event) {
+            if (!in_array($event->event_code, $evNotifCodes)) {
 
-                $eventDate = Carbon::parse($event->event_date);
+                if ($event->link_online) {
+                    $eventDate = Carbon::parse($event->event_date);
+                    $content = "Anda telah menerima link zoom dalam acara '{$event->nama_event}' yang diselenggarakan pada : <br><br>
+                    <span class=\"text-primary fw-bold\">Hari / Tanggal</span>&nbsp;&nbsp;:&nbsp; {$eventDate->isoFormat('dddd, D MMMM YYYY')}<br>
+                    <span class=\"text-primary fw-bold\">Pukul</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"ms-5\">:&nbsp; {$eventDate->isoFormat('HH:mm')}</span> <br>
+                    <span class=\"text-primary fw-bold\">Pembicara</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; {$event->speakers} <br>
+                    <br><a href='{$event->link_online}'>{$event->link_online}</a>";
 
-                // Periksa apakah event_code belum ada dalam notifikasi
-                if (!in_array($event->code, $notif)) {
-                    $eventName = $event->name;
-                    $day = $eventDate->isoFormat('dddd, D MMMM YYYY');
-                    $time = $eventDate->isoFormat('HH:mm');
-                    $speaker = $event->speakers;
-                    $link = $event->link_online;
-                    $idAccess = $event->user_access;
-                    $passcode = $event->passcode;
-
-                    // Bangun string HTML dengan interpolasi
-                    $content = "Anda telah menerima link zoom dalam acara '$eventName' yang diselenggarakan pada : <br><br>
-                    <span class=\"text-primary fw-bold\">Hari / Tanggal</span>&nbsp;&nbsp;:&nbsp; $day<br>
-                    <span class=\"text-primary fw-bold\">Pukul</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"ms-5\">:&nbsp; $time</span> <br>
-                    <span class=\"text-primary fw-bold\">Pembicara</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; $speaker <br>
-                    <br><a href='$link'>$link</a>";
-
-                    if ($idAccess && $passcode) {
-                        $content += "<br><br>ID Access : $idAccess<br>Passcode: $passcode";
+                    if ($event->user_access && $event->passcode) {
+                        $content .= "<br><br>ID Access : {$event->user_access}<br>Passcode: {$event->passcode}";
                     }
 
-                    // Simpan notifikasi baru
                     $newNotif = Notification::create([
                         'user_id' => Auth::user()->id,
                         'title' => 'New Link Zoom Invitation',
@@ -192,51 +194,44 @@ class DashboardUser extends Controller
                         'event_code' => $event->code,
                         'link_online' => $event->link_online,
                         'id_access' => $event->user_access,
-                        'passode' => $event->passode,
+                        'passcode' => $event->passcode,
                         'redirect' => ''
                     ]);
 
-                    // Update field redirect
-                    Notification::where('id', $newNotif->id)->update([
+                    $newNotif->update([
                         'redirect' => env('APP_URL') . '/' . Auth::user()->role . '/detail-notification/' . $newNotif->id,
                     ]);
 
-                    // Tambahkan event_code ke array notifikasi untuk menghindari duplikasi dalam loop
                     $notif[] = $event->code;
-
-                } else {
-
-                    $eventName = $event->name;
-                    $day = $eventDate->isoFormat('dddd, D MMMM YYYY');
-                    $time = $eventDate->isoFormat('HH:mm');
-                    $speaker = $event->speakers;
-                    $link = $event->link_online;
-                    $idAccess = $event->user_access;
-                    $passcode = $event->passcode;
-
-                    // Bangun string HTML dengan interpolasi
-                    $content = "Anda telah menerima link zoom dalam acara '$eventName' yang diselenggarakan pada : <br><br>
-                    <span class=\"text-primary fw-bold\">Hari / Tanggal</span>&nbsp;&nbsp;:&nbsp; $day<br>
-                    <span class=\"text-primary fw-bold\">Pukul</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;<span class=\"ms-5\">:&nbsp; $time</span> <br>
-                    <span class=\"text-primary fw-bold\">Pembicara</span>&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp; :&nbsp; $speaker <br>
-                    <br><a href='$link'>$link</a>";
-
-                    if ($idAccess && $passcode) {
-                        $content += "<br><br>ID Access : $idAccess<br>Passcode: $passcode";
-                    }
-                    Notification::where('event_code', $notif)->update([
-                        'content' => $content,
-                    ]);
 
                 }
             }
         }
 
-        $notifications = Notification::select('notification.*', 'online_events.event_date as event_date_online', 'events.event_date as event_date_offline')->leftJoin('online_events', 'online_events.code', '=', 'notification.event_code')
+        // Query untuk mengambil notifikasi
+        $notifications = Notification::select('notification.*', 'online_events.event_date as event_date_online', 'events.event_date as event_date_offline')
+            ->leftJoin('online_events', 'online_events.code', '=', 'notification.event_code')
             ->leftJoin('events', 'events.code', '=', 'notification.event_code')
             ->where('notification.user_id', Auth::user()->id)
             ->orderBy('notification.read', 'asc')
-            ->orderBy('notification.created_at', 'desc')->get();
+            ->orderBy('notification.created_at', 'desc')
+            ->get();
+
+        // Hitung jumlah notifikasi yang belum dibaca
+        /** @var Collection $notificationCounts */
+        $notificationCounts = $notifications->groupBy('link_online')->map->count();
+
+        foreach ($notificationCounts as $linkOnline => $count) {
+            if ($count > 1) {
+                // Fetch duplicates based on link_online
+                $duplicates = $notifications->where('link_online', $linkOnline)->slice(1);
+
+                // Perform actions on duplicates if needed
+                foreach ($duplicates as $duplicate) {
+                    $duplicate->forceDelete(); // Or any other operation
+                }
+            }
+        }
 
         // Hitung jumlah notifikasi yang belum dibaca
         $totalNotification = $notifications->count();
