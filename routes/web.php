@@ -22,6 +22,7 @@ use App\Http\Controllers\Admin\IpGlobalController;
 use App\Http\Controllers\Admin\IpLockedController;
 use App\Http\Controllers\Admin\AdminSettingsController;
 use App\Http\Controllers\Admin\EventsAdminController;
+use App\Http\Controllers\User\DiscussionsUserController;
 
 /*
 |--------------------------------------------------------------------------
@@ -211,6 +212,12 @@ Route::middleware('throttle:100,1')->group(function () {
 
         Route::get('/user/settings', [UserSettingsController::class, 'index'])->name('user.settings');
         Route::post('/user/settings/save', [UserSettingsController::class, 'save'])->name('user.settings.save');
+
+        Route::get('/user/discussions', [DiscussionsUserController::class, 'index'])->name('user.discussions');
+        Route::prefix('/user/discussions')->group(function () {
+            Route::get('/add', [DiscussionsUserController::class, 'add'])->name('user.discussions.add');
+            Route::post('/save-add', [DiscussionsUserController::class, 'saveAdd'])->name('user.discussions.saveAdd');
+        });
     });
 
     Route::middleware(['auth.login', 'guest.auth', 'blocked', 'check.cookie'])->group(function () {

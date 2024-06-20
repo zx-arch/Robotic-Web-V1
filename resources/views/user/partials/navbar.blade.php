@@ -1,7 +1,7 @@
 <nav class="navbar navbar-expand px-4 py-3" style="height: 60px;background-color: #e3def9;">
     <div class="navbar-collapse collapse">
         <ul class="navbar-nav ms-auto">
-            <li class="nav-item dropdown">
+            <li class="nav-item dropdown me-2 me-lg-1">
                 <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-3 notification-bell show" aria-expanded="true">
                     <i class="fas fa-bell"></i>
                     <span class="badge bg-danger" style="margin-bottom: -15px;">{{session()->has('info_notif.total_notif') ? session('info_notif.total_notif') : 0}}</span> <!-- Notifications badge -->

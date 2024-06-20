@@ -15,7 +15,13 @@
                 <span>Events</span>
             </a>
         </li>
-
+        <li class="sidebar-item">
+            <a href="{{route('user.discussions')}}" class="sidebar-link">
+                <i class="ri-discuss-line"></i>
+                <span>Discussions</span>
+            </a>
+        </li>
+        
         {{-- <li class="sidebar-item">
             <a href="#" class="sidebar-link">
                 <i class="lni lni-agenda"></i>
@@ -68,14 +74,14 @@
                 <i class="lni lni-popup"></i>
                 <span>Notification</span>
             </a>
-        </li>
+        </li> --}}
 
-        <li class="sidebar-item">
-            <a href="#" class="sidebar-link">
+        <li class="sidebar-item mt-4">
+            <a href="{{route('user.settings')}}" class="sidebar-link">
                 <i class="lni lni-cog"></i>
                 <span>Setting</span>
             </a>
-        </li> --}}
+        </li>
     </ul>
 
     <div class="sidebar-footer">
