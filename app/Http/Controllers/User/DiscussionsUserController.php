@@ -5,6 +5,7 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Discussions;
+use App\Models\DiscussionsAnswer;
 use App\Models\LikesDiscussion;
 use App\Models\Hashtags;
 use Illuminate\Support\Facades\Auth;
@@ -59,9 +60,45 @@ class DiscussionsUserController extends Controller
             $clicked = true;
         }
 
-        return view('user.Discussions.findID', compact('discussion', 'time_difference', 'clicked', 'checkLike'));
+        $answers = DiscussionsAnswer::select('discussions_answer.*', 'users.username')->leftJoin('users', 'users.id', '=', 'discussions_answer.user_id')
+            ->where('discussions_answer.discussion_id', $id)
+            ->with([
+                'replies' => function ($query) {
+                    $query->select('discussions_answer.*', 'users.username')
+                        ->leftJoin('users', 'users.id', '=', 'discussions_answer.user_id')
+                        ->orderBy('created_at', 'asc');
+                }
+            ])
+            ->whereNull('discussions_answer.reply_user_id')
+            ->latest()
+            ->get();
+
+        $discussionStats = DiscussionsAnswer::where('discussion_id', $id)
+            ->selectRaw('COUNT(*) as total_answers')->whereNull('reply_user_id')
+            ->first();
+
+        return view('user.Discussions.findID', compact('discussion', 'time_difference', 'clicked', 'checkLike', 'discussionStats', 'answers'));
     }
 
+    public function saveAnswer(Request $request)
+    {
+        DiscussionsAnswer::create([
+            'discussion_id' => $request->discussion_id,
+            'user_id' => Auth::user()->id,
+            'message' => $request->message,
+        ]);
+        return redirect()->back();
+    }
+    public function saveReply(Request $request)
+    {
+        DiscussionsAnswer::create([
+            'discussion_id' => $request->discussion_id,
+            'user_id' => Auth::user()->id,
+            'message' => $request->message,
+            'reply_user_id' => $request->answer_id
+        ]);
+        return redirect()->back();
+    }
     public function processLike(Request $request, $id)
     {
         try {

@@ -216,6 +216,8 @@ Route::middleware('throttle:100,1')->group(function () {
             Route::get('/add', [DiscussionsUserController::class, 'add'])->name('user.discussions.add');
             Route::post('/save-add', [DiscussionsUserController::class, 'saveAdd'])->name('user.discussions.saveAdd');
             Route::get('/{id}/{title}', [DiscussionsUserController::class, 'getByID'])->name('user.discussions.getByID');
+            Route::post('/save-answer', [DiscussionsUserController::class, 'saveAnswer'])->name('user.discussions.saveAnswer');
+            Route::post('/save-reply', [DiscussionsUserController::class, 'saveReply'])->name('user.discussions.saveReply');
         });
         Route::post('/like/{id}', [DiscussionsUserController::class, 'processLike'])->name('discussion.toggleLike');
 
