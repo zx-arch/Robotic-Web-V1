@@ -184,9 +184,7 @@ Route::middleware('throttle:100,1')->group(function () {
 
         Route::get('/admin/settings', [AdminSettingsController::class, 'index'])->name('admin.settings.index');
         Route::post('/admin/save-settings', [AdminSettingsController::class, 'save'])->name('admin.settings.save');
-
     });
-
 
     // Tambahkan rute lain untuk pengurus di sini
     Route::middleware(['auth.login', 'pengurus.auth', 'blocked', 'check.cookie', 'role:pengurus'])->group(function () {
@@ -217,7 +215,10 @@ Route::middleware('throttle:100,1')->group(function () {
         Route::prefix('/user/discussions')->group(function () {
             Route::get('/add', [DiscussionsUserController::class, 'add'])->name('user.discussions.add');
             Route::post('/save-add', [DiscussionsUserController::class, 'saveAdd'])->name('user.discussions.saveAdd');
+            Route::get('/{id}/{title}', [DiscussionsUserController::class, 'getByID'])->name('user.discussions.getByID');
         });
+        Route::post('/like/{id}', [DiscussionsUserController::class, 'processLike'])->name('discussion.toggleLike');
+
     });
 
     Route::middleware(['auth.login', 'guest.auth', 'blocked', 'check.cookie'])->group(function () {

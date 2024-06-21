@@ -5,10 +5,12 @@ namespace App\Http\Controllers\User;
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\Discussions;
+use App\Models\LikesDiscussion;
 use App\Models\Hashtags;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
-
+use Illuminate\Support\Facades\Session;
+use Carbon\Carbon;
 
 class DiscussionsUserController extends Controller
 {
@@ -18,6 +20,100 @@ class DiscussionsUserController extends Controller
 
         return view('user.Discussions.index', compact('discussions'));
     }
+
+    public function getByID($id, $title)
+    {
+        $discussion = Discussions::find($id);
+        $created_at = Carbon::parse($discussion->created_at);
+        $updated_at = Carbon::parse($discussion->updated_at);
+
+        // Check if this user has already viewed this discussion in this session
+        $sessionKey = 'discussion_' . $discussion->id . '_viewed';
+        if (!Session::has($sessionKey)) {
+            // Increment views count and mark as viewed in session
+            $discussion->incrementViewCount();
+            Session::put($sessionKey, true);
+        }
+
+        // Hitung selisih waktu
+        $now = Carbon::now()->startOfDay();
+        $updated_at_midnight = $updated_at->startOfDay();
+
+        // Hitung selisih dalam hari
+        $days_difference = $updated_at_midnight->diffInDays($now);
+
+        // Tentukan teks berdasarkan selisih hari
+        if ($days_difference == 0) {
+            $time_difference = 'today';
+        } elseif ($days_difference == 1) {
+            $time_difference = 'yesterday';
+        } else {
+            $time_difference = $days_difference . ' days ago';
+        }
+
+        $checkLike = LikesDiscussion::where('user_id', Auth::user()->id)->first();
+
+        if (!$checkLike) {
+            $clicked = false;
+        } else {
+            $clicked = true;
+        }
+
+        return view('user.Discussions.findID', compact('discussion', 'time_difference', 'clicked', 'checkLike'));
+    }
+
+    public function processLike(Request $request, $id)
+    {
+        try {
+            $discussion = Discussions::findOrFail($id);
+            $user_id = Auth::user()->id;
+
+            // Cek apakah pengguna sudah melakukan "like" sebelumnya
+            $check = LikesDiscussion::where('user_id', $user_id)
+                ->where('discussion_id', $id)
+                ->first();
+
+            if (!$check) {
+                // Jika belum ada "like", tambahkan ke tabel LikesDiscussion
+                LikesDiscussion::create([
+                    'discussion_id' => $id,
+                    'user_id' => $user_id,
+                    'is_clicked_like' => true
+                ]);
+                $discussion->likes++;
+
+            } else {
+                // Toggle is_clicked_like
+                $check->update([
+                    'is_clicked_like' => !$check->is_clicked_like
+                ]);
+
+                // Sesuaikan jumlah likes berdasarkan is_clicked_like terbaru
+                if ($check->is_clicked_like) {
+                    $discussion->likes++;
+                } else {
+                    $discussion->likes--;
+                }
+            }
+
+            // Pastikan likes tidak kurang dari 0
+            if ($discussion->likes < 0) {
+                $discussion->likes = 0;
+            }
+
+            // Simpan perubahan jumlah likes di discussion
+            $discussion->save();
+
+            // Kirim response JSON dengan jumlah likes terbaru
+            return response()->json(['likes' => $discussion->likes]);
+
+        } catch (\Throwable $e) {
+            // Tangkap dan kirim pesan error jika terjadi kesalahan
+            return response()->json(['error' => $e->getMessage()]);
+        }
+    }
+
+
 
     public function add()
     {

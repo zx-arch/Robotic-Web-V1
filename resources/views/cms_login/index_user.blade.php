@@ -14,6 +14,7 @@
     <link href="{{asset('assets/vendor/boxicons/css/boxicons.min.css')}}" rel="stylesheet">
     <link href="{{asset('assets/vendor/remixicon/remixicon.css')}}" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@10"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
 
     <link rel="stylesheet" href="{{asset('assets/css/customcolor.css')}}" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css?family=Source+Sans+Pro:300,400,400i,700" rel="stylesheet">
@@ -88,6 +89,12 @@
             border-radius: 0 0.25rem 0.25rem 0;
         }
 
+        @media (max-width: 768px) {
+            .username-info {
+                width: 100%;
+                text-align: left;
+            }
+        }
     </style>
 </head>
 
@@ -107,6 +114,7 @@
         integrity="sha384-C6RzsynM9kWDrMNeT87bh95OGNyZPhcTNXj1NW7RuBCsyN/o0jlpcV8Qyq46cDfL"
         crossorigin="anonymous"></script>
     <script src="{{asset('plugins/bootstrap-5-dashboard/script.js')}}"></script>
+
 </body>
 
 </html>

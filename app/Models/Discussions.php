@@ -18,9 +18,9 @@ class Discussions extends Model
         'user_id',
         'message',
         'hashtags',
-        'likes', // user like postingan
-        'views', // jumlah user melihat postingan
-        'responses', // record jumlah tiap user respon
+        'likes',
+        'views',
+        'responses',
         'gambar'
     ];
 
@@ -66,5 +66,11 @@ class Discussions extends Model
                 $table->softDeletes();
             });
         }
+    }
+
+    public function incrementViewCount()
+    {
+        $this->views++;
+        $this->save();
     }
 }
