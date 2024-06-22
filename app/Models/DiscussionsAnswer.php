@@ -16,6 +16,7 @@ class DiscussionsAnswer extends Model
         'message',
         'like',
         'reply_user_id',
+        'is_clicked_like',
         'gambar',
     ];
 
@@ -40,8 +41,18 @@ class DiscussionsAnswer extends Model
                 $table->string('gambar')->nullable();
                 $table->timestamps();
             });
-
         }
+
+        $columnExists = DB::select(DB::raw("SHOW COLUMNS FROM `discussions_answer` LIKE 'is_clicked_like'"));
+
+        if (empty($columnExists)) {
+            // Jika kolom 'link_online' tidak ada, tambahkan kolom tersebut
+            Schema::table('discussions_answer', function (Blueprint $table) {
+                $table->boolean('is_clicked_like')->default(false)->after('like');
+            });
+            DB::statement("ALTER TABLE discussions_answer CHANGE COLUMN `like` `like` BIGINT(20)");
+        }
+
     }
 
     public function replies()

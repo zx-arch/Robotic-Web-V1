@@ -83,7 +83,7 @@
                     <div class="card" id="drop-area">
                         <div class="card-body" style="height: 150px;"> <!-- Perbesar tinggi card-body -->
                             <div class="center-content">
-                                <p id="drop-text">Drag & drop poster di sini <br> <br> max upload 500 KB</p>
+                                <p id="drop-text">Drag & drop gambar di sini <br> <br> max upload 500 KB</p>
                                 <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
                                 <p id="filename" class="d-none"></p>
                             </div>
@@ -102,95 +102,95 @@
 <script>
     document.addEventListener('DOMContentLoaded', function () {
         const hashtagInput = document.getElementById('hashtags');
-    const hashtagSuggestions = document.getElementById('hashtagSuggestions');
-    let currentSuggestionIndex = -1;
+        const hashtagSuggestions = document.getElementById('hashtagSuggestions');
+        let currentSuggestionIndex = -1;
 
-    const availableHashtags = JSON.parse('{!! $hashtags !!}');
+        const availableHashtags = JSON.parse('{!! $hashtags !!}');
 
-    hashtagInput.addEventListener('input', function () {
-        const value = this.value.trim();
-        const lastWord = value.split(' ').pop();
+        hashtagInput.addEventListener('input', function () {
+            const value = this.value.trim();
+            const lastWord = value.split(' ').pop();
 
-        if (lastWord.startsWith('#') && lastWord.length > 1) {
-            const query = lastWord.slice(1).toLowerCase();
-            const suggestions = availableHashtags.filter(tag => tag.tag_name.toLowerCase().includes(query));
-            displaySuggestions(suggestions, query);
-        } else {
-            hideSuggestions();
-        }
-    });
-
-    hashtagInput.addEventListener('keydown', function (e) {
-        const items = hashtagSuggestions.getElementsByClassName('list-group-item');
-
-        if (e.key === 'ArrowDown') {
-            e.preventDefault();
-            if (currentSuggestionIndex < items.length - 1) {
-                currentSuggestionIndex++;
-                highlightSuggestion(items);
-                scrollToItem(items[currentSuggestionIndex]);
-            }
-        } else if (e.key === 'ArrowUp') {
-            e.preventDefault();
-            if (currentSuggestionIndex > 0) {
-                currentSuggestionIndex--;
-                highlightSuggestion(items);
-                scrollToItem(items[currentSuggestionIndex]);
-            }
-        } else if (e.key === 'Enter') {
-            e.preventDefault();
-            if (currentSuggestionIndex > -1 && currentSuggestionIndex < items.length) {
-                items[currentSuggestionIndex].click();
-            }
-        }
-    });
-
-    function displaySuggestions(suggestions, query) {
-        hashtagSuggestions.innerHTML = '';
-        currentSuggestionIndex = -1;
-        suggestions.forEach((suggestion, index) => {
-            const suggestionItem = document.createElement('a');
-            suggestionItem.href = '#';
-            suggestionItem.classList.add('list-group-item', 'list-group-item-action', 'd-flex', 'justify-content-between', 'align-items-center');
-            
-            const tagText = document.createElement('span');
-            tagText.textContent = suggestion.tag_name;
-
-            const tagCount = document.createElement('span');
-            tagCount.textContent = suggestion.count + ' postingan';
-
-            suggestionItem.appendChild(tagText);
-            suggestionItem.appendChild(tagCount);
-
-            suggestionItem.addEventListener('click', function (e) {
-                e.preventDefault();
-                const currentValue = hashtagInput.value;
-                const words = currentValue.split(' ');
-                words.pop();
-                words.push(suggestion.tag_name);
-                hashtagInput.value = words.join(' ') + ' ';
+            if (lastWord.startsWith('#') && lastWord.length > 1) {
+                const query = lastWord.slice(1).toLowerCase();
+                const suggestions = availableHashtags.filter(tag => tag.tag_name.toLowerCase().includes(query));
+                displaySuggestions(suggestions, query);
+            } else {
                 hideSuggestions();
+            }
+        });
+
+        hashtagInput.addEventListener('keydown', function (e) {
+            const items = hashtagSuggestions.getElementsByClassName('list-group-item');
+
+            if (e.key === 'ArrowDown') {
+                e.preventDefault();
+                if (currentSuggestionIndex < items.length - 1) {
+                    currentSuggestionIndex++;
+                    highlightSuggestion(items);
+                    scrollToItem(items[currentSuggestionIndex]);
+                }
+            } else if (e.key === 'ArrowUp') {
+                e.preventDefault();
+                if (currentSuggestionIndex > 0) {
+                    currentSuggestionIndex--;
+                    highlightSuggestion(items);
+                    scrollToItem(items[currentSuggestionIndex]);
+                }
+            } else if (e.key === 'Enter') {
+                e.preventDefault();
+                if (currentSuggestionIndex > -1 && currentSuggestionIndex < items.length) {
+                    items[currentSuggestionIndex].click();
+                }
+            }
+        });
+
+        function displaySuggestions(suggestions, query) {
+            hashtagSuggestions.innerHTML = '';
+            currentSuggestionIndex = -1;
+            suggestions.forEach((suggestion, index) => {
+                const suggestionItem = document.createElement('a');
+                suggestionItem.href = '#';
+                suggestionItem.classList.add('list-group-item', 'list-group-item-action', 'd-flex', 'justify-content-between', 'align-items-center');
+                
+                const tagText = document.createElement('span');
+                tagText.textContent = suggestion.tag_name;
+
+                const tagCount = document.createElement('span');
+                tagCount.textContent = suggestion.count + ' postingan';
+
+                suggestionItem.appendChild(tagText);
+                suggestionItem.appendChild(tagCount);
+
+                suggestionItem.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const currentValue = hashtagInput.value;
+                    const words = currentValue.split(' ');
+                    words.pop();
+                    words.push(suggestion.tag_name);
+                    hashtagInput.value = words.join(' ') + ' ';
+                    hideSuggestions();
+                });
+
+                hashtagSuggestions.appendChild(suggestionItem);
             });
 
-            hashtagSuggestions.appendChild(suggestionItem);
-        });
-
-        if (suggestions.length > 0) {
-            hashtagSuggestions.style.display = 'block'; // Tampilkan daftar rekomendasi jika ada
-        } else {
-            hashtagSuggestions.style.display = 'none'; // Sembunyikan jika tidak ada rekomendasi
-        }
-    }
-
-    function highlightSuggestion(items) {
-        Array.from(items).forEach((item, index) => {
-            if (index === currentSuggestionIndex) {
-                item.classList.add('active');
+            if (suggestions.length > 0) {
+                hashtagSuggestions.style.display = 'block'; // Tampilkan daftar rekomendasi jika ada
             } else {
-                item.classList.remove('active');
+                hashtagSuggestions.style.display = 'none'; // Sembunyikan jika tidak ada rekomendasi
             }
-        });
-    }
+        }
+
+        function highlightSuggestion(items) {
+            Array.from(items).forEach((item, index) => {
+                if (index === currentSuggestionIndex) {
+                    item.classList.add('active');
+                } else {
+                    item.classList.remove('active');
+                }
+            });
+        }
 
         function scrollToItem(item) {
             const container = hashtagSuggestions;

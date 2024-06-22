@@ -82,13 +82,30 @@ class DiscussionsUserController extends Controller
 
     public function saveAnswer(Request $request)
     {
+        if ($request->hasFile('gambar')) { // Periksa apakah file gambar dikirimkan
+
+            $directory = public_path('discussions/coment/gambar/');
+            $uniqueImageName = time() . '_' . $request->file('gambar')->getClientOriginalName();
+
+            // Membuat direktori jika tidak ada
+            if (!file_exists($directory)) {
+                mkdir($directory, 0777, true);
+            }
+
+            // Simpan data image ke dalam file di direktori yang diinginkan
+            $request->file('gambar')->move(public_path('discussions/coment/gambar/'), $uniqueImageName);
+        }
+
         DiscussionsAnswer::create([
             'discussion_id' => $request->discussion_id,
             'user_id' => Auth::user()->id,
             'message' => $request->message,
+            'gambar' => (($request->has('gambar')) ? $uniqueImageName : null)
         ]);
+
         return redirect()->back();
     }
+
     public function saveReply(Request $request)
     {
         DiscussionsAnswer::create([
@@ -99,6 +116,28 @@ class DiscussionsUserController extends Controller
         ]);
         return redirect()->back();
     }
+
+    public function answerLike(Request $request, $discuss_id, $answer_id)
+    {
+        $answer = DiscussionsAnswer::where('discussion_id', $discuss_id)->where('id', $answer_id)->first();
+        $liked = $request->input('liked');
+
+        if ($answer->is_clicked_like) {
+            $answer->like -= 1;
+            $liked = false;
+            $answer->is_clicked_like = false;
+        } else {
+            $answer->like += 1;
+            $liked = true;
+            $answer->is_clicked_like = true;
+        }
+
+        $answer->save();
+
+        // Return the new like count and whether the user has liked it
+        return response()->json(['likeCount' => $answer->like, 'liked' => $liked]);
+    }
+
     public function processLike(Request $request, $id)
     {
         try {

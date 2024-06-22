@@ -219,6 +219,7 @@ Route::middleware('throttle:100,1')->group(function () {
             Route::post('/save-answer', [DiscussionsUserController::class, 'saveAnswer'])->name('user.discussions.saveAnswer');
             Route::post('/save-reply', [DiscussionsUserController::class, 'saveReply'])->name('user.discussions.saveReply');
         });
+        Route::post('/discuss/{discuss}/answers/{answer}/like', [DiscussionsUserController::class, 'answerLike'])->name('user.discussions.answers.answerLike');
         Route::post('/like/{id}', [DiscussionsUserController::class, 'processLike'])->name('discussion.toggleLike');
 
     });

@@ -1,5 +1,45 @@
 @extends('cms_login.index_user')
 
+<style>
+    #drop-area {
+        border: 2px dashed #ccc;
+        border-radius: 10px;
+        padding: 20px;
+        margin-top: 20px;
+        cursor: pointer;
+    }
+
+    #drop-area p {
+        margin: 0;
+        font-size: 16px;
+        line-height: 20px;
+    }
+
+    #preview {
+        max-width: 100%;
+        max-height: 95px;
+        margin-top: 10px;
+    }
+
+    #filename {
+        margin-top: 10px;
+    }
+
+    .center-content {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        height: 100%; /* Memastikan konten tetap di tengah vertikal */
+
+    }
+
+    #drop-text, #filename {
+        text-align: center;
+    }
+
+</style>
+
 @section('content')
 
 <main class="content px-3 py-4">
@@ -46,13 +86,21 @@
                 
                 @foreach($answers as $answer)
                     <div class="border-bottom mb-3 pb-2">
+                        <p><small class="text-primary fw-bold">{{$answer->username}}</small></p>
                         <p>{{ $answer->message }}</p>
                         <div class="d-flex justify-content-between" style="font-size: 13px;">
-                            <small class="text-muted">{{ $answer->like }} Likes</small>
-                            <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#replyForm-{{$answer->id}}" aria-expanded="false" aria-controls="replyForm-{{$answer->id}}">
-                                Reply
-                            </button>
+                            <div class="d-flex justify-content-left flex-wrap align-items-center">
+                                <a href="#" class="text-muted me-2 like-count like-btn-answer" data-answer-id="{{ $answer->id }}" data-discussion-id="{{ $discussion->id }}" data-liked="{{ $answer->is_clicked_like ? 'true' : 'false' }}" id="like-count-{{ $answer->id }}">
+                                    <small class="text-like {{ $answer->is_clicked_like ? 'text-primary' : 'text-secondary' }}">{{ $answer->like }} Likes</small>
+                                </a>
+                                <small class="text-muted me-2">{{ $answer->replies->count() ?? 0 }} Comment</small>
+                                <a href="#" data-bs-toggle="collapse" data-bs-target="#replyForm-{{ $answer->id }}" aria-expanded="false" aria-controls="replyForm-{{ $answer->id }}">
+                                    Reply
+                                </a>
+                            </div>
                         </div>
+
+
 
                         <div class="collapse mt-2" id="replyForm-{{$answer->id}}">
                             <form action="{{ route('user.discussions.saveReply') }}" method="POST">
@@ -67,26 +115,14 @@
                         </div>
 
                         @if($answer->replies->count() > 0)
-                            <div class="result-comment p-3">
+                            <div class="result-comment p-3" style="font-size: 15px;">
                                 @foreach($answer->replies as $reply)
                                     <div class="border-bottom mb-3 pb-2">
                                         <p>{{ $reply->message }}</p>
                                         <div class="d-flex justify-content-between" style="font-size: 13px;">
-                                            <small class="text-muted">{{ $reply->username ?? 'Anonymous' }} - {{ $reply->created_at->diffForHumans() }}</small>
-                                            <button class="btn btn-link p-0" type="button" data-bs-toggle="collapse" data-bs-target="#replyForm-comment-{{$answer->id}}" aria-expanded="false" aria-controls="replyForm-{{$answer->id}}">
-                                                Reply
-                                            </button>
-                                        </div>
-                                        <div class="collapse mt-2" id="replyForm-comment-{{$answer->id}}">
-                                            <form action="{{ route('user.discussions.saveReply') }}" method="POST">
-                                                @csrf
-                                                <input type="hidden" name="answer_id" value="{{ $answer->id }}">
-                                                <input type="hidden" name="discussion_id" value="{{ $discussion->id }}">
-                                                <div class="form-group mb-2">
-                                                    <textarea class="form-control" name="message" rows="3" required></textarea>
-                                                </div>
-                                                <button type="submit" class="btn btn-primary btn-sm">Post Reply</button>
-                                            </form>
+                                            <div class="d-flex justify-content-left flex-wrap align-items-center">
+                                                <small class="text-muted me-2"><span class="text-primary">{{ $reply->username ?? 'Anonymous' }}</span> - {{ $reply->created_at->diffForHumans() }}</small>
+                                            </div>
                                         </div>
                                     </div>
                                 @endforeach
@@ -101,14 +137,32 @@
         <div class="card mt-4">
             <div class="card-body">
                 <h5 style="font-size: 20px;" class="mb-2">Post an Answer</h5>
-                <form action="{{route('user.discussions.saveAnswer')}}" method="POST">
+                <form action="{{route('user.discussions.saveAnswer')}}" method="POST" enctype="multipart/form-data">
                     @csrf
                     <input type="hidden" name="discussion_id" value="{{ $discussion->id }}">
                     <div class="form-group mb-3">
                         <label for="message" class="mb-2">Your Answer</label>
                         <textarea class="form-control" id="message" name="message" rows="5" required></textarea>
                     </div>
-                    <button type="submit" class="btn btn-primary">Post Answer</button>
+                    <div class="form-group highlight-addon has-success">
+                        <label for="poster">Upload gambar</label>
+                        <div class="custom-file">
+                            <input type="file" name="gambar" id="url_link" class="custom-file-input" accept=".png, .jpg, .jpeg" maxlength="52428800">
+                            <label class="custom-file-label" for="url_link">Pilih gambar</label>
+                        </div>
+                        <div class="invalid-feedback"></div>
+                    </div>
+
+                    <div class="card" id="drop-area">
+                        <div class="card-body" style="height: 150px;"> <!-- Perbesar tinggi card-body -->
+                            <div class="center-content">
+                                <p id="drop-text">Drag & drop gambar di sini <br> <br> max upload 500 KB</p>
+                                <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
+                                <p id="filename" class="d-none"></p>
+                            </div>
+                        </div>
+                    </div>
+                    <button type="submit" class="btn btn-primary mt-3">Post Answer</button>
                 </form>
             </div>
         </div>
@@ -120,6 +174,7 @@
 <script>
 document.addEventListener('DOMContentLoaded', function () {
     const likeButtons = document.querySelectorAll('.like-button');
+    
     likeButtons.forEach(button => {
         button.addEventListener('click', function () {
             const isLiked = this.getAttribute('data-liked') === 'true';
@@ -149,5 +204,192 @@ document.addEventListener('DOMContentLoaded', function () {
                 });
         });
     });
+
+    document.querySelectorAll('.like-btn-answer').forEach(function (button) {
+    button.addEventListener('click', function (event) {
+        event.preventDefault();
+        
+        let answerId = this.getAttribute('data-answer-id');
+        let likeCountElement = document.getElementById('like-count-' + answerId).querySelector('.text-like');
+        let buttonElement = this;
+        const discussionId = this.getAttribute('data-discussion-id');
+        const isLiked = this.getAttribute('data-liked') === 'true';
+
+        fetch(`/discuss/${discussionId}/answers/${answerId}/like`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRF-TOKEN': '{{ csrf_token() }}'
+            },
+            body: JSON.stringify({ liked: isLiked })
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (!likeCountElement) {
+                data.likeCount += 1;
+            }
+            likeCountElement.textContent = data.likeCount + ' Likes';
+            if (isLiked) {
+                likeCountElement.classList.remove('text-secondary');
+                likeCountElement.classList.add('text-primary');
+            } else {
+                likeCountElement.classList.remove('text-primary');
+                likeCountElement.classList.add('text-secondary');
+            }
+            buttonElement.setAttribute('data-liked', data.liked ? 'true' : 'false');
+        });
+    });
+});
+
+
+    // Get the input element
+    const inputElement = document.querySelector('.custom-file-input');
+    const labelElement = document.querySelector('.custom-file-label');
+    const dropArea = document.getElementById('drop-area');
+    const dropText = document.getElementById('drop-text');
+    const preview = document.getElementById('preview');
+    const filename = document.getElementById('filename');
+
+    // Add event listeners for input element
+    inputElement.addEventListener('change', handleFileSelect);
+
+    // Add event listeners for drop area
+    ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, preventDefaults, false);
+    });
+    ['dragenter', 'dragover'].forEach(eventName => {
+        dropArea.addEventListener(eventName, highlight, false);
+    });
+    ['dragleave', 'drop'].forEach(eventName => {
+        dropArea.addEventListener(eventName, unhighlight, false);
+    });
+    dropArea.addEventListener('drop', handleDrop, false);
+
+    // Prevent default behavior
+    function preventDefaults(event) {
+        event.preventDefault();
+        event.stopPropagation();
+    }
+
+    // Highlight drop area
+    function highlight() {
+        dropArea.classList.add('highlight');
+    }
+
+    // Unhighlight drop area
+    function unhighlight() {
+        dropArea.classList.remove('highlight');
+    }
+
+    // Handle file select
+    function handleFileSelect(event) {
+        const files = event.target.files;
+        if (files.length > 0) {
+            const file = files[0];
+            const fileSize = file.size; // Dapatkan ukuran file dalam byte
+            const fileType = file.type; // Dapatkan tipe file
+            if (fileType === 'image/png' || fileType === 'image/jpeg') { // Periksa tipe file
+                if (fileSize < 500 * 1024) { // Periksa ukuran file jika tipe file valid
+                    inputElement.files = files;
+                    labelElement.innerText = file.name;
+                    preview.src = URL.createObjectURL(file);
+                    preview.classList.remove('d-none');
+                    filename.innerText = file.name;
+                    filename.classList.remove('d-none');
+                    dropText.classList.add('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+                } else {
+                    // Tampilkan pesan kesalahan jika ukuran file melebihi batas
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ukuran file melebihi batas (500 KB)',
+                    });
+                    // Hapus file yang di-drop
+                    inputElement.value = '';
+                    // Reset label
+                    labelElement.innerText = 'Pilih Gambar';
+                    // Sembunyikan preview dan nama file
+                    preview.src = '#';
+                    preview.classList.add('d-none');
+                    filename.innerText = '';
+                    filename.classList.add('d-none');
+                    dropText.classList.remove('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+
+                }
+            } else {
+                // Tampilkan pesan kesalahan jika tipe file tidak valid
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Tipe file harus PNG atau JPEG',
+                });
+                // Hapus file yang di-drop
+                inputElement.value = '';
+                // Reset label
+                labelElement.innerText = 'Pilih Gambar';
+                // Sembunyikan preview dan nama file
+                preview.src = '#';
+                preview.classList.add('d-none');
+                filename.innerText = '';
+                filename.classList.add('d-none');
+                dropText.classList.remove('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+
+            }
+        }
+    }
+
+    // Handle drop event
+    function handleDrop(event) {
+        const dt = event.dataTransfer;
+        const files = dt.files;
+        if (files.length > 0) {
+            const file = files[0];
+            const fileSize = file.size; // Dapatkan ukuran file dalam byte
+            const fileType = file.type; // Dapatkan tipe file
+            if (fileType === 'image/png' || fileType === 'image/jpeg') { // Periksa tipe file
+                if (fileSize < 500 * 1024) { // Periksa ukuran file jika tipe file valid
+                    inputElement.files = files;
+                    labelElement.innerText = file.name;
+                    preview.src = URL.createObjectURL(file);
+                    preview.classList.remove('d-none');
+                    filename.innerText = file.name;
+                    filename.classList.remove('d-none');
+                    dropText.classList.add('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+                } else {
+                    // Tampilkan pesan kesalahan jika ukuran file melebihi batas
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error',
+                        text: 'Ukuran file melebihi batas (500 KB)',
+                    });
+                    // Hapus file yang di-drop
+                    inputElement.value = '';
+                    // Reset label
+                    labelElement.innerText = 'Pilih Gambar';
+                    // Sembunyikan preview dan nama file
+                    preview.src = '#';
+                    preview.classList.add('d-none');
+                    filename.innerText = '';
+                    filename.classList.add('d-none');
+                }
+            } else {
+                // Tampilkan pesan kesalahan jika tipe file tidak valid
+                Swal.fire({
+                    icon: 'error',
+                    title: 'Error',
+                    text: 'Tipe file harus PNG atau JPEG',
+                });
+                // Hapus file yang di-drop
+                inputElement.value = '';
+                // Reset label
+                labelElement.innerText = 'Pilih Gambar';
+                // Sembunyikan preview dan nama file
+                preview.src = '#';
+                preview.classList.add('d-none');
+                filename.innerText = '';
+                filename.classList.add('d-none');
+            }
+        }
+    }
 });
 </script>
