@@ -16,6 +16,12 @@
             </div>
         @endif
 
+        @if (session()->has('error_saved'))
+            <div class="alert alert-danger w-50">
+                {{session('error_saved')}}
+            </div>
+        @endif
+
         @if (isset($discussions))
 
             @forelse ($discussions as $discussion)

@@ -7,9 +7,13 @@ use Illuminate\Http\Request;
 use App\Models\Discussions;
 use App\Models\DiscussionsAnswer;
 use App\Models\LikesDiscussion;
+use App\Models\User;
 use App\Models\Hashtags;
+use App\Models\Notification;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
+use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
 
@@ -54,10 +58,10 @@ class DiscussionsUserController extends Controller
 
         $checkLike = LikesDiscussion::where('user_id', Auth::user()->id)->first();
 
-        if (!$checkLike) {
-            $clicked = false;
-        } else {
-            $clicked = true;
+        if ($checkLike) {
+            $checkLike->update([
+                'is_clicked_like' => false
+            ]);
         }
 
         $answers = DiscussionsAnswer::select('discussions_answer.*', 'users.username')->leftJoin('users', 'users.id', '=', 'discussions_answer.user_id')
@@ -77,7 +81,7 @@ class DiscussionsUserController extends Controller
             ->selectRaw('COUNT(*) as total_answers')->whereNull('reply_user_id')
             ->first();
 
-        return view('user.Discussions.findID', compact('discussion', 'time_difference', 'clicked', 'checkLike', 'discussionStats', 'answers'));
+        return view('user.Discussions.findID', compact('discussion', 'time_difference', 'checkLike', 'discussionStats', 'answers'));
     }
 
     public function saveAnswer(Request $request)
@@ -189,8 +193,6 @@ class DiscussionsUserController extends Controller
         }
     }
 
-
-
     public function add()
     {
         $hashtags = json_encode(Hashtags::get());
@@ -210,44 +212,61 @@ class DiscussionsUserController extends Controller
                 'hashtags.regex' => 'Hastags tidak valid!',
             ]);
 
-            $newDiscuss = Discussions::create([
-                'user_id' => Auth::user()->id,
-                'title' => $request->title,
-                'message' => $request->message,
-                'hashtags' => json_encode(explode(' ', $request->hashtags)),
-            ]);
+            DB::transaction(function () use ($request) {
 
-            if ($request->hasFile('gambar')) { // Periksa apakah file gambar dikirimkan
+                $newDiscuss = Discussions::create([
+                    'user_id' => Auth::user()->id,
+                    'title' => $request->title,
+                    'message' => $request->message,
+                    'hashtags' => json_encode(explode(' ', $request->hashtags)),
+                ]);
 
-                $directory = public_path('discussions/gambar/');
-                $imageExtension = $request->file('gambar')->getClientOriginalExtension();
-                $uniqueImageName = time() . '_' . $request->file('gambar')->getClientOriginalName();
+                if ($request->hasFile('gambar')) { // Periksa apakah file gambar dikirimkan
 
-                // Membuat direktori jika tidak ada
-                if (!file_exists($directory)) {
-                    mkdir($directory, 0777, true);
+                    $directory = public_path('discussions/gambar/');
+                    $imageExtension = $request->file('gambar')->getClientOriginalExtension();
+                    $uniqueImageName = time() . '_' . $request->file('gambar')->getClientOriginalName();
+
+                    // Membuat direktori jika tidak ada
+                    if (!file_exists($directory)) {
+                        mkdir($directory, 0777, true);
+                    }
+
+                    // Simpan data image ke dalam file di direktori yang diinginkan
+                    $request->file('gambar')->move(public_path('discussions/gambar/'), $uniqueImageName);
+
+                    Discussions::where('id', $newDiscuss->id)->update([
+                        'gambar' => $uniqueImageName,
+                    ]);
                 }
 
-                // Simpan data image ke dalam file di direktori yang diinginkan
-                $request->file('gambar')->move(public_path('discussions/gambar/'), $uniqueImageName);
+                $pushOtherUser = User::whereNotIn('id', [Auth::id()])->where('role', '=', Auth::user()->role)->pluck('id');
 
-                Discussions::where('id', $newDiscuss->id)->update([
-                    'gambar' => $uniqueImageName,
-                ]);
+                foreach ($pushOtherUser as $other_user_id) {
+                    Notification::create([
+                        'user_id' => $other_user_id,
+                        'title' => Auth::user()->username . ' Menambahkan Diskusi "' . $request->title . '"',
+                        'content' => $request->message,
+                        'redirect' => route('user.discussions.getByID', ['id' => $newDiscuss->id, 'title' => str_replace(' ', '-', str_replace('?', '', strtolower($request->title)))])
+                    ]);
+                }
 
-            }
+                $hastags = explode(' ', $request->hashtags);
 
-            $hastags = explode(' ', $request->hashtags);
+                foreach ($hastags as $hastag) {
+                    Hashtags::create([
+                        'tag_name' => $hastag,
+                    ]);
+                }
+            });
 
-            foreach ($hastags as $hastag) {
-                Hashtags::create([
-                    'tag_name' => $hastag,
-                ]);
-            }
             return redirect()->route('user.discussions')->with('success_saved', 'Data has been successfully saved!');
 
         } catch (ValidationException $e) {
             return redirect()->back()->withErrors($e->errors())->withInput();
+
+        } catch (QueryException $e) {
+            return redirect()->route('user.discussions')->with('error_saved', 'Failed to save data. Please try again later.');
         }
     }
 }
