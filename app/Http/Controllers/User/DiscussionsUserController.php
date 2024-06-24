@@ -84,6 +84,7 @@ class DiscussionsUserController extends Controller
                         ->orderBy('created_at', 'asc');
                 }
             ])
+            ->where('discussions_answer.discussion_id', $id)
             ->whereNull('discussions_answer.reply_user_id')
             ->latest()
             ->get();
