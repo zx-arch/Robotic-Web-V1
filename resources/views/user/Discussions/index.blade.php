@@ -45,10 +45,55 @@
                 <p class="text-warning"><strong>Data discussions belum tersedia !</strong></p>
             @endforelse
 
+            @if ($discussions->lastPage() > 1)
+                <nav aria-label="Page navigation example">
+                    <ul class="pagination mt-3">
+                        {{-- Previous Page Link --}}
+                        @if ($discussions->currentPage() > 1)
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $discussions->previousPageUrl() }}" aria-label="Previous">
+                                    <span aria-hidden="true">&laquo;</span>
+                                </a>
+                            </li>
+                        @endif
+
+                        {{-- Pagination Elements --}}
+                        @for ($i = 1; $i <= $discussions->lastPage(); $i++)
+                            @if ($i == $discussions->currentPage())
+                                {{-- Current Page --}}
+                                <li class="page-item active">
+                                    <span class="page-link">{{ $i }}</span>
+                                </li>
+                            @else
+                                {{-- Pages Link --}}
+                                <li class="page-item">
+                                    <a class="page-link" href="{{ $discussions->url($i) }}">{{ $i }}</a>
+                                </li>
+                            @endif
+                        @endfor
+
+                        {{-- Next Page Link --}}
+                        @if ($discussions->hasMorePages())
+                            <li class="page-item">
+                                <a class="page-link" href="{{ $discussions->nextPageUrl() }}" aria-label="Next">
+                                    <span aria-hidden="true">&raquo;</span>
+                                </a>
+                            </li>
+                        @endif
+                    </ul>
+                </nav>
+            @endif
+
         @else
             <p class="text-warning"><strong>Data discussions belum tersedia !</strong></p>
         @endif
-        
+        @if ($discussions->count() >= 10)
+            <div class="show-text-paging">
+                Showing <b>{{ $discussions->firstItem() }}</b>
+                to <b>{{ $discussions->lastItem() }}</b>
+                of <b>{{ $discussions->total() }}</b> items.
+            </div>
+        @endif
     </div>
 </main>
 @endsection

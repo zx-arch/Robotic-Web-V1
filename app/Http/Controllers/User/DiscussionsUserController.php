@@ -21,7 +21,24 @@ class DiscussionsUserController extends Controller
 {
     public function index()
     {
-        $discussions = Discussions::latest()->get();
+        $discussions = Discussions::latest();
+
+        $itemsPerPage = 10;
+        //print_r();
+
+        if ($itemsPerPage >= 10) {
+            $totalPages = 10;
+        }
+
+        $discussions = $discussions->paginate($itemsPerPage);
+
+        if ($discussions->count() > 10) {
+            $discussions = $discussions->paginate($itemsPerPage);
+
+            if ($discussions->currentPage() > $discussions->lastPage()) {
+                return redirect($discussions->url($discussions->lastPage()));
+            }
+        }
 
         return view('user.Discussions.index', compact('discussions'));
     }
