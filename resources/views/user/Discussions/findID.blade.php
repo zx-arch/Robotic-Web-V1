@@ -54,6 +54,7 @@
         display: flex;
         justify-content: center;
         align-items: center;
+        transition: opacity 0.6s ease, visibility 0.6s ease; /* Smooth transition for opacity and visibility */
     }
 
     /* Modal content (image) */
@@ -62,6 +63,7 @@
         display: block;
         width: 80%;
         max-width: 700px;
+        transition: transform 0.6s ease; /* Smooth transition for scaling */
     }
 
     /* Close button */
@@ -72,7 +74,8 @@
         color: #f1f1f1;
         font-size: 40px;
         font-weight: bold;
-        transition: 0.3s;
+        transition: 0.6s;
+        transition: transform 0.6s ease; /* Smooth transition for scaling */
     }
 
     .close:hover,
@@ -80,6 +83,7 @@
         color: #bbb;
         text-decoration: none;
         cursor: pointer;
+        transform: scale(1.2); /* Scale up the close icon on hover */
     }
 
     /* Download button */
@@ -90,11 +94,12 @@
         color: #f1f1f1;
         font-size: 40px;
         text-decoration: none;
-        transition: 0.3s;
+        transition: transform 0.6s ease; /* Smooth transition for scaling */
     }
 
     .download:hover {
         color: #bbb;
+        transform: scale(1.2); /* Scale up the download icon on hover */
     }
 
     .download i {
@@ -170,7 +175,7 @@
                         <div class="d-flex justify-content-between" style="font-size: 13px;">
                             <div class="d-flex justify-content-left flex-wrap align-items-center">
                                 <a href="#" class="text-muted me-2 like-count like-btn-answer" data-answer-id="{{ $answer->id }}" data-discussion-id="{{ $discussion->id }}" data-liked="{{ $answer->is_clicked_like ? 'true' : 'false' }}" id="like-count-{{ $answer->id }}">
-                                    <small class="text-like {{ $answer->is_clicked_like ? 'text-primary' : 'text-secondary' }}">{{ $answer->like }} Likes</small>
+                                    <small class="text-like {{ $answer->is_clicked_like ? 'text-primary' : 'text-secondary' }}">{{ $answer->like ?? 0 }} Likes</small>
                                 </a>
                                 <small class="text-muted me-2">{{ $answer->replies->count() ?? 0 }} Comment</small>
                                 <a href="#" data-bs-toggle="collapse" data-bs-target="#replyForm-{{ $answer->id }}" aria-expanded="false" aria-controls="replyForm-{{ $answer->id }}">

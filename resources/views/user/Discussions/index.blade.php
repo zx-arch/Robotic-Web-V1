@@ -87,13 +87,15 @@
         @else
             <p class="text-warning"><strong>Data discussions belum tersedia !</strong></p>
         @endif
-        @if ($discussions->count() >= 10)
+
+        @if ($discussions->count() > 0)
             <div class="show-text-paging">
                 Showing <b>{{ $discussions->firstItem() }}</b>
                 to <b>{{ $discussions->lastItem() }}</b>
                 of <b>{{ $discussions->total() }}</b> items.
             </div>
         @endif
+
     </div>
 </main>
 @endsection
