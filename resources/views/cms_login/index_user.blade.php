@@ -143,7 +143,7 @@
                             }
 
                             // Tandai status liked/unliked
-                            button.setAttribute('data-liked', !isLiked ? 'true' : 'false');
+                            button.setAttribute('data-liked', isLiked ? 'true' : 'false');
                         })
                         .catch(error => {
                             console.error('Error toggling like:', error);

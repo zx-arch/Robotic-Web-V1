@@ -134,8 +134,8 @@
                 </div>
                 <p>{!! $discussion->message !!}</p>
                 <div class="d-flex align-items-center mt-2">
-                    <button type="button" class="btn {{$checkLike && !$checkLike->is_clicked_like ? 'btn-primary' : 'btn-light'}} like-button"
-                            data-discussion-id="{{$discussion->id}}" data-liked="{{ $checkLike && $checkLike->is_clicked_like ? 'true' : 'false' }}">
+                    <button type="button" class="btn {{$discussion->user_id == Auth::user()->id && $discussion->is_clicked_like ? 'btn-primary' : 'btn-light'}} like-button"
+                            data-discussion-id="{{$discussion->id}}" data-liked="{{ $discussion->user_id == Auth::user()->id && $discussion->is_clicked_like ? 'true' : 'false' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-thumbs-up" viewBox="0 0 16 16">
                             <path d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.28 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.11 1.564-.5 2.83-.5 1.292 0 1.5.5 2.5.5s1.5-.5 2.5-.5c.973 0 1.407.444 2.29.488 1.05.047 1.71-.61 1.71-1.499V8.72c0-.81-.487-1.384-1.072-1.724-.543-.32-1.2-.518-1.855-.595-.687-.082-1.354-.2-1.85-.4-.273-.112-.491-.267-.646-.464-.128-.158-.228-.34-.291-.518-.062-.175-.093-.35-.131-.524-.24-1.06-.368-2.288-.74-2.714-.17-.198-.334-.27-.48-.276zM11.5 14a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 0 1h-.5a.5.5 0 0 1-.5-.5zm-2-4.95a.5.5 0 0 0-.5-.5H8a.5.5 0 0 0 0 1h1a.5.5 0 0 0 .5-.5z"/>
                         </svg> 

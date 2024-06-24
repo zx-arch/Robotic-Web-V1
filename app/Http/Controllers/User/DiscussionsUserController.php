@@ -21,14 +21,17 @@ class DiscussionsUserController extends Controller
 {
     public function index()
     {
-        $discussions = Discussions::select('discussions.*', 'users.username')->leftJoin('users', 'users.id', '=', 'discussions.user_id')->with('user')->latest()->get();
+        $discussions = Discussions::latest()->get();
 
         return view('user.Discussions.index', compact('discussions'));
     }
 
     public function getByID($id, $title)
     {
-        $discussion = Discussions::find($id);
+        $discussion = Discussions::select('discussions.*', 'likes_discussion.user_id', 'likes_discussion.is_clicked_like')
+            ->leftJoin('likes_discussion', 'likes_discussion.discussion_id', '=', 'discussions.id')
+            ->where('discussions.id', $id)->first();
+
         $created_at = Carbon::parse($discussion->created_at);
         $updated_at = Carbon::parse($discussion->updated_at);
 
@@ -56,16 +59,7 @@ class DiscussionsUserController extends Controller
             $time_difference = $days_difference . ' days ago';
         }
 
-        $checkLike = LikesDiscussion::where('user_id', Auth::user()->id)->first();
-
-        if ($checkLike) {
-            $checkLike->update([
-                'is_clicked_like' => false
-            ]);
-        }
-
         $answers = DiscussionsAnswer::select('discussions_answer.*', 'users.username')->leftJoin('users', 'users.id', '=', 'discussions_answer.user_id')
-            ->where('discussions_answer.discussion_id', $id)
             ->with([
                 'replies' => function ($query) {
                     $query->select('discussions_answer.*', 'users.username')
@@ -81,7 +75,7 @@ class DiscussionsUserController extends Controller
             ->selectRaw('COUNT(*) as total_answers')->whereNull('reply_user_id')
             ->first();
 
-        return view('user.Discussions.findID', compact('discussion', 'time_difference', 'checkLike', 'discussionStats', 'answers'));
+        return view('user.Discussions.findID', compact('discussion', 'time_difference', 'discussionStats', 'answers'));
     }
 
     public function saveAnswer(Request $request)
