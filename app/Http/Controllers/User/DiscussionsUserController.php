@@ -88,7 +88,7 @@ class DiscussionsUserController extends Controller
     {
         if ($request->hasFile('gambar')) { // Periksa apakah file gambar dikirimkan
 
-            $directory = public_path('discussions/coment/gambar/');
+            $directory = public_path('discussions/comment/gambar/');
             $uniqueImageName = time() . '_' . $request->file('gambar')->getClientOriginalName();
 
             // Membuat direktori jika tidak ada
@@ -97,14 +97,14 @@ class DiscussionsUserController extends Controller
             }
 
             // Simpan data image ke dalam file di direktori yang diinginkan
-            $request->file('gambar')->move(public_path('discussions/coment/gambar/'), $uniqueImageName);
+            $request->file('gambar')->move(public_path('discussions/comment/gambar/'), $uniqueImageName);
         }
 
         DiscussionsAnswer::create([
             'discussion_id' => $request->discussion_id,
             'user_id' => Auth::user()->id,
             'message' => $request->message,
-            'gambar' => (($request->has('gambar')) ? $uniqueImageName : null)
+            'gambar' => (($request->has('gambar')) ? url('discussions/comment/gambar/' . $uniqueImageName) : null)
         ]);
 
         return redirect()->back();

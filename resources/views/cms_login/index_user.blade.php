@@ -115,6 +115,230 @@
         crossorigin="anonymous"></script>
     <script src="{{asset('plugins/bootstrap-5-dashboard/script.js')}}"></script>
 
+    <script src="{{asset('assets/js/preview_image.js')}}"></script>
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function () {
+            const likeButtons = document.querySelectorAll('.like-button');
+
+            likeButtons.forEach(button => {
+                button.addEventListener('click', function () {
+                    const isLiked = this.getAttribute('data-liked') === 'true';
+                    const discussionId = this.getAttribute('data-discussion-id');
+
+                    axios.post(`/like/${discussionId}`, {
+                            liked: !isLiked
+                        })
+                        .then(response => {
+                            // Update jumlah like di UI
+                            document.getElementById('like-count-' + discussionId).textContent = response.data.likes;
+
+                            // Toggle class btn-light dan btn-primary
+                            if (isLiked) {
+                                button.classList.remove('btn-primary');
+                                button.classList.add('btn-light');
+                            } else {
+                                button.classList.remove('btn-light');
+                                button.classList.add('btn-primary');
+                            }
+
+                            // Tandai status liked/unliked
+                            button.setAttribute('data-liked', !isLiked ? 'true' : 'false');
+                        })
+                        .catch(error => {
+                            console.error('Error toggling like:', error);
+                        });
+                });
+            });
+
+            document.querySelectorAll('.like-btn-answer').forEach(function (button) {
+                button.addEventListener('click', function (event) {
+                    event.preventDefault();
+                    
+                    let answerId = this.getAttribute('data-answer-id');
+                    let likeCountElement = document.getElementById('like-count-' + answerId).querySelector('.text-like');
+                    let buttonElement = this;
+                    const discussionId = this.getAttribute('data-discussion-id');
+                    const isLiked = this.getAttribute('data-liked') === 'true';
+
+                    fetch(`/discuss/${discussionId}/answers/${answerId}/like`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                        },
+                        body: JSON.stringify({ liked: isLiked })
+                    })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (!likeCountElement) {
+                            data.likeCount += 1;
+                        }
+                        likeCountElement.textContent = data.likeCount + ' Likes';
+                        if (isLiked) {
+                            likeCountElement.classList.remove('text-primary');
+                            likeCountElement.classList.add('text-secondary');
+                        } else {
+                            likeCountElement.classList.remove('text-secondary');
+                            likeCountElement.classList.add('text-primary');
+                        }
+                        buttonElement.setAttribute('data-liked', data.liked ? 'true' : 'false');
+                    });
+                });
+            });
+
+            // Get the input element
+            const inputElement = document.querySelector('.custom-file-input');
+            const labelElement = document.querySelector('.custom-file-label');
+            const dropArea = document.getElementById('drop-area');
+            const dropText = document.getElementById('drop-text');
+            const preview = document.getElementById('preview');
+            const filename = document.getElementById('filename');
+
+            // Add event listeners for input element
+            inputElement.addEventListener('change', handleFileSelect);
+
+            // Add event listeners for drop area
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, preventDefaults, false);
+            });
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropArea.addEventListener(eventName, highlight, false);
+            });
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropArea.addEventListener(eventName, unhighlight, false);
+            });
+            dropArea.addEventListener('drop', handleDrop, false);
+
+            // Prevent default behavior
+            function preventDefaults(event) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            // Highlight drop area
+            function highlight() {
+                dropArea.classList.add('highlight');
+            }
+
+            // Unhighlight drop area
+            function unhighlight() {
+                dropArea.classList.remove('highlight');
+            }
+
+            // Handle file select
+            function handleFileSelect(event) {
+                const files = event.target.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    const fileSize = file.size; // Dapatkan ukuran file dalam byte
+                    const fileType = file.type; // Dapatkan tipe file
+                    if (fileType === 'image/png' || fileType === 'image/jpeg') { // Periksa tipe file
+                        if (fileSize < 500 * 1024) { // Periksa ukuran file jika tipe file valid
+                            inputElement.files = files;
+                            labelElement.innerText = file.name;
+                            preview.src = URL.createObjectURL(file);
+                            preview.classList.remove('d-none');
+                            filename.innerText = file.name;
+                            filename.classList.remove('d-none');
+                            dropText.classList.add('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+                        } else {
+                            // Tampilkan pesan kesalahan jika ukuran file melebihi batas
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ukuran file melebihi batas (500 KB)',
+                            });
+                            // Hapus file yang di-drop
+                            inputElement.value = '';
+                            // Reset label
+                            labelElement.innerText = 'Pilih Gambar';
+                            // Sembunyikan preview dan nama file
+                            preview.src = '#';
+                            preview.classList.add('d-none');
+                            filename.innerText = '';
+                            filename.classList.add('d-none');
+                            dropText.classList.remove('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+
+                        }
+                    } else {
+                        // Tampilkan pesan kesalahan jika tipe file tidak valid
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Tipe file harus PNG atau JPEG',
+                        });
+                        // Hapus file yang di-drop
+                        inputElement.value = '';
+                        // Reset label
+                        labelElement.innerText = 'Pilih Gambar';
+                        // Sembunyikan preview dan nama file
+                        preview.src = '#';
+                        preview.classList.add('d-none');
+                        filename.innerText = '';
+                        filename.classList.add('d-none');
+                        dropText.classList.remove('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+
+                    }
+                }
+            }
+
+            // Handle drop event
+            function handleDrop(event) {
+                const dt = event.dataTransfer;
+                const files = dt.files;
+                if (files.length > 0) {
+                    const file = files[0];
+                    const fileSize = file.size; // Dapatkan ukuran file dalam byte
+                    const fileType = file.type; // Dapatkan tipe file
+                    if (fileType === 'image/png' || fileType === 'image/jpeg') { // Periksa tipe file
+                        if (fileSize < 500 * 1024) { // Periksa ukuran file jika tipe file valid
+                            inputElement.files = files;
+                            labelElement.innerText = file.name;
+                            preview.src = URL.createObjectURL(file);
+                            preview.classList.remove('d-none');
+                            filename.innerText = file.name;
+                            filename.classList.remove('d-none');
+                            dropText.classList.add('d-none'); // Menambahkan class d-none untuk menyembunyikan teks "Drag & drop gambar di sini"
+                        } else {
+                            // Tampilkan pesan kesalahan jika ukuran file melebihi batas
+                            Swal.fire({
+                                icon: 'error',
+                                title: 'Error',
+                                text: 'Ukuran file melebihi batas (500 KB)',
+                            });
+                            // Hapus file yang di-drop
+                            inputElement.value = '';
+                            // Reset label
+                            labelElement.innerText = 'Pilih Gambar';
+                            // Sembunyikan preview dan nama file
+                            preview.src = '#';
+                            preview.classList.add('d-none');
+                            filename.innerText = '';
+                            filename.classList.add('d-none');
+                        }
+                    } else {
+                        // Tampilkan pesan kesalahan jika tipe file tidak valid
+                        Swal.fire({
+                            icon: 'error',
+                            title: 'Error',
+                            text: 'Tipe file harus PNG atau JPEG',
+                        });
+                        // Hapus file yang di-drop
+                        inputElement.value = '';
+                        // Reset label
+                        labelElement.innerText = 'Pilih Gambar';
+                        // Sembunyikan preview dan nama file
+                        preview.src = '#';
+                        preview.classList.add('d-none');
+                        filename.innerText = '';
+                        filename.classList.add('d-none');
+                    }
+                }
+            }
+        });
+    </script>
+
 </body>
 
 </html>
