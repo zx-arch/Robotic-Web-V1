@@ -69,7 +69,7 @@
                 </div>
                 <p>{!! $discussion->message !!}</p>
                 <div class="d-flex align-items-center mt-2">
-                    <button type="button" class="btn {{$checkLike && $checkLike->is_clicked_like ? 'btn-primary' : 'btn-light'}} like-button"
+                    <button type="button" class="btn {{$checkLike && !$checkLike->is_clicked_like ? 'btn-primary' : 'btn-light'}} like-button"
                             data-discussion-id="{{$discussion->id}}" data-liked="{{ $checkLike && $checkLike->is_clicked_like ? 'true' : 'false' }}">
                         <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="bi bi-hand-thumbs-up" viewBox="0 0 16 16">
                             <path d="M8.864.046C7.908-.193 7.02.53 6.956 1.466c-.072 1.051-.23 2.016-.428 2.59-.125.36-.479 1.013-1.04 1.639-.557.623-1.282 1.178-2.131 1.41C2.685 7.28 2 7.87 2 8.72v4.001c0 .845.682 1.464 1.448 1.545 1.07.11 1.564-.5 2.83-.5 1.292 0 1.5.5 2.5.5s1.5-.5 2.5-.5c.973 0 1.407.444 2.29.488 1.05.047 1.71-.61 1.71-1.499V8.72c0-.81-.487-1.384-1.072-1.724-.543-.32-1.2-.518-1.855-.595-.687-.082-1.354-.2-1.85-.4-.273-.112-.491-.267-.646-.464-.128-.158-.228-.34-.291-.518-.062-.175-.093-.35-.131-.524-.24-1.06-.368-2.288-.74-2.714-.17-.198-.334-.27-.48-.276zM11.5 14a.5.5 0 0 1 .5-.5h.5a.5.5 0 0 1 0 1h-.5a.5.5 0 0 1-.5-.5zm-2-4.95a.5.5 0 0 0-.5-.5H8a.5.5 0 0 0 0 1h1a.5.5 0 0 0 .5-.5z"/>
@@ -206,41 +206,40 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     document.querySelectorAll('.like-btn-answer').forEach(function (button) {
-    button.addEventListener('click', function (event) {
-        event.preventDefault();
-        
-        let answerId = this.getAttribute('data-answer-id');
-        let likeCountElement = document.getElementById('like-count-' + answerId).querySelector('.text-like');
-        let buttonElement = this;
-        const discussionId = this.getAttribute('data-discussion-id');
-        const isLiked = this.getAttribute('data-liked') === 'true';
+        button.addEventListener('click', function (event) {
+            event.preventDefault();
+            
+            let answerId = this.getAttribute('data-answer-id');
+            let likeCountElement = document.getElementById('like-count-' + answerId).querySelector('.text-like');
+            let buttonElement = this;
+            const discussionId = this.getAttribute('data-discussion-id');
+            const isLiked = this.getAttribute('data-liked') === 'true';
 
-        fetch(`/discuss/${discussionId}/answers/${answerId}/like`, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'X-CSRF-TOKEN': '{{ csrf_token() }}'
-            },
-            body: JSON.stringify({ liked: isLiked })
-        })
-        .then(response => response.json())
-        .then(data => {
-            if (!likeCountElement) {
-                data.likeCount += 1;
-            }
-            likeCountElement.textContent = data.likeCount + ' Likes';
-            if (isLiked) {
-                likeCountElement.classList.remove('text-secondary');
-                likeCountElement.classList.add('text-primary');
-            } else {
-                likeCountElement.classList.remove('text-primary');
-                likeCountElement.classList.add('text-secondary');
-            }
-            buttonElement.setAttribute('data-liked', data.liked ? 'true' : 'false');
+            fetch(`/discuss/${discussionId}/answers/${answerId}/like`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'X-CSRF-TOKEN': '{{ csrf_token() }}'
+                },
+                body: JSON.stringify({ liked: isLiked })
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (!likeCountElement) {
+                    data.likeCount += 1;
+                }
+                likeCountElement.textContent = data.likeCount + ' Likes';
+                if (isLiked) {
+                    likeCountElement.classList.remove('text-primary');
+                    likeCountElement.classList.add('text-secondary');
+                } else {
+                    likeCountElement.classList.remove('text-secondary');
+                    likeCountElement.classList.add('text-primary');
+                }
+                buttonElement.setAttribute('data-liked', data.liked ? 'true' : 'false');
+            });
         });
     });
-});
-
 
     // Get the input element
     const inputElement = document.querySelector('.custom-file-input');
