@@ -167,6 +167,8 @@ class DiscussionsUserController extends Controller
         try {
             $discussion = Discussions::findOrFail($id);
             $user_id = Auth::user()->id;
+            $addBg = '';
+            $removeBg = '';
 
             // Cek apakah pengguna sudah melakukan "like" sebelumnya
             $check = LikesDiscussion::where('user_id', $user_id)
@@ -181,6 +183,8 @@ class DiscussionsUserController extends Controller
                     'is_clicked_like' => true
                 ]);
                 $discussion->likes++;
+                $addBg = 'btn-primary';
+                $removeBg = 'btn-light';
 
             } else {
                 // Toggle is_clicked_like
@@ -191,7 +195,11 @@ class DiscussionsUserController extends Controller
                 // Sesuaikan jumlah likes berdasarkan is_clicked_like terbaru
                 if ($check->is_clicked_like) {
                     $discussion->likes++;
+                    $addBg = 'btn-primary';
+                    $removeBg = 'btn-light';
                 } else {
+                    $addBg = 'btn-light';
+                    $removeBg = 'btn-primary';
                     $discussion->likes--;
                 }
             }
@@ -205,7 +213,13 @@ class DiscussionsUserController extends Controller
             $discussion->save();
 
             // Kirim response JSON dengan jumlah likes terbaru
-            return response()->json(['likes' => $discussion->likes]);
+            return response()->json([
+                'likes' => $discussion->likes,
+                'bg' => [
+                    'add' => $addBg,
+                    'remove' => $removeBg
+                ]
+            ]);
 
         } catch (\Throwable $e) {
             // Tangkap dan kirim pesan error jika terjadi kesalahan
