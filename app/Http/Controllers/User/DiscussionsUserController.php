@@ -93,6 +93,14 @@ class DiscussionsUserController extends Controller
             ->selectRaw('COUNT(*) as total_answers')->whereNull('reply_user_id')
             ->first();
 
+        $checkNotif = Notification::where('user_id', Auth::user()->id)->where('redirect', request()->url())->first();
+        if ($checkNotif) {
+            $checkNotif->update([
+                'read' => true,
+                'date_read' => now()
+            ]);
+        }
+
         return view('user.Discussions.findID', compact('discussion', 'time_difference', 'discussionStats', 'answers'));
     }
 
