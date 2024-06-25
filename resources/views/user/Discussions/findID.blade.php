@@ -108,6 +108,23 @@
         line-height: 1; /* Ensure the line height is 1 to prevent excess height */
     }
 
+    /* styles.css atau app.css */
+    .img-box {
+        width: 50%;
+        height: 25%; /* Sesuaikan tinggi sesuai kebutuhan */
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        overflow: hidden;
+    }
+
+    .img-box img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover; /* Atau gunakan 'contain' atau 'fill' sesuai kebutuhan */
+        object-position: center; /* Posisi gambar di dalam kotak */
+    }
+
 </style>
 
 @section('content')
@@ -138,6 +155,13 @@
                     </div>
                 </div>
                 <p>{!! $discussion->message !!}</p>
+
+                @if(asset($discussion->gambar) && isset($discussion->gambar))
+                    <div class="img-box">
+                        <img src="{{$discussion->gambar}}" alt="">
+                    </div>
+                @endif
+
                 <div class="d-flex align-items-center mt-2">
                     <button type="button" class="btn {{$discussion->user_id == Auth::user()->id && $discussion->is_clicked_like ? 'btn-primary' : 'btn-light'}} like-button"
                             data-discussion-id="{{$discussion->id}}" data-liked="{{ $discussion->user_id == Auth::user()->id && $discussion->is_clicked_like ? 'true' : 'false' }}">

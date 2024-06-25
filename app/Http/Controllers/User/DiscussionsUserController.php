@@ -270,7 +270,7 @@ class DiscussionsUserController extends Controller
                     $request->file('gambar')->move(public_path('discussions/gambar/'), $uniqueImageName);
 
                     Discussions::where('id', $newDiscuss->id)->update([
-                        'gambar' => $uniqueImageName,
+                        'gambar' => url('discussions/gambar/' . $uniqueImageName),
                     ]);
                 }
 
