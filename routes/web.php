@@ -213,6 +213,7 @@ Route::middleware('throttle:100,1')->group(function () {
 
         Route::get('/user/discussions', [DiscussionsUserController::class, 'index'])->name('user.discussions');
         Route::prefix('/user/discussions')->group(function () {
+            Route::get('/filter', [DiscussionsUserController::class, 'filter'])->name('user.discussions.filter');
             Route::get('/add', [DiscussionsUserController::class, 'add'])->name('user.discussions.add');
             Route::post('/save-add', [DiscussionsUserController::class, 'saveAdd'])->name('user.discussions.saveAdd');
             Route::get('/{id}/{title}', [DiscussionsUserController::class, 'getByID'])->name('user.discussions.getByID');

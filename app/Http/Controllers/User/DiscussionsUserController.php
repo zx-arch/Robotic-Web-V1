@@ -21,7 +21,22 @@ class DiscussionsUserController extends Controller
 {
     public function index()
     {
-        $discussions = Discussions::latest();
+        $discussions = Discussions::select(
+            'discussions.id',
+            'discussions.title',
+            'discussions.message',
+            'discussions.created_at',
+            'discussions.updated_at',
+            'discussions.user_id',
+            'discussions.views',
+            'discussions.likes',
+            'users.username',
+            DB::raw('count(discussions_answer.discussion_id) as responses')
+        )
+            ->leftJoin('users', 'users.id', '=', 'discussions.user_id')
+            ->leftJoin('discussions_answer', 'discussions_answer.discussion_id', '=', 'discussions.id')
+            ->groupBy('discussions.id', 'discussions.title', 'users.username', 'discussions.message', 'discussions.created_at', 'discussions.updated_at', 'discussions.user_id', 'discussions.views', 'discussions.likes')
+            ->latest();
 
         $itemsPerPage = 10;
         //print_r();
@@ -41,6 +56,53 @@ class DiscussionsUserController extends Controller
         }
 
         return view('user.Discussions.index', compact('discussions'));
+    }
+
+    public function filter(Request $request)
+    {
+        $filterData = $request->input('filter', []);
+        $title = $filterData['title'] ?? null;
+        $filterOption = $filterData['filter_option'] ?? 'created_at';
+        $sorting = $filterData['sorting'] ?? 'asc';
+
+        $validFilterOptions = ['title', 'created_at', 'likes', 'views', 'responses']; // Pastikan kolom valid ada di sini
+        if (!in_array($filterOption, $validFilterOptions)) {
+            $filterOption = 'created_at'; // Default jika filter_option tidak valid
+        }
+
+        $discussions = Discussions::select(
+            'discussions.id',
+            'discussions.title',
+            'discussions.message',
+            'discussions.created_at',
+            'discussions.updated_at',
+            'discussions.user_id',
+            'discussions.views',
+            'discussions.likes',
+            'users.username',
+            DB::raw('count(discussions_answer.discussion_id) as responses')
+        )
+            ->leftJoin('users', 'users.id', '=', 'discussions.user_id')
+            ->leftJoin('discussions_answer', 'discussions_answer.discussion_id', '=', 'discussions.id')
+            ->groupBy('discussions.id', 'discussions.title', 'users.username', 'discussions.message', 'discussions.created_at', 'discussions.updated_at', 'discussions.user_id', 'discussions.views', 'discussions.likes');
+
+        if ($title !== null) {
+            $discussions->where('title', 'like', "$title%");
+        }
+
+        $discussions->orderBy($filterOption, $sorting);
+
+        $itemsPerPage = 10;
+        $discussions = $discussions->paginate($itemsPerPage);
+
+        $fullUri = $request->getRequestUri();
+        $discussions->setPath($fullUri);
+
+        if ($discussions->currentPage() > $discussions->lastPage()) {
+            return redirect($discussions->url($discussions->lastPage()));
+        }
+
+        return view('user.discussions.index', compact('discussions'));
     }
 
     public function getByID($id, $title)

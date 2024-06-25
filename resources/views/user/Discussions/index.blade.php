@@ -10,6 +10,40 @@
             </div>
         </div>
 
+        <!-- Filter Form -->
+        <div class="box mb-4">
+            <div class="box-body">
+                <form method="GET" action="{{route('user.discussions.filter')}}">
+                    @csrf
+                    <div class="row">
+                        <div class="col-md-2 mb-2">
+                            <input type="text" name="filter[title]" class="form-control" placeholder="Filter by Title" value="{{ request()->input('filter.title') }}">
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <select name="filter[filter_option]" id="filter_option" class="form-control">
+                                <option value="" selected disabled>Filter ..</option>
+                                <option value="like" {{ request()->input('filter.filter_option') == 'like' ? 'selected' : '' }}>Like</option>
+                                <option value="view" {{ request()->input('filter.filter_option') == 'view' ? 'selected' : '' }}>View</option>
+                                <option value="answer" {{ request()->input('filter.filter_option') == 'answer' ? 'selected' : '' }}>Answer</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2 mb-2">
+                            <select name="filter[sorting]" id="sorting" class="form-control">
+                                <option value="" selected disabled>Sorting ..</option>
+                                <option value="desc" {{ request()->input('filter.sorting') == 'desc' ? 'selected' : '' }}>Terkecil</option>
+                                <option value="asc" {{ request()->input('filter.sorting') == 'asc' ? 'selected' : '' }}>Terbesar</option>
+                            </select>
+                        </div>
+                        <div class="col-md-2">
+                            <button type="submit" class="btn btn-primary">Filter</button>
+                            <a href="{{ route('user.discussions') }}" class="btn btn-secondary">Reset</a>
+                        </div>
+                    </div>
+                </form>
+
+            </div>
+        </div>
+
         @if (session()->has('success_saved'))
             <div class="alert alert-success w-25">
                 {{session('success_saved')}}
@@ -27,7 +61,7 @@
             @forelse ($discussions as $discussion)
 
                 <div class="box mb-3 rounded shadow-lg">
-                    <div class="box-body p-3">
+                <div class="box-body p-3">
                         <h5><a href="{{ route('user.discussions.getByID', ['id' => $discussion->id, 'title' => str_replace(' ', '-', str_replace('?', '', strtolower($discussion->title)))]) }}">{{ $discussion->title }}</a></h5>
                         <p class="subs-title mt-3">{!! Str::limit($discussion->message, 165) !!}</p>
                         <div class="d-flex justify-content-between align-items-center flex-wrap">
