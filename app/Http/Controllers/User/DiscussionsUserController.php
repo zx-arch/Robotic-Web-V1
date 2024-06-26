@@ -102,11 +102,19 @@ class DiscussionsUserController extends Controller
             return redirect($discussions->url($discussions->lastPage()));
         }
 
-        return view('user.discussions.index', compact('discussions'));
+        return view('user.Discussions.index', compact('discussions'));
     }
 
     public function getByID($id, $title)
     {
+        $checkNotif = Notification::where('user_id', Auth::user()->id)->where('redirect', request()->url())->first();
+        if ($checkNotif) {
+            $checkNotif->update([
+                'read' => true,
+                'date_read' => now()
+            ]);
+        }
+
         $discussion = Discussions::select('discussions.*', 'likes_discussion.user_id', 'likes_discussion.is_clicked_like')
             ->leftJoin('likes_discussion', 'likes_discussion.discussion_id', '=', 'discussions.id')
             ->where('discussions.id', $id)->first();
@@ -155,124 +163,163 @@ class DiscussionsUserController extends Controller
             ->selectRaw('COUNT(*) as total_answers')->whereNull('reply_user_id')
             ->first();
 
-        $checkNotif = Notification::where('user_id', Auth::user()->id)->where('redirect', request()->url())->first();
-        if ($checkNotif) {
-            $checkNotif->update([
-                'read' => true,
-                'date_read' => now()
-            ]);
-        }
-
         return view('user.Discussions.findID', compact('discussion', 'time_difference', 'discussionStats', 'answers'));
     }
 
     public function saveAnswer(Request $request)
     {
-        if ($request->hasFile('gambar')) { // Periksa apakah file gambar dikirimkan
-
-            $directory = public_path('discussions/comment/gambar/');
-            $uniqueImageName = time() . '_' . $request->file('gambar')->getClientOriginalName();
-
-            // Membuat direktori jika tidak ada
-            if (!file_exists($directory)) {
-                mkdir($directory, 0777, true);
+        DB::transaction(function () use ($request) {
+            // Mengambil pemilik diskusi yang dibuat
+            $discussion = Discussions::where('id', $request->discussion_id)->lockForUpdate()->first();
+            if (!$discussion) {
+                throw new \Exception('Created by discussion not found');
             }
 
-            // Simpan data image ke dalam file di direktori yang diinginkan
-            $request->file('gambar')->move(public_path('discussions/comment/gambar/'), $uniqueImageName);
-        }
+            // Memproses gambar jika ada
+            if ($request->hasFile('gambar')) {
+                $directory = public_path('discussions/comment/gambar/');
+                $uniqueImageName = time() . '_' . $request->file('gambar')->getClientOriginalName();
 
-        DiscussionsAnswer::create([
-            'discussion_id' => $request->discussion_id,
-            'user_id' => Auth::user()->id,
-            'message' => $request->message,
-            'gambar' => (($request->has('gambar')) ? url('discussions/comment/gambar/' . $uniqueImageName) : null)
-        ]);
+                // Membuat direktori jika tidak ada
+                if (!file_exists($directory)) {
+                    mkdir($directory, 0777, true);
+                }
+
+                // Simpan file gambar ke direktori yang diinginkan
+                $request->file('gambar')->move($directory, $uniqueImageName);
+            }
+
+            // Membuat jawaban diskusi
+            DiscussionsAnswer::create([
+                'discussion_id' => $discussion->id,
+                'user_id' => Auth::user()->id,
+                'message' => $request->message,
+                'gambar' => $request->hasFile('gambar') ? url('discussions/comment/gambar/' . $uniqueImageName) : null,
+            ]);
+
+            if ($discussion->user_id != Auth::user()->id) {
+                Notification::create([
+                    'user_id' => $discussion->user_id,
+                    'title' => 'Other User Comment Your Post Discussion',
+                    'content' => Auth::user()->username . ' membalas postingan diskusi anda "' . $discussion->title . '"',
+                    'redirect' => route('user.discussions.getByID', ['id' => $discussion->id, 'title' => str_replace(' ', '-', str_replace('?', '', strtolower($discussion->title)))])
+                ]);
+            }
+        });
 
         return redirect()->back();
     }
 
     public function saveReply(Request $request)
     {
-        DiscussionsAnswer::create([
-            'discussion_id' => $request->discussion_id,
-            'user_id' => Auth::user()->id,
-            'message' => $request->message,
-            'reply_user_id' => $request->answer_id
-        ]);
+        DB::transaction(function () use ($request) {
+            // Validasi request
+            $validatedData = $request->validate([
+                'discussion_id' => 'required',
+                'message' => 'required',
+                'answer_id' => 'required'
+            ]);
+
+            // Mengunci record discussion untuk update
+            $discussion = Discussions::where('id', $validatedData['discussion_id'])->lockForUpdate()->first();
+
+            if (!$discussion) {
+                throw new \Exception('Discussion not found');
+            }
+
+            // Membuat jawaban diskusi
+            DiscussionsAnswer::create([
+                'discussion_id' => $discussion->id,
+                'user_id' => Auth::user()->id,
+                'message' => $validatedData['message'],
+                'reply_user_id' => $validatedData['answer_id']
+            ]);
+        });
+
         return redirect()->back();
     }
 
     public function answerLike(Request $request, $discuss_id, $answer_id)
     {
-        $answer = DiscussionsAnswer::where('discussion_id', $discuss_id)->where('id', $answer_id)->first();
-        $liked = $request->input('liked');
+        $answer = null;
+        $liked = false;
 
-        if ($answer->is_clicked_like) {
-            $answer->like -= 1;
-            $liked = false;
-            $answer->is_clicked_like = false;
-        } else {
-            $answer->like += 1;
-            $liked = true;
-            $answer->is_clicked_like = true;
-        }
+        DB::transaction(function () use ($request, $discuss_id, $answer_id, &$answer, &$liked) {
 
-        $answer->save();
+            $answer = DiscussionsAnswer::where('discussion_id', $discuss_id)->where('id', $answer_id)->lockForUpdate()->first();
+            $liked = $request->input('liked');
+
+            if ($answer->is_clicked_like) {
+                $answer->like -= 1;
+                $liked = false;
+                $answer->is_clicked_like = false;
+            } else {
+                $answer->like += 1;
+                $liked = true;
+                $answer->is_clicked_like = true;
+            }
+
+            $answer->save();
+        });
 
         // Return the new like count and whether the user has liked it
         return response()->json(['likeCount' => $answer->like, 'liked' => $liked]);
     }
 
-    public function processLike(Request $request, $id)
+    public function processLike($id)
     {
         try {
-            $discussion = Discussions::findOrFail($id);
             $user_id = Auth::user()->id;
             $addBg = '';
             $removeBg = '';
+            $discussion = null;
 
-            // Cek apakah pengguna sudah melakukan "like" sebelumnya
-            $check = LikesDiscussion::where('user_id', $user_id)
-                ->where('discussion_id', $id)
-                ->first();
+            DB::transaction(function () use ($id, $user_id, &$addBg, &$removeBg, &$discussion) {
 
-            if (!$check) {
-                // Jika belum ada "like", tambahkan ke tabel LikesDiscussion
-                LikesDiscussion::create([
-                    'discussion_id' => $id,
-                    'user_id' => $user_id,
-                    'is_clicked_like' => true
-                ]);
-                $discussion->likes++;
-                $addBg = 'btn-primary';
-                $removeBg = 'btn-light';
+                $discussion = Discussions::lockForUpdate()->findOrFail($id);
 
-            } else {
-                // Toggle is_clicked_like
-                $check->update([
-                    'is_clicked_like' => !$check->is_clicked_like
-                ]);
+                // Cek apakah pengguna sudah melakukan "like" sebelumnya
+                $check = LikesDiscussion::where('user_id', $user_id)
+                    ->where('discussion_id', $id)
+                    ->first();
 
-                // Sesuaikan jumlah likes berdasarkan is_clicked_like terbaru
-                if ($check->is_clicked_like) {
+                if (!$check) {
+                    // Jika belum ada "like", tambahkan ke tabel LikesDiscussion
+                    LikesDiscussion::create([
+                        'discussion_id' => $id,
+                        'user_id' => $user_id,
+                        'is_clicked_like' => true
+                    ]);
                     $discussion->likes++;
                     $addBg = 'btn-primary';
                     $removeBg = 'btn-light';
+
                 } else {
-                    $addBg = 'btn-light';
-                    $removeBg = 'btn-primary';
-                    $discussion->likes--;
+                    // Toggle is_clicked_like
+                    $check->update([
+                        'is_clicked_like' => !$check->is_clicked_like
+                    ]);
+
+                    // Sesuaikan jumlah likes berdasarkan is_clicked_like terbaru
+                    if ($check->is_clicked_like) {
+                        $discussion->likes++;
+                        $addBg = 'btn-primary';
+                        $removeBg = 'btn-light';
+                    } else {
+                        $addBg = 'btn-light';
+                        $removeBg = 'btn-primary';
+                        $discussion->likes--;
+                    }
                 }
-            }
 
-            // Pastikan likes tidak kurang dari 0
-            if ($discussion->likes < 0) {
-                $discussion->likes = 0;
-            }
+                // Pastikan likes tidak kurang dari 0
+                if ($discussion->likes < 0) {
+                    $discussion->likes = 0;
+                }
 
-            // Simpan perubahan jumlah likes di discussion
-            $discussion->save();
+                // Simpan perubahan jumlah likes di discussion
+                $discussion->save();
+            });
 
             // Kirim response JSON dengan jumlah likes terbaru
             return response()->json([
@@ -304,12 +351,14 @@ class DiscussionsUserController extends Controller
                     'string',
                     'regex:/^(#(\w+)(\s+#\w+)*)+$/',
                 ],
+                'title' => 'required|string|max:255',
+                'message' => 'required|string',
+                'gambar' => 'nullable|image|mimes:jpeg,png|max:512',
             ], [
-                'hashtags.regex' => 'Hastags tidak valid!',
+                'hashtags.regex' => 'Hashtags tidak valid!',
             ]);
 
             DB::transaction(function () use ($request) {
-
                 $newDiscuss = Discussions::create([
                     'user_id' => Auth::user()->id,
                     'title' => $request->title,
@@ -317,10 +366,8 @@ class DiscussionsUserController extends Controller
                     'hashtags' => json_encode(explode(' ', $request->hashtags)),
                 ]);
 
-                if ($request->hasFile('gambar')) { // Periksa apakah file gambar dikirimkan
-
+                if ($request->hasFile('gambar')) {
                     $directory = public_path('discussions/gambar/');
-                    $imageExtension = $request->file('gambar')->getClientOriginalExtension();
                     $uniqueImageName = time() . '_' . $request->file('gambar')->getClientOriginalName();
 
                     // Membuat direktori jika tidak ada
@@ -329,14 +376,18 @@ class DiscussionsUserController extends Controller
                     }
 
                     // Simpan data image ke dalam file di direktori yang diinginkan
-                    $request->file('gambar')->move(public_path('discussions/gambar/'), $uniqueImageName);
+                    $request->file('gambar')->move($directory, $uniqueImageName);
 
-                    Discussions::where('id', $newDiscuss->id)->update([
+                    // Mengunci record discussion untuk update
+                    Discussions::where('id', $newDiscuss->id)->lockForUpdate()->update([
                         'gambar' => url('discussions/gambar/' . $uniqueImageName),
                     ]);
                 }
 
-                $pushOtherUser = User::whereNotIn('id', [Auth::id()])->where('role', '=', Auth::user()->role)->pluck('id');
+                $pushOtherUser = User::whereNotIn('id', [Auth::id()])
+                    ->where('role', '=', Auth::user()->role)
+                    ->lockForUpdate()
+                    ->pluck('id');
 
                 foreach ($pushOtherUser as $other_user_id) {
                     Notification::create([
@@ -347,11 +398,11 @@ class DiscussionsUserController extends Controller
                     ]);
                 }
 
-                $hastags = explode(' ', $request->hashtags);
+                $hashtags = explode(' ', $request->hashtags);
 
-                foreach ($hastags as $hastag) {
-                    Hashtags::create([
-                        'tag_name' => $hastag,
+                foreach ($hashtags as $hashtag) {
+                    Hashtags::firstOrCreate([
+                        'tag_name' => $hashtag,
                     ]);
                 }
             });
@@ -365,4 +416,5 @@ class DiscussionsUserController extends Controller
             return redirect()->route('user.discussions')->with('error_saved', 'Failed to save data. Please try again later.');
         }
     }
+
 }
