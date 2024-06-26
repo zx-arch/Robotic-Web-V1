@@ -115,9 +115,14 @@ class DiscussionsUserController extends Controller
             ]);
         }
 
-        $discussion = Discussions::select('discussions.*', 'likes_discussion.user_id', 'likes_discussion.is_clicked_like')
+        $discussion = Discussions::select('discussions.*', 'users.username as created_by', 'likes_discussion.user_id', 'likes_discussion.is_clicked_like')
             ->leftJoin('likes_discussion', 'likes_discussion.discussion_id', '=', 'discussions.id')
+            ->leftJoin('users', 'users.id', '=', 'discussions.user_id')
             ->where('discussions.id', $id)->first();
+
+        if (!$discussion) {
+            return redirect()->intended(route('user.discussions'));
+        }
 
         $created_at = Carbon::parse($discussion->created_at);
         $updated_at = Carbon::parse($discussion->updated_at);
@@ -234,6 +239,22 @@ class DiscussionsUserController extends Controller
                 'message' => $validatedData['message'],
                 'reply_user_id' => $validatedData['answer_id']
             ]);
+
+            $pushOtherUser = User::whereIn('id', DiscussionsAnswer::get()->pluck('user_id'))
+                ->where('role', '=', Auth::user()->role)
+                ->pluck('id');
+
+            foreach ($pushOtherUser as $user_all) {
+                if ($user_all != Auth::user()->id) {
+                    Notification::create([
+                        'user_id' => $user_all,
+                        'title' => 'Reply Comment Your Post Discussion',
+                        'content' => Auth::user()->username . ' membalas komentar "' . $validatedData['message'] . '" postingan diskusi anda "' . $discussion->title . '"',
+                        'redirect' => route('user.discussions.getByID', ['id' => $discussion->id, 'title' => str_replace(' ', '-', str_replace('?', '', strtolower($discussion->title)))])
+                    ]);
+                }
+            }
+
         });
 
         return redirect()->back();

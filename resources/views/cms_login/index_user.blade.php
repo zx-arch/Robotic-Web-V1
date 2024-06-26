@@ -133,14 +133,8 @@
                             // Update jumlah like di UI
                             document.getElementById('like-count-' + discussionId).textContent = response.data.likes;
 
-                            // Toggle class btn-light dan btn-primary
-                            if (isLiked) {
-                                button.classList.remove('btn-primary');
-                                button.classList.add('btn-light');
-                            } else {
-                                button.classList.remove('btn-light');
-                                button.classList.add('btn-primary');
-                            }
+                            button.classList.remove(response.data.bg.remove);
+                            button.classList.add(response.data.bg.add);
 
                             // Tandai status liked/unliked
                             button.setAttribute('data-liked', isLiked ? 'true' : 'false');

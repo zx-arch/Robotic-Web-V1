@@ -149,9 +149,13 @@
                         <span class="text-secondary mr-2">Modified</span>
                         <span class="text-link" title="{{$discussion->updated_at}}">{{$time_difference}}</span>
                     </div>
-                    <div class="flex-item ws-nowrap mb-2 mr-2" title="Viewed {{$discussion->views}} times">
+                    <div class="flex-item ws-nowrap mb-2 mr-2 me-4" title="Viewed {{$discussion->views}} times">
                         <span class="text-secondary mr-2">Viewed</span>
                         {{$discussion->views}} times
+                    </div>
+                    <div class="flex-item ws-nowrap mb-2 mr-2" title="Created By {{$discussion->created_by}}">
+                        <span class="text-secondary mr-2">Created: </span>
+                        {{$discussion->created_by}}
                     </div>
                 </div>
                 <p>{!! $discussion->message !!}</p>
