@@ -24,14 +24,14 @@
                                 <option value="" selected disabled>Filter ..</option>
                                 <option value="like" {{ request()->input('filter.filter_option') == 'like' ? 'selected' : '' }}>Like</option>
                                 <option value="view" {{ request()->input('filter.filter_option') == 'view' ? 'selected' : '' }}>View</option>
-                                <option value="answer" {{ request()->input('filter.filter_option') == 'answer' ? 'selected' : '' }}>Answer</option>
+                                <option value="responses" {{ request()->input('filter.filter_option') == 'responses' ? 'selected' : '' }}>Answer</option>
                             </select>
                         </div>
                         <div class="col-md-2 mb-2">
                             <select name="filter[sorting]" id="sorting" class="form-control">
                                 <option value="" selected disabled>Sorting ..</option>
-                                <option value="desc" {{ request()->input('filter.sorting') == 'desc' ? 'selected' : '' }}>Terkecil</option>
-                                <option value="asc" {{ request()->input('filter.sorting') == 'asc' ? 'selected' : '' }}>Terbesar</option>
+                                <option value="asc" {{ request()->input('filter.sorting') == 'asc' ? 'selected' : '' }}>Terkecil</option>
+                                <option value="desc" {{ request()->input('filter.sorting') == 'desc' ? 'selected' : '' }}>Terbesar</option>
                             </select>
                         </div>
                         <div class="col-md-2">

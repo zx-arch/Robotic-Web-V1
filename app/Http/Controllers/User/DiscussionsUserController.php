@@ -21,21 +21,24 @@ class DiscussionsUserController extends Controller
 {
     public function index()
     {
-        $discussions = Discussions::select(
-            'discussions.id',
-            'discussions.title',
-            'discussions.message',
-            'discussions.created_at',
-            'discussions.updated_at',
-            'discussions.user_id',
-            'discussions.views',
-            'discussions.likes',
-            'users.username',
-            DB::raw('count(discussions_answer.discussion_id) as responses')
-        )
+        $discussions = Discussions::leftJoin('discussions_answer', function ($join) {
+            $join->on('discussions.id', '=', 'discussions_answer.discussion_id')
+                ->whereNull('discussions_answer.reply_user_id');
+        })
             ->leftJoin('users', 'users.id', '=', 'discussions.user_id')
-            ->leftJoin('discussions_answer', 'discussions_answer.discussion_id', '=', 'discussions.id')
-            ->groupBy('discussions.id', 'discussions.title', 'users.username', 'discussions.message', 'discussions.created_at', 'discussions.updated_at', 'discussions.user_id', 'discussions.views', 'discussions.likes')
+            ->select(
+                'discussions.id',
+                'discussions.title',
+                'discussions.message',
+                'discussions.created_at',
+                'discussions.updated_at',
+                'discussions.user_id',
+                'discussions.views',
+                'discussions.likes',
+                'users.username',
+                DB::raw('COUNT(discussions_answer.id) as responses')
+            )
+            ->groupBy('discussions.id', 'discussions.title', 'discussions.message', 'discussions.created_at', 'discussions.updated_at', 'discussions.user_id', 'discussions.views', 'discussions.likes', 'users.username')
             ->latest();
 
         $itemsPerPage = 10;
@@ -70,24 +73,27 @@ class DiscussionsUserController extends Controller
             $filterOption = 'created_at'; // Default jika filter_option tidak valid
         }
 
-        $discussions = Discussions::select(
-            'discussions.id',
-            'discussions.title',
-            'discussions.message',
-            'discussions.created_at',
-            'discussions.updated_at',
-            'discussions.user_id',
-            'discussions.views',
-            'discussions.likes',
-            'users.username',
-            DB::raw('count(discussions_answer.discussion_id) as responses')
-        )
+        $discussions = Discussions::leftJoin('discussions_answer', function ($join) {
+            $join->on('discussions.id', '=', 'discussions_answer.discussion_id')
+                ->whereNull('discussions_answer.reply_user_id');
+        })
             ->leftJoin('users', 'users.id', '=', 'discussions.user_id')
-            ->leftJoin('discussions_answer', 'discussions_answer.discussion_id', '=', 'discussions.id')
-            ->groupBy('discussions.id', 'discussions.title', 'users.username', 'discussions.message', 'discussions.created_at', 'discussions.updated_at', 'discussions.user_id', 'discussions.views', 'discussions.likes');
+            ->select(
+                'discussions.id',
+                'discussions.title',
+                'discussions.message',
+                'discussions.created_at',
+                'discussions.updated_at',
+                'discussions.user_id',
+                'discussions.views',
+                'discussions.likes',
+                'users.username',
+                DB::raw('COUNT(discussions_answer.id) as responses')
+            )
+            ->groupBy('discussions.id', 'discussions.title', 'discussions.message', 'discussions.created_at', 'discussions.updated_at', 'discussions.user_id', 'discussions.views', 'discussions.likes', 'users.username');
 
         if ($title !== null) {
-            $discussions->where('title', 'like', "$title%");
+            $discussions->where('discussions.title', 'like', "$title%");
         }
 
         $discussions->orderBy($filterOption, $sorting);
@@ -274,13 +280,32 @@ class DiscussionsUserController extends Controller
                 $answer->like -= 1;
                 $liked = false;
                 $answer->is_clicked_like = false;
+
+                $infoDiscussion = Discussions::where('id', $answer->discussion_id)->lockForUpdate()->first();
+
+                $notif = Notification::create([
+                    'user_id' => $answer->user_id,
+                    'title' => 'Another User Like Your Comment',
+                    'content' => 'Seseorang menyukai komentar anda "' . $answer->message . '"',
+                    'redirect' => route('user.discussions.getByID', ['id' => $infoDiscussion->discussion_id, 'title' => str_replace(' ', '-', str_replace('?', '', strtolower($infoDiscussion->title)))])
+                ]);
+
             } else {
                 $answer->like += 1;
                 $liked = true;
                 $answer->is_clicked_like = true;
+                $notification = Notification::where('user_id', $answer->user_id)
+                    ->where('content', 'Seseorang menyukai komentar anda "' . $answer->message . '"')
+                    ->first();
+
+                if ($notification) {
+                    $notification->forceDelete();
+                }
             }
 
             $answer->save();
+
+
         });
 
         // Return the new like count and whether the user has liked it
