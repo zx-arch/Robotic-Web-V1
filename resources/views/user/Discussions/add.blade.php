@@ -110,9 +110,15 @@
         hashtagInput.addEventListener('input', function () {
             const value = this.value.trim();
             const lastWord = value.split(' ').pop();
-
+            
+            let query = '';
             if (lastWord.startsWith('#') && lastWord.length > 1) {
-                const query = lastWord.slice(1).toLowerCase();
+                query = lastWord.slice(1).toLowerCase();
+            } else if (lastWord.length > 1) {
+                query = lastWord.toLowerCase();
+            }
+
+            if (query.length > 0) {
                 const suggestions = availableHashtags.filter(tag => tag.tag_name.toLowerCase().includes(query));
                 displaySuggestions(suggestions, query);
             } else {
