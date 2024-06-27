@@ -15,7 +15,7 @@
                         @if (session()->has('info_notif.total_notif') && session('info_notif.total_notif') > 0)
                             @foreach (session('info_notif.notifications') as $notif)
                                 <!-- Example notification item -->
-                                <a href="{{ $notif->redirect }}" class="dropdown-item notification-item mb-1" style="{{$notif->read ? 'background-color: #e2e7ec' : ''}}">
+                                <a href="{{ $notif->redirect . '/id_notif/' . $notif->id }}" class="dropdown-item notification-item mb-1" style="{{$notif->read ? 'background-color: #e2e7ec' : ''}}">
                                     <div class="d-flex flex-column">
                                         <div class="notification-title">{{ $notif->title }}</div>
                                         <div class="notification-content">{{ $notif->content }}</div>
@@ -104,7 +104,7 @@
                 // Hanya tampilkan lima notifikasi pertama
                 if (index < 6) {
                     const notificationItem = document.createElement('a');
-                    notificationItem.href = notif.redirect;
+                    notificationItem.href = notif.redirect + '/id_notif/' + notif.id;
                     if (notif.read == '1' && notif.date_read) {
                         notificationItem.style.backgroundColor = '#e2e7ec';
                     } else {
@@ -158,6 +158,7 @@
             notifications.slice(6).forEach(notif => {
                 const notificationItem = document.createElement('a');
                 notificationItem.href = `${notif.redirect}`;
+                notificationItem.href = `${notif.redirect}` + '/id_notif/' + `${notif.id}`;
 
                 if (`${notif.read}` == '1' && `${notif.date_read}`) {
                     notificationItem.style.backgroundColor = '#e2e7ec';

@@ -217,6 +217,7 @@ Route::middleware('throttle:100,1')->group(function () {
             Route::get('/add', [DiscussionsUserController::class, 'add'])->name('user.discussions.add');
             Route::post('/save-add', [DiscussionsUserController::class, 'saveAdd'])->name('user.discussions.saveAdd');
             Route::get('/{id}/{title}', [DiscussionsUserController::class, 'getByID'])->name('user.discussions.getByID');
+            Route::get('/{id}/{title}/id_notif/{id_notif}', [DiscussionsUserController::class, 'responseNotif'])->name('user.discussions.responseNotif');
             Route::post('/save-answer', [DiscussionsUserController::class, 'saveAnswer'])->name('user.discussions.saveAnswer');
             Route::post('/save-reply', [DiscussionsUserController::class, 'saveReply'])->name('user.discussions.saveReply');
         });

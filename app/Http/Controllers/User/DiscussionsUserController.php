@@ -10,6 +10,7 @@ use App\Models\LikesDiscussion;
 use App\Models\User;
 use App\Models\Hashtags;
 use App\Models\Notification;
+use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Validation\ValidationException;
@@ -39,24 +40,7 @@ class DiscussionsUserController extends Controller
                 DB::raw('COUNT(discussions_answer.id) as responses')
             )
             ->groupBy('discussions.id', 'discussions.title', 'discussions.message', 'discussions.created_at', 'discussions.updated_at', 'discussions.user_id', 'discussions.views', 'discussions.likes', 'users.username')
-            ->latest();
-
-        $itemsPerPage = 10;
-        //print_r();
-
-        if ($itemsPerPage >= 10) {
-            $totalPages = 10;
-        }
-
-        $discussions = $discussions->paginate($itemsPerPage);
-
-        if ($discussions->count() > 10) {
-            $discussions = $discussions->paginate($itemsPerPage);
-
-            if ($discussions->currentPage() > $discussions->lastPage()) {
-                return redirect($discussions->url($discussions->lastPage()));
-            }
-        }
+            ->latest()->paginate(10);
 
         return view('user.Discussions.index', compact('discussions'));
     }
@@ -101,25 +85,29 @@ class DiscussionsUserController extends Controller
         $itemsPerPage = 10;
         $discussions = $discussions->paginate($itemsPerPage);
 
-        $fullUri = $request->getRequestUri();
-        $discussions->setPath($fullUri);
-
-        if ($discussions->currentPage() > $discussions->lastPage()) {
-            return redirect($discussions->url($discussions->lastPage()));
-        }
-
         return view('user.Discussions.index', compact('discussions'));
     }
-
-    public function getByID($id, $title)
+    public function responseNotif($id, $title, $id_notif)
     {
-        $checkNotif = Notification::where('user_id', Auth::user()->id)->where('redirect', request()->url())->first();
+        $checkNotif = Notification::where('id', $id_notif)->first();
+
         if ($checkNotif) {
             $checkNotif->update([
                 'read' => true,
                 'date_read' => now()
             ]);
         }
+
+        if (Str::contains($checkNotif->redirect, 'discussions')) {
+            return redirect()->route('user.discussions.getByID', ['id' => $id, 'title' => $title]);
+
+        } else {
+            return redirect($checkNotif->redirect);
+        }
+    }
+
+    public function getByID($id, $title)
+    {
 
         $discussion = Discussions::select('discussions.*', 'users.username as created_by', 'likes_discussion.user_id', 'likes_discussion.is_clicked_like')
             ->leftJoin('likes_discussion', 'likes_discussion.discussion_id', '=', 'discussions.id')
