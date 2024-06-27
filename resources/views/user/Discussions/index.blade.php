@@ -22,8 +22,8 @@
                         <div class="col-md-2 mb-2">
                             <select name="filter[filter_option]" id="filter_option" class="form-control">
                                 <option value="" selected disabled>Filter ..</option>
-                                <option value="like" {{ request()->input('filter.filter_option') == 'like' ? 'selected' : '' }}>Like</option>
-                                <option value="view" {{ request()->input('filter.filter_option') == 'view' ? 'selected' : '' }}>View</option>
+                                <option value="likes" {{ request()->input('filter.filter_option') == 'likes' ? 'selected' : '' }}>Likes</option>
+                                <option value="views" {{ request()->input('filter.filter_option') == 'views' ? 'selected' : '' }}>Views</option>
                                 <option value="responses" {{ request()->input('filter.filter_option') == 'responses' ? 'selected' : '' }}>Answer</option>
                             </select>
                         </div>
