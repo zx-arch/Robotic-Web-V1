@@ -160,6 +160,8 @@
                 </div>
                 <p>{!! $discussion->message !!}</p>
 
+                <p class="text-primary">{{ implode(', ', json_decode($discussion->hashtags)) }}</p>
+
                 @if(asset($discussion->gambar) && isset($discussion->gambar))
                     <div class="img-box">
                         <img src="{{$discussion->gambar}}" alt="">
