@@ -85,6 +85,10 @@ class DiscussionsUserController extends Controller
         $itemsPerPage = 10;
         $discussions = $discussions->paginate($itemsPerPage);
 
+        $fullUri = $request->getRequestUri();
+
+        $discussions->setPath($fullUri);
+
         return view('user.Discussions.index', compact('discussions'));
     }
     public function responseNotif($id, $title, $id_notif)
