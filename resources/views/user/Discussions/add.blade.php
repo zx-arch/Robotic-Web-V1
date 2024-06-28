@@ -51,24 +51,27 @@
 
                     <div class="mb-4">
                         <label for="title" class="form-label">Judul <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control" id="title" name="title" required>
+                        <input type="text" class="form-control @error('title') is-invalid @enderror" id="title" name="title" required value="{{ old('title') }}">
+                        <div class="invalid-feedback">
+                            @error('title') {{ $message }} @enderror   
+                        </div>
                     </div>
 
                     <div class="mb-4">
                         <label for="message" class="form-label">Pesan <span class="text-danger">*</span></label>
-                        <textarea class="form-control" id="message" name="message" rows="4" required></textarea>
+                        <textarea class="form-control @error('message') is-invalid @enderror" id="message" name="message" rows="4" required>{{ old('message') }}</textarea>
+                        <div class="invalid-feedback">
+                            @error('message') {{ $message }} @enderror   
+                        </div>
                     </div>
 
                     <div class="mb-4 position-relative">
                         <label for="hashtags" class="form-label">Hashtags <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control text-primary" id="hashtags" name="hashtags" placeholder="Tambahkan hashtags" autocomplete="off">
+                        <input type="text" class="form-control text-primary @error('hashtags') is-invalid @enderror" id="hashtags" name="hashtags" placeholder="Tambahkan hashtags" autocomplete="off" value="{{ old('hashtags') }}">
+                        <div class="invalid-feedback">
+                            @error('hashtags') {{ $message }} @enderror   
+                        </div>
                         <div id="hashtagSuggestions" class="list-group position-absolute mt-1" style="z-index: 1000; width: 100%; max-height: 200px; overflow-y: auto;"></div>
-
-                        @error('hashtags')
-                            <div class="invalid-feedback">
-                                {{ $message }}
-                            </div>
-                        @enderror
                     </div>
 
                     <div class="form-group highlight-addon has-success">
@@ -81,11 +84,16 @@
                     </div>
 
                     <div class="card" id="drop-area">
-                        <div class="card-body" style="height: 150px;"> <!-- Perbesar tinggi card-body -->
+                        <div class="card-body" style="height: 150px;">
                             <div class="center-content">
                                 <p id="drop-text">Drag & drop gambar di sini <br> <br> max upload 500 KB</p>
                                 <img src="#" alt="Preview" id="preview" class="img-fluid d-none">
                                 <p id="filename" class="d-none"></p>
+
+                                <!-- Menampilkan pesan error jika ada -->
+                                @error('gambar')
+                                    <div class="alert alert-danger mt-2">{{ $message }}</div>
+                                @enderror
                             </div>
                         </div>
                     </div>
@@ -101,6 +109,68 @@
 
 <script>
     document.addEventListener('DOMContentLoaded', function () {
+        const form = document.querySelector('form');
+        const titleInput = document.getElementById('title');
+        const messageInput = document.getElementById('message');
+        const gambarInput = document.getElementById('gambar');
+
+        // Fungsi untuk menampilkan pesan error di invalid-feedback
+        function showErrorMessage(inputElement, message) {
+            const feedbackElement = inputElement.nextElementSibling; // Mencari sibling setelah input
+            if (feedbackElement && feedbackElement.classList.contains('invalid-feedback')) {
+                feedbackElement.textContent = message;
+            }
+        }
+
+        // Fungsi untuk memvalidasi judul (minimal 3 kata)
+        function validateTitle() {
+            const titleValue = titleInput.value.trim();
+            const wordsCount = titleValue.split(/\s+/).length;
+
+            if (wordsCount < 3) {
+                titleInput.setCustomValidity('Judul harus terdiri dari minimal 3 kata.');
+                showErrorMessage(titleInput, 'Judul harus terdiri dari minimal 3 kata.');
+                titleInput.classList.add('is-invalid');
+                titleInput.classList.remove('is-valid');
+            } else {
+                titleInput.setCustomValidity('');
+                showErrorMessage(titleInput, '');
+                titleInput.classList.add('is-valid');
+                titleInput.classList.remove('is-invalid');
+            }
+        }
+
+        // Fungsi untuk memvalidasi pesan (minimal 20 karakter)
+        function validateMessage() {
+            const messageValue = messageInput.value.trim();
+
+            if (messageValue.length < 20) {
+                messageInput.setCustomValidity('Pesan harus memiliki minimal 20 karakter.');
+                showErrorMessage(messageInput, 'Pesan harus memiliki minimal 20 karakter.');
+                messageInput.classList.add('is-invalid');
+                messageInput.classList.remove('is-valid');
+            } else {
+                messageInput.setCustomValidity('');
+                showErrorMessage(messageInput, '');
+                messageInput.classList.add('is-valid');
+                messageInput.classList.remove('is-invalid');
+            }
+        }
+
+        // Event listener untuk validasi saat mengetik atau blur
+        titleInput.addEventListener('input', validateTitle);
+        messageInput.addEventListener('input', validateMessage);
+
+        // Submit form
+        form.addEventListener('submit', function(event) {
+            if (!form.checkValidity()) {
+                event.preventDefault();
+                event.stopPropagation();
+            }
+
+            form.classList.add('was-validated');
+        });
+
         const hashtagInput = document.getElementById('hashtags');
         const hashtagSuggestions = document.getElementById('hashtagSuggestions');
         let currentSuggestionIndex = -1;
@@ -222,6 +292,7 @@
                 hideSuggestions();
             }
         });
+
         // Get the input element
         const inputElement = document.querySelector('.custom-file-input');
         const labelElement = document.querySelector('.custom-file-label');
