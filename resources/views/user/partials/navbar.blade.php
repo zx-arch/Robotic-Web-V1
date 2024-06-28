@@ -4,33 +4,37 @@
             <li class="nav-item dropdown me-2 me-lg-1">
                 <a href="#" data-bs-toggle="dropdown" class="nav-icon pe-md-3 notification-bell show" aria-expanded="true">
                     <i class="fas fa-bell"></i>
-                    <span class="badge bg-danger" style="margin-bottom: -15px;">{{session()->has('info_notif.total_notif') ? session('info_notif.total_notif') : 0}}</span> <!-- Notifications badge -->
+                    <span class="badge bg-danger" style="margin-bottom: -15px;">{{ session()->has('info_notif.notifications') ? session('info_notif.notifications')->where('read', 0)->count() : 0 }}</span> <!-- Notifications badge -->
                 </a>
 
                 <div class="dropdown-menu dropdown-menu-end p-3 active" style="min-width: 200px;" data-bs-popper="static">
-                    <h6 class="dropdown-header">Anda mempunyai {{session()->has('info_notif.total_notif') ? session('info_notif.total_notif') : 0}} pemberitahuan</h6>
+                    <h6 class="dropdown-header">
+                        Anda mempunyai {{ session()->has('info_notif.notifications') ? session('info_notif.notifications')->where('read', 0)->count() : 0 }} pemberitahuan belum dibaca
+                    </h6>
                     <div class="dropdown-divider"></div>
 
                     <div id="notification-container">
-                        @if (session()->has('info_notif.total_notif') && session('info_notif.total_notif') > 0)
+                        @if (session()->has('info_notif.notifications') && count(session('info_notif.notifications')) > 0)
                             @foreach (session('info_notif.notifications') as $notif)
                                 <!-- Example notification item -->
-                                <a href="{{ $notif->redirect . '/id_notif/' . $notif->id }}" class="dropdown-item notification-item mb-1" style="{{$notif->read ? 'background-color: #e2e7ec' : ''}}">
+                                <a href="{{ $notif->redirect . '/id_notif/' . $notif->id }}" class="dropdown-item notification-item mb-1" style="{{ $notif->read ? 'background-color: #e2e7ec' : '' }}">
                                     <div class="d-flex flex-column">
                                         <div class="notification-title">{{ $notif->title }}</div>
                                         <div class="notification-content">{{ $notif->content }}</div>
                                     </div>
                                 </a>
-
                             @endforeach
+                        @else
+                            <p class="dropdown-item">Tidak ada notifikasi</p>
                         @endif
                     </div>
 
-                    @if (session()->has('info_notif.total_notif') > 5)
+                    @if (session()->has('info_notif.notifications') && count(session('info_notif.notifications')) > 5)
                         <div class="dropdown-divider"></div>
                         <a href="#" class="dropdown-item text-center" id="view-all-notifications" data-more="true">View all notifications</a>
                     @endif
                 </div>
+
             </li>
 
             <li class="nav-item dropdown">
