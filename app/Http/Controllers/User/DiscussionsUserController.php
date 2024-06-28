@@ -10,10 +10,11 @@ use App\Models\LikesDiscussion;
 use App\Models\User;
 use App\Models\Hashtags;
 use App\Models\Notification;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\ValidationException;
 use Illuminate\Support\Str;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Validation\ValidationException;
 use Illuminate\Database\QueryException;
 use Illuminate\Support\Facades\Session;
 use Carbon\Carbon;
@@ -77,7 +78,7 @@ class DiscussionsUserController extends Controller
             ->groupBy('discussions.id', 'discussions.title', 'discussions.message', 'discussions.created_at', 'discussions.updated_at', 'discussions.user_id', 'discussions.views', 'discussions.likes', 'users.username');
 
         if ($title !== null) {
-            $discussions->where('discussions.title', 'like', "$title%");
+            $discussions->where('discussions.title', 'like', "%$title%");
         }
 
         $discussions->orderBy($filterOption, $sorting);
@@ -297,7 +298,6 @@ class DiscussionsUserController extends Controller
 
             $answer->save();
 
-
         });
 
         // Return the new like count and whether the user has liked it
@@ -383,18 +383,33 @@ class DiscussionsUserController extends Controller
     public function saveAdd(Request $request)
     {
         try {
-            $request->validate([
+            $validator = Validator::make($request->all(), [
                 'hashtags' => [
                     'required',
                     'string',
-                    'regex:/^(#(\w+)(\s+#\w+)*)+$/',
+                    'regex:/^(#\w+(\s+#\w+)*)+$/',
                 ],
-                'title' => 'required|string|max:255',
-                'message' => 'required|string',
-                'gambar' => 'nullable|image|mimes:jpeg,png|max:512',
+                'title' => [
+                    'required',
+                    'string',
+                    'regex:/^\s*(\S+\s+){2,}\S+\s*$/u', // minimal 3 kata
+                    'max:255',
+                ],
+                'message' => 'required|string|min:20',
+                'gambar' => 'nullable|image|mimes:png,jpeg,jpg|max:512',
             ], [
-                'hashtags.regex' => 'Hashtags tidak valid!',
+                'hashtags.regex' => 'Hashtags tidak valid! Format yang benar cth: #tag1 #tag2',
+                'title.regex' => 'Judul harus terdiri dari minimal 3 kata.',
+                'title.max' => 'Judul tidak boleh lebih dari 255 karakter.',
+                'message.min' => 'Pesan harus memiliki minimal 20 karakter.',
+                'gambar.image' => 'File harus berupa gambar (format JPEG/PNG).',
+                'gambar.mimes' => 'Format gambar yang diperbolehkan adalah JPEG atau PNG.',
+                'gambar.max' => 'Ukuran gambar tidak boleh lebih dari 512 KB.',
             ]);
+
+            if ($validator->fails()) {
+                return redirect()->back()->withErrors($validator)->withInput();
+            }
 
             DB::transaction(function () use ($request) {
                 $newDiscuss = Discussions::create([
@@ -408,15 +423,12 @@ class DiscussionsUserController extends Controller
                     $directory = public_path('discussions/gambar/');
                     $uniqueImageName = time() . '_' . $request->file('gambar')->getClientOriginalName();
 
-                    // Membuat direktori jika tidak ada
                     if (!file_exists($directory)) {
                         mkdir($directory, 0777, true);
                     }
 
-                    // Simpan data image ke dalam file di direktori yang diinginkan
                     $request->file('gambar')->move($directory, $uniqueImageName);
 
-                    // Mengunci record discussion untuk update
                     Discussions::where('id', $newDiscuss->id)->lockForUpdate()->update([
                         'gambar' => url('discussions/gambar/' . $uniqueImageName),
                     ]);
